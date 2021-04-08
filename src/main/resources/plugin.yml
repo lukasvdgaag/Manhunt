@@ -1,0 +1,21 @@
+name: Manhunt
+main: me.gaagjescraft.network.team.manhunt.Manhunt
+version: 1.0.0
+description: Manhunt plugin for ExodusMC
+author: GaagjesCraft Network Team (GCNT)
+api-version: 1.16
+depend:
+  - HealthBar
+
+commands:
+  manhunt:
+    description: Opens the manhunt game menu / managed the game.
+  event:
+    aliases:
+      - events
+    description: Open the events menu.
+  leave:
+    aliases:
+      - hub
+      - quit
+    description: Leave your game.
