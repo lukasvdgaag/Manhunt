@@ -244,8 +244,7 @@ public class GamePlayer {
 
     private void reset(Player player, boolean removeScoreboard) {
         player.getInventory().clear();
-        player.setHealth(20);
-        player.setMaxHealth(20);
+        updateHealth();
         player.setTotalExperience(0);
         player.setFoodLevel(20);
         player.getInventory().setArmorContents(null);
@@ -261,13 +260,33 @@ public class GamePlayer {
         }
     }
 
+    public void updateHealth() {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player == null) return;
+        if (game.isTwistsAllowed() && game.getSelectedTwist() == TwistVote.EXTRA_HEALTH) {
+            if (getPlayerType() == PlayerType.HUNTER) {
+                player.setMaxHealth(24);
+                player.setHealth(24);
+            }
+            else {
+                player.setMaxHealth(40);
+                player.setHealth(40);
+            }
+        }
+        else {
+            player.setMaxHealth(20);
+            player.setHealth(20);
+        }
+    }
+
     public void prepareForGame(GameStatus stat) {
         Player player = Bukkit.getPlayer(uuid);
         if (player == null) return;
         reset(player, false);
+        updateScoreboard();
         updateHealth(stat);
 
-        if (stat == GameStatus.WAITING || stat == GameStatus.LOADING) {
+        if (stat == GameStatus.WAITING || stat == GameStatus.LOADING || stat == GameStatus.STARTING) {
             player.setGameMode(GameMode.ADVENTURE);
             if (game.isTwistsAllowed()) player.getInventory().setItem(0, Itemizer.MANHUNT_VOTE_ITEM);
             player.getInventory().setItem(8, Itemizer.MANHUNT_LEAVE_ITEM);
@@ -391,7 +410,7 @@ public class GamePlayer {
             PlayerType won = game.getWinningTeam();
             board.setLine(0, "§fHost: §a" + game.getIdentifier());
             board.setLine(1, "");
-            board.setLine(2, "§6§l" + won.name() + " WON THE GAME!");
+            board.setLine(2, "§d§l" + won.name() + "S WON THE GAME!");
             board.setLine(3, getPlayerType() == won ? "§aYou won!" : "§cYou lost!");
             board.setLine(4, "");
             board.setLine(5, "§7Teleporting to lobby in §b" + game.getTimer() + "§7 seconds!");

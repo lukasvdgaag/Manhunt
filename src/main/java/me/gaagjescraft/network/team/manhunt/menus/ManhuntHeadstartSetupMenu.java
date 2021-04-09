@@ -34,13 +34,13 @@ public class ManhuntHeadstartSetupMenu implements Listener {
             inventory.setItem(i, Itemizer.FILL_ITEM);
         }
 
-        inventory.setItem(1,Itemizer.createItem(Material.LEVER,1, "§730 seconds" + (setup.getHeadstart()== HeadstartType.HALF_MINUTE?" §a(selected)":""), Lists.newArrayList("", "§7The runners will have a", "§e30 seconds§7 headstart.", "",
+        inventory.setItem(1,Itemizer.createItem(Material.LEVER,1, "§730 seconds" + (setup.getHeadstart()== HeadstartType.HALF_MINUTE?" §a(selected)":""), Lists.newArrayList("", "§7The runners will have a", "§e" + Manhunt.get().getUtil().secondsToTimeString(HeadstartType.HALF_MINUTE.getSeconds(), "string") + "§7 headstart.", "",
                 "§6Click§e to select.")));
-        inventory.setItem(3,Itemizer.createItem(Material.TORCH,1, "§e1 minute" + (setup.getHeadstart()== HeadstartType.ONE_MINUTE?" §a(selected)":""), Lists.newArrayList("", "§7The runners will have a", "§e1 minute§7 headstart.", "",
+        inventory.setItem(3,Itemizer.createItem(Material.TORCH,1, "§e1 minute" + (setup.getHeadstart()== HeadstartType.ONE_MINUTE?" §a(selected)":""), Lists.newArrayList("", "§7The runners will have a", "§e" + Manhunt.get().getUtil().secondsToTimeString(HeadstartType.ONE_MINUTE.getSeconds(), "string") + "§7 headstart.", "",
                 "§6Click§e to select.")));
-        inventory.setItem(5,Itemizer.createItem(Material.SOUL_TORCH,1, "§b1.5 minute" + (setup.getHeadstart()== HeadstartType.ONE_HALF_MINUTE?" §a(selected)":""), Lists.newArrayList("", "§7The runners will have a", "§e1.5 minutes§7 headstart.", "",
+        inventory.setItem(5,Itemizer.createItem(Material.SOUL_TORCH,1, "§b1.5 minute" + (setup.getHeadstart()== HeadstartType.ONE_HALF_MINUTE?" §a(selected)":""), Lists.newArrayList("", "§7The runners will have a", "§e" + Manhunt.get().getUtil().secondsToTimeString(HeadstartType.ONE_HALF_MINUTE.getSeconds(), "string") + "§7 headstart.", "",
                 "§6Click§e to select.")));
-        inventory.setItem(7,Itemizer.createItem(Material.REDSTONE_TORCH,1, "§c2 minutes"  + (setup.getHeadstart()== HeadstartType.TWO_MINUTES?" §a(selected)":""), Lists.newArrayList("", "§7The runners will have a", "§e2 minutes§7 headstart.", "",
+        inventory.setItem(7,Itemizer.createItem(Material.REDSTONE_TORCH,1, "§c2 minutes"  + (setup.getHeadstart()== HeadstartType.TWO_MINUTES?" §a(selected)":""), Lists.newArrayList("", "§7The runners will have a", "§e" + Manhunt.get().getUtil().secondsToTimeString(HeadstartType.TWO_MINUTES.getSeconds(), "string") + "§7 headstart.", "",
                 "§6Click§e to select.")));
 
         inventory.setItem(13, Itemizer.CLOSE_ITEM);
@@ -71,19 +71,19 @@ public class ManhuntHeadstartSetupMenu implements Listener {
         if (setup == null) return;
 
         if (e.getSlot() == 1 && setup.getHeadstart() != HeadstartType.HALF_MINUTE) {
-            setup.setHeadstart(HeadstartType.HALF_MINUTE, setup.getGame()!=null);
+            setup.setHeadstart(HeadstartType.HALF_MINUTE, true);
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
             updateItems(player, setup);
         } else if (e.getSlot() == 3 && setup.getHeadstart() != HeadstartType.ONE_MINUTE) {
-            setup.setHeadstart(HeadstartType.ONE_MINUTE, setup.getGame()!=null);
+            setup.setHeadstart(HeadstartType.ONE_MINUTE, true);
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
             updateItems(player, setup);
         } else if (e.getSlot() == 5 && setup.getHeadstart() != HeadstartType.ONE_HALF_MINUTE) {
-            setup.setHeadstart(HeadstartType.ONE_HALF_MINUTE, setup.getGame()!=null);
+            setup.setHeadstart(HeadstartType.ONE_HALF_MINUTE, true);
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
             updateItems(player, setup);
         } else if (e.getSlot() == 7 && setup.getHeadstart() != HeadstartType.TWO_MINUTES) {
-            setup.setHeadstart(HeadstartType.TWO_MINUTES, setup.getGame()!=null);
+            setup.setHeadstart(HeadstartType.TWO_MINUTES, true);
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
             updateItems(player, setup);
         }

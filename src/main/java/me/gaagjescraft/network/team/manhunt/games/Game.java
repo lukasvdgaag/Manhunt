@@ -35,6 +35,7 @@ public class Game {
     private GameScheduler scheduler;
     private boolean allowFriendlyFire;
     private RunnerTrackerMenu runnerTrackerMenu;
+    private int nextEventTime;
     private boolean eventActive;
     private HeadstartType headStart;
 
@@ -54,6 +55,7 @@ public class Game {
         this.runnerTrackerMenu = new RunnerTrackerMenu(this);
         this.eventActive = false;
         this.headStart = HeadstartType.HALF_MINUTE;
+        determineNextEventTime();
 
         this.players.add(new GamePlayer(
                 this, host.getUniqueId(), PlayerType.RUNNER, true
@@ -446,5 +448,23 @@ public class Game {
 
     public void setHeadStart(HeadstartType headStart) {
         this.headStart = headStart;
+    }
+
+    public void determineNextEventTime() {
+        if (this.status == GameStatus.PLAYING) {
+            int low = 2; // 8
+            int max = 4; // 15
+            int random = (int) Math.floor(Math.random()*(max-low+1)+low); // random minute between 8-15.
+            this.nextEventTime = this.nextEventTime + (random * 60);
+            sendMessage(null,"§aNext twist will occur in §b" + random + " minutes!");
+        }
+        else if (this.status == GameStatus.WAITING || this.status == GameStatus.STARTING ||
+        this.status == GameStatus.LOADING) {
+            this.nextEventTime = this.headStart.getSeconds() + (60*2); // 60*5
+        }
+    }
+
+    public int getNextEventTime() {
+        return nextEventTime;
     }
 }

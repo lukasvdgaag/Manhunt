@@ -1,5 +1,6 @@
 package me.gaagjescraft.network.team.manhunt.games;
 
+import me.gaagjescraft.network.team.manhunt.Manhunt;
 import org.bukkit.entity.Player;
 
 public class GameSetup {
@@ -12,14 +13,14 @@ public class GameSetup {
     private Player host;
     private HeadstartType headstart;
 
-    public GameSetup(Player host, boolean allowTwists, int maxPlayers, boolean doDaylightCycle, boolean allowFriendlyFire) {
+    public GameSetup(Player host, boolean allowTwists, int maxPlayers, boolean doDaylightCycle, boolean allowFriendlyFire, HeadstartType type) {
         this.host = host;
         this.allowTwists = allowTwists;
         this.maxPlayers = maxPlayers;
         this.doDaylightCycle = doDaylightCycle;
         this.game = null;
         this.allowFriendlyFire = allowFriendlyFire;
-        this.headstart = HeadstartType.HALF_MINUTE;
+        this.headstart = type;
     }
 
     public Game getGame() {
@@ -32,7 +33,10 @@ public class GameSetup {
 
     public void setHeadstart(HeadstartType headstart, boolean announce) {
         this.headstart = headstart;
-        if (announce) getGame().sendMessage(null, "§b" + host.getName() + "§e has changed the runners headstart to " + " §a§l"+ headstart.getSeconds() + "§eseconds.");
+        if (getGame() != null) {
+            getGame().setHeadStart(headstart);
+            if (announce) getGame().sendMessage(null, "§b" + host.getName() + "§e has changed the runners headstart to §a§l"+ Manhunt.get().getUtil().secondsToTimeString(headstart.getSeconds(), "string") + "§e.");
+        }
     }
 
     public void setGame(Game game) {

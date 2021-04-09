@@ -46,28 +46,28 @@ public class ManhuntTwistVoteMenu implements Listener {
         int extraHealthVotes = game.getTwistVotes(TwistVote.EXTRA_HEALTH);
         ItemStack healthitem = Itemizer.createItem(
                 Material.GOLDEN_APPLE, Math.max(extraHealthVotes, 1), "§bExtra Health",
-                Lists.newArrayList("", "§7Hunters will have double", "§7the health runners have.", "", "§e" + extraHealthVotes + " votes."));
+                Lists.newArrayList("", "§7Runners will have 40 hearts", "§7while hunters have 24.", "§7§oThis is an instant twist.", "", "§e" + extraHealthVotes + " votes."));
         teleportMenu.setItem(12, healthitem);
 
         int blindnessVotes = game.getTwistVotes(TwistVote.BLINDNESS);
         ItemStack blindnessitem = Itemizer.createItem(Material.FLINT, Math.max(blindnessVotes, 1), "§bRandom Blindness",
-                Lists.newArrayList("", "§7Runners will randomly gain", "§7blindness while playing.", "", "§e" + blindnessVotes + " votes."));
+                Lists.newArrayList("", "§7Hunters will randomly gain", "§710 seconds of blindness.", "", "§e" + blindnessVotes + " votes."));
         teleportMenu.setItem(14, blindnessitem);
 
         int noneVotes = game.getTwistVotes(TwistVote.NONE);
         ItemStack noneitem = Itemizer.createItem(Material.BARRIER, Math.max(noneVotes, 1), "§bNo Twists",
-                Lists.newArrayList("", "§7The game will just be plain", "§7manhunt, without any twists.", "", "§e" + noneVotes + " votes."));
+                Lists.newArrayList("", "§7The game will just be basic", "§7manhunt, without any twists.", "", "§e" + noneVotes + " votes."));
         teleportMenu.setItem(19, noneitem);
 
         int yeetVotes = game.getTwistVotes(TwistVote.RANDOM_YEET);
         ItemStack yeetitem = Itemizer.createItem(Material.FIREWORK_ROCKET, Math.max(yeetVotes, 1), "§bRandom Yeets",
-                Lists.newArrayList("", "§7Runners will randomly get", "§7yeeted into a random", "§7direction while playing.", "",
+                Lists.newArrayList("", "§7Hunters will randomly get", "§7yeeted into the air", "",
                         "§e" + yeetVotes + " votes."));
         teleportMenu.setItem(25, yeetitem);
 
         int speedVotes = game.getTwistVotes(TwistVote.SPEED_BOOST);
         ItemStack speeditem = Itemizer.createItem(Material.FEATHER, Math.max(speedVotes, 1), "§bSpeed Boost",
-                Lists.newArrayList("", "§7Hunters will have speedboost,", "§7while runners remain slow.", "", "§e" + speedVotes + " votes."));
+                Lists.newArrayList("", "§7Runners will gain a random,", "§7speed boost from I-III", "§7for 20 seconds.", "", "§e" + speedVotes + " votes."));
         teleportMenu.setItem(30, speeditem);
 
         int acidRainVotes = game.getTwistVotes(TwistVote.ACID_RAIN);

@@ -107,8 +107,8 @@ public class GameWaitingEvents implements Listener {
         GamePlayer gp = game.getPlayer(player);
 
         if (game.getStatus() == GameStatus.WAITING || game.getStatus() == GameStatus.STOPPING || game.getStatus() == GameStatus.STARTING ||
-                (game.getStatus() == GameStatus.PLAYING && gp.getPlayerType() == PlayerType.HUNTER && game.getTimer() <= 45) ||
-                (game.getStatus() == GameStatus.PLAYING && gp.getPlayerType() == PlayerType.RUNNER && game.getTimer() <= 35)) {
+                (game.getStatus() == GameStatus.PLAYING && gp.getPlayerType() == PlayerType.HUNTER && game.getTimer() <= game.getHeadStart().getSeconds()+15) ||
+                (game.getStatus() == GameStatus.PLAYING && gp.getPlayerType() == PlayerType.RUNNER && game.getTimer() <= 20)) {
             e.setCancelled(true);
             e.setDamage(0);
         }

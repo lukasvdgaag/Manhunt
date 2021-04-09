@@ -49,6 +49,26 @@ public class Util {
                 return secs + "";
             }
         }
+        if (format.equals("string")) {
+            if (hours > 0) {
+                if (mins == 0 && secs == 0) {
+                    return hours + " hour" + (hours > 1 ? "s" : "");
+                }
+                else if (secs == 0) {
+                    return hours + " hour"  + (hours > 1 ? "s" : "") + " and " + mins + " minute" + (mins > 1 ? "s" : "");
+                }
+                return hours + " hours, " + mins + " minutes, and " + seconds + " seconds";
+            }
+            else if (mins > 0) {
+                if (secs == 0) {
+                    return mins + " minute" + (mins > 1 ? "s" : "");
+                }
+                return mins + " minute" + (mins > 1 ? "s" : "") + " and " + secs + " second" + (secs > 1 ? "s" : "");
+            }
+            else {
+                return secs + " second" + (secs > 1 ? "s" : "");
+            }
+        }
 
         format = format.replaceAll("(?<!\\\\)mm", mins < 10 ? "0" + mins : mins + "");
         format = format.replaceAll("(?<!\\\\)m", mins + "");

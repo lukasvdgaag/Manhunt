@@ -14,6 +14,7 @@ public class GameEventsHandlers implements Listener {
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
         Player player = e.getPlayer();
+
         Game game = Game.getGame(player);
         if (game==null) return;
         GamePlayer gp = game.getPlayer(player);

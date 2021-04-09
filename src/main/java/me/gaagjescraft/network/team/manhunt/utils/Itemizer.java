@@ -34,7 +34,7 @@ public class Itemizer {
         HEAD_PLUS = Manhunt.get().getUtil().getCustomTextureHead("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjliODYxYWFiYjMxNmM0ZWQ3M2I0ZTU0MjgzMDU3ODJlNzM1NTY1YmEyYTA1MzkxMmUxZWZkODM0ZmE1YTZmIn19fQ==");
         HEAD_MINUS = Manhunt.get().getUtil().getCustomTextureHead("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2M4ZTdkNDZkNjkzMzQxZjkxZDI4NjcyNmYyNTU1ZWYxNTUxNGUzNDYwYjI3NWU5NzQ3ODQyYmM5ZTUzZGYifX19");
 
-        FILL_ITEM = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+        FILL_ITEM = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fillMeta = FILL_ITEM.getItemMeta();
         fillMeta.setDisplayName("§r");
         fillMeta.setLore(new ArrayList<>());
@@ -63,14 +63,14 @@ public class Itemizer {
         ngMeta.addItemFlags(ItemFlag.values());
         NEW_GAME_ITEM.setItemMeta(ngMeta);
 
-        NEW_GAME_FINISH_ITEM = new ItemStack(Material.LIME_WOOL);
+        NEW_GAME_FINISH_ITEM = new ItemStack(Material.LIME_CONCRETE);
         ItemMeta fmeta = NEW_GAME_FINISH_ITEM.getItemMeta();
         fmeta.setDisplayName("§aFinish setup");
         fmeta.setLore(Lists.newArrayList("", "§7This will finish the current setup", "§7and make it public to other players.", "", "§6Click§e to finish the setup."));
         fmeta.addItemFlags(ItemFlag.values());
         NEW_GAME_FINISH_ITEM.setItemMeta(fmeta);
 
-        GAME_START_ITEM = new ItemStack(Material.LIME_WOOL);
+        GAME_START_ITEM = new ItemStack(Material.LIME_CONCRETE);
         ItemMeta gmeta = GAME_START_ITEM.getItemMeta();
         gmeta.setDisplayName("§aStart the game");
         gmeta.setLore(Lists.newArrayList("", "§7This will start your current game", "§7and starts the countdown.", "", "§6Click§e to start the game."));
