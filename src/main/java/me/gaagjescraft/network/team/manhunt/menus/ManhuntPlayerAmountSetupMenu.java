@@ -20,7 +20,7 @@ public class ManhuntPlayerAmountSetupMenu implements Listener {
 
     public void openMenu(Player player, GameSetup setup) {
         player.playSound(player.getLocation(), Sound.BLOCK_CHEST_OPEN, 0.5f, 1);
-        Inventory inventory = Bukkit.createInventory(null, 27, "§6§lManHunt Max Hunters");
+        Inventory inventory = Bukkit.createInventory(null, 27, "Manhunt Max Hunters");
         player.openInventory(inventory);
         updateItems(player, setup);
     }
@@ -65,7 +65,7 @@ public class ManhuntPlayerAmountSetupMenu implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
-        if (!e.getView().getTitle().equals("§6§lManHunt Max Hunters")) return;
+        if (!e.getView().getTitle().equals("Manhunt Max Hunters")) return;
         if (e.getSlot() < 0) return;
 
         e.setCancelled(true);

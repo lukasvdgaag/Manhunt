@@ -72,37 +72,37 @@ public class Itemizer {
 
         GAME_START_ITEM = new ItemStack(Material.LIME_CONCRETE);
         ItemMeta gmeta = GAME_START_ITEM.getItemMeta();
-        gmeta.setDisplayName("§aStart the game");
+        gmeta.setDisplayName("§a§lStart the game");
         gmeta.setLore(Lists.newArrayList("", "§7This will start your current game", "§7and starts the countdown.", "", "§6Click§e to start the game."));
         gmeta.addItemFlags(ItemFlag.values());
         GAME_START_ITEM.setItemMeta(gmeta);
 
         MANHUNT_RUNNER_TRACKER = new ItemStack(Material.COMPASS);
         ItemMeta trackerMeta = MANHUNT_RUNNER_TRACKER.getItemMeta();
-        trackerMeta.setDisplayName("§bRunner Tracker");
-        trackerMeta.setLore(Lists.newArrayList("", "§7Right-click to open the", "§7runner tracker menu.", ""));
+        trackerMeta.setDisplayName("§bRunner Tracker §7(Right-Click)");
+        trackerMeta.setLore(Lists.newArrayList("§7Right-click to open the", "§7runner tracker menu."));
         trackerMeta.addItemFlags(ItemFlag.values());
         trackerMeta.addEnchant(Enchantment.DURABILITY, 1, true);
         MANHUNT_RUNNER_TRACKER.setItemMeta(trackerMeta);
 
         MANHUNT_LEAVE_ITEM = new ItemStack(Material.RED_BED);
         ItemMeta leaveMeta = MANHUNT_LEAVE_ITEM.getItemMeta();
-        leaveMeta.setDisplayName("§cLeave game");
-        leaveMeta.setLore(Lists.newArrayList("", "§7Leave this game.", ""));
+        leaveMeta.setDisplayName("§cLeave game §7(Right-Click)");
+        leaveMeta.setLore(Lists.newArrayList("§7Leave this game."));
         leaveMeta.addItemFlags(ItemFlag.values());
         MANHUNT_LEAVE_ITEM.setItemMeta(leaveMeta);
 
         MANHUNT_VOTE_ITEM = new ItemStack(Material.PAPER);
         ItemMeta voteMeta = MANHUNT_VOTE_ITEM.getItemMeta();
-        voteMeta.setDisplayName("§bTwist Voting");
-        voteMeta.setLore(Lists.newArrayList("", "§7Vote for a twist of your choice.", ""));
+        voteMeta.setDisplayName("§bTwist Voting §7(Right-Click)");
+        voteMeta.setLore(Lists.newArrayList("§7Vote for a twist of your choice."));
         voteMeta.addItemFlags(ItemFlag.values());
         MANHUNT_VOTE_ITEM.setItemMeta(voteMeta);
 
-        MANHUNT_HOST_SETTINGS_ITEM = new ItemStack(Material.CHEST);
+        MANHUNT_HOST_SETTINGS_ITEM = new ItemStack(Material.COMPARATOR);
         ItemMeta settingsMeta = MANHUNT_HOST_SETTINGS_ITEM.getItemMeta();
-        settingsMeta.setDisplayName("§eGame Settings");
-        settingsMeta.setLore(Lists.newArrayList("", "§7Change the game settings.", ""));
+        settingsMeta.setDisplayName("§eGame Settings §7(Right-Click)");
+        settingsMeta.setLore(Lists.newArrayList("§7Change the game settings."));
         settingsMeta.addItemFlags(ItemFlag.values());
         MANHUNT_HOST_SETTINGS_ITEM.setItemMeta(settingsMeta);
     }

@@ -18,7 +18,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class EventMenu implements Listener {
 
     public void openMenu(Player player) {
-        Inventory inventory = Bukkit.createInventory(null, 36, "§6§lEvents");
+        Inventory inventory = Bukkit.createInventory(null, 36, "Events");
 
         ItemStack manhunt = new ItemStack(Material.COMPASS);
         ItemMeta manhuntMeta = manhunt.getItemMeta();
@@ -53,7 +53,7 @@ public class EventMenu implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
-        if (!e.getView().getTitle().equals("§6§lEvents")) return;
+        if (!e.getView().getTitle().equals("Events")) return;
         if (e.getSlot() < 0) return;
 
         e.setCancelled(true);

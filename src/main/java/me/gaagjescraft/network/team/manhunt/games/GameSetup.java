@@ -12,6 +12,7 @@ public class GameSetup {
     private Game game;
     private Player host;
     private HeadstartType headstart;
+    private GameSetupBungee bungeeSetup;
 
     public GameSetup(Player host, boolean allowTwists, int maxPlayers, boolean doDaylightCycle, boolean allowFriendlyFire, HeadstartType type) {
         this.host = host;
@@ -21,6 +22,11 @@ public class GameSetup {
         this.game = null;
         this.allowFriendlyFire = allowFriendlyFire;
         this.headstart = type;
+        this.bungeeSetup = new GameSetupBungee(this);
+    }
+
+    public GameSetupBungee getBungeeSetup() {
+        return bungeeSetup;
     }
 
     public Game getGame() {

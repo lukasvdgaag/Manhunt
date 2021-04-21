@@ -4,8 +4,7 @@ version: 1.0.0
 description: Manhunt plugin for ExodusMC
 author: GaagjesCraft Network Team (GCNT)
 api-version: 1.16
-depend:
-  - HealthBar
+load: POSTWORLD
 
 commands:
   manhunt:
@@ -19,3 +18,7 @@ commands:
       - hub
       - quit
     description: Leave your game.
+  compass:
+    description: Get the compass.
+  rejoin:
+    description: Rejoin your previous game.

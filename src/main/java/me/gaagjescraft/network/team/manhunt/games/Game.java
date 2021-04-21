@@ -4,14 +4,16 @@ import com.google.common.collect.Lists;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.menus.RunnerTrackerMenu;
 import org.bukkit.*;
+import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Game {
@@ -38,8 +40,9 @@ public class Game {
     private int nextEventTime;
     private boolean eventActive;
     private HeadstartType headStart;
+    private String server;
 
-    private Game(String id, boolean twistsAllowed, Player host, int maxPlayers) {
+    private Game(String id, boolean twistsAllowed, UUID host, int maxPlayers) {
         this.identifier = id;
         this.twistsAllowed = twistsAllowed;
         this.players = new ArrayList<>();
@@ -58,15 +61,39 @@ public class Game {
         determineNextEventTime();
 
         this.players.add(new GamePlayer(
-                this, host.getUniqueId(), PlayerType.RUNNER, true
+                this, host, PlayerType.RUNNER, true
         ));
         games.add(this);
         this.scheduler.start();
     }
 
+    public static Game createGame(boolean twistsAllowed, String host, UUID hostUUID, int maxPlayers) {
+        if (getGame(host) != null) return null;
+        return new Game(host, twistsAllowed, hostUUID, maxPlayers);
+    }
+
     public static Game createGame(boolean twistsAllowed, Player host, int maxPlayers) {
         if (getGame(host.getName()) != null || getGame(host) != null) return null;
-        return new Game(host.getName(), twistsAllowed, host, maxPlayers);
+        return new Game(host.getName(), twistsAllowed, host.getUniqueId(), maxPlayers);
+    }
+
+    public static Game getGame(Player player) {
+        List<Game> gms = Lists.newArrayList();
+        for (Game g : games) {
+            for (GamePlayer gp : g.getPlayers())
+                if (gp.getUuid().equals(player.getUniqueId()))
+                    gms.add(g);
+        }
+
+        for (Game g : gms) {
+            if (g.getPlayer(player).isOnline()) return g;
+        }
+        if (!gms.isEmpty()) return gms.get(ThreadLocalRandom.current().nextInt(gms.size()));
+        return null;
+    }
+
+    public String getServer() {
+        return server;
     }
 
     public static List<Game> getGames() {
@@ -78,13 +105,8 @@ public class Game {
         return null;
     }
 
-    public static Game getGame(Player player) {
-        for (Game g : games) {
-            for (GamePlayer gp : g.getPlayers())
-                if (gp.getUuid().equals(player.getUniqueId()))
-                    return g;
-        }
-        return null;
+    public void setServer(String server) {
+        this.server = server;
     }
 
     public void start() {
@@ -93,18 +115,29 @@ public class Game {
     }
 
     public boolean addPlayer(Player player) {
-        if (status == GameStatus.LOADING || status == GameStatus.STOPPING || getPlayers(PlayerType.HUNTER).size() >= maxPlayers)
+        GamePlayer gplayer = getPlayer(player);
+        if (status == GameStatus.LOADING || status == GameStatus.STOPPING || (getPlayers(PlayerType.HUNTER).size() >= maxPlayers && (gplayer == null || gplayer.isOnline())))
             return false;
-        GamePlayer gamePlayer = new GamePlayer(this, player.getUniqueId(), PlayerType.HUNTER, false);
-        players.add(gamePlayer);
-
-        for (GamePlayer gp : getPlayers()) {
-            Player p = Bukkit.getPlayer(gp.getUuid());
-            if (p == null) continue;
-            p.sendMessage(gamePlayer.getPrefix() + " " + player.getName() + "§a joined the game! §b[" + getPlayers().size() + "/" + (maxPlayers + getPlayers(PlayerType.RUNNER).size()) + "]");
+        GamePlayer gamePlayer = gplayer;
+        if (gamePlayer == null) {
+            gamePlayer = new GamePlayer(this, player.getUniqueId(), PlayerType.HUNTER, false);
+            players.add(gamePlayer);
         }
 
+        gamePlayer.setOnline(true);
         gamePlayer.prepareForGame(getStatus());
+
+        if (!gamePlayer.isFullyDead()) {
+            List<GamePlayer> online = getOnlinePlayers(null);
+            for (GamePlayer gp : online) {
+                Player p = Bukkit.getPlayer(gp.getUuid());
+                if (p == null) continue;
+                p.sendMessage(gamePlayer.getPrefix() + " " + player.getName() + "§a joined the game! §b[" + getOnlinePlayers(null).size() + "/" + (maxPlayers + online.size()) + "]");
+            }
+        } else {
+            gamePlayer.prepareForSpectate();
+        }
+
         if (getStatus() == GameStatus.WAITING) player.teleport(this.schematic.getSpawnLocation());
         else player.teleport(Bukkit.getWorld("manhunt_" + identifier).getSpawnLocation());
 
@@ -126,52 +159,63 @@ public class Game {
 
         gamePlayer.restoreForLobby();
         gamePlayer.leaveGameDelayed(true);
-        player.teleport(Objects.requireNonNull(Manhunt.get().getConfig().getLocation("lobby")));
-        this.players.remove(gamePlayer);
-
-        GamePlayer newHost = null;
-        boolean changedHostPlayerType = false;
+        player.teleport(Manhunt.get().getLobby());
+        if (getStatus() == GameStatus.WAITING || getStatus() == GameStatus.STARTING || getStatus() == GameStatus.STOPPING) {
+            player.sendMessage("§cYou left your current game. If you want to join back, type §e/rejoin§c or join through the §e/event§c menu!");
+        } else {
+            gamePlayer.addDeath();
+            player.sendMessage("§cYou left your current game. We did take one of your life(s). If you want to join back, type §e/rejoin§c or join through the §e/event§c menu!");
+        }
+        //this.players.remove(gamePlayer);
+        gamePlayer.setOnline(false);
 
         if (getStatus() != GameStatus.STOPPING) {
             if (getStatus() == GameStatus.WAITING || getStatus() == GameStatus.STARTING) {
                 if (gamePlayer.isHost()) {
-                    List<GamePlayer> runners = getPlayers(PlayerType.RUNNER);
+                    setStatus(GameStatus.WAITING);
+                    /*List<GamePlayer> runners = getPlayers(PlayerType.RUNNER);
                     List<GamePlayer> hunters = getPlayers(PlayerType.HUNTER);
                     if (!runners.isEmpty()) {
                         Random random = ThreadLocalRandom.current();
                         int randomInt = random.nextInt(runners.size());
                         newHost = runners.get(randomInt);
                         newHost.setHost(true);
+                        newHost.prepareForGame(getStatus());
                     } else if (!hunters.isEmpty()) {
                         Random random = ThreadLocalRandom.current();
                         int randomInt = random.nextInt(hunters.size());
                         newHost = hunters.get(randomInt);
                         newHost.setHost(true);
                         newHost.setPlayerType(PlayerType.RUNNER);
+                        newHost.prepareForGame(getStatus());
                         changedHostPlayerType = true;
                     } else {
                         stopGame(false);
-                    }
+                    }*/
+                }
+                if (getOnlinePlayers(null).isEmpty()) {
+                    stopGame(false);
+                    return;
                 }
             }
 
-            for (GamePlayer gp : getPlayers()) {
+            for (GamePlayer gp : getOnlinePlayers(null)) {
                 Player p = Bukkit.getPlayer(gp.getUuid());
                 if (p == null) continue;
                 if (getStatus() == GameStatus.WAITING) {
                     if (gamePlayer.isHost()) {
-                        p.sendMessage("§dGame host " + player.getName() + "§c left the game! §b[" + getPlayers(PlayerType.HUNTER).size() + "/" + maxPlayers + "]");
-                        if (newHost != null)
+                        p.sendMessage("§dGame host " + player.getName() + "§c left the game! §b[" + getOnlinePlayers(null).size() + "/" + (maxPlayers + getOnlinePlayers(PlayerType.RUNNER).size()) + "]");
+                        /*if (newHost != null)
                             p.sendMessage("§d" + Bukkit.getPlayer(newHost.getUuid()).getName() + " has been assigned as new host!");
                         if (changedHostPlayerType)
-                            p.sendMessage("§e" + Bukkit.getPlayer(newHost.getUuid()).getName() + " is the new speed runner!");
+                            p.sendMessage("§e" + Bukkit.getPlayer(newHost.getUuid()).getName() + " is the new speed runner!");*/
                     }
                     return;
                 } else {
                     if (gamePlayer.getPlayerType() == PlayerType.HUNTER)
-                        p.sendMessage(gamePlayer.getPrefix() + " " + player.getName() + "§c left the game! §b[" + getPlayers(PlayerType.HUNTER).size() + "/" + maxPlayers + "]");
+                        p.sendMessage(gamePlayer.getPrefix() + " " + player.getName() + "§c left the game! §b[" + getOnlinePlayers(null).size() + "/" + (maxPlayers + getOnlinePlayers(PlayerType.RUNNER).size()) + "]");
                     else {
-                        p.sendMessage(gamePlayer.getPrefix() + " " + player.getName() + "§c left the game! §b[" + getPlayers(PlayerType.RUNNER).size() + "/" + maxPlayers + "]");
+                        p.sendMessage(gamePlayer.getPrefix() + " " + player.getName() + "§c left the game! §b[" + getOnlinePlayers(null).size() + "/" + (maxPlayers + getOnlinePlayers(PlayerType.RUNNER).size()) + "]");
                     }
                 }
             }
@@ -184,8 +228,13 @@ public class Game {
     }
 
     public void checkForWin(boolean forceWin) {
-        List<GamePlayer> runners = getPlayers(PlayerType.RUNNER);
-        List<GamePlayer> hunters = getPlayers(PlayerType.HUNTER);
+        boolean draw = false;
+        if (getStatus() != GameStatus.PLAYING) {
+            draw = true;
+        }
+
+        List<GamePlayer> runners = getOnlinePlayers(PlayerType.RUNNER);
+        List<GamePlayer> hunters = getOnlinePlayers(PlayerType.HUNTER);
         int aliveRunners = 0;
         int aliveHunters = 0;
         for (GamePlayer run : runners) {
@@ -195,32 +244,46 @@ public class Game {
             if (hun.getDeaths() < 3) aliveHunters++;
         }
 
-        if (aliveRunners == 0) winningTeam = PlayerType.HUNTER;
-        else if (aliveHunters <= 5 || (forceWin && aliveRunners == hunters.size())) winningTeam = PlayerType.RUNNER;
+        if (draw) winningTeam = null;
+        else if (aliveRunners == 0) winningTeam = PlayerType.HUNTER;
+        else if (aliveHunters == 0 || (forceWin && aliveRunners == aliveHunters)) winningTeam = PlayerType.RUNNER;
 
-        if (winningTeam != null) win();
-
+        if (winningTeam != null || forceWin) win();
     }
 
     public void win() {
-        for (GamePlayer gp : getPlayers()) {
+        for (GamePlayer gp : getOnlinePlayers(null)) {
             Player player = Bukkit.getPlayer(gp.getUuid());
             if (player == null) continue;
 
             gp.updateScoreboard();
             player.closeInventory();
 
-            player.sendMessage("§8§m--------------------------");
-            player.sendMessage("§d§l" + winningTeam + "S HAVE WON THIS MANHUNT!");
-            player.sendMessage("");
-            player.sendMessage(gp.getPlayerType() == winningTeam ? "§aCongrats you won!" : "§cYou lost!");
-            player.sendMessage("§7You will get teleported to the lobby shortly.");
-            player.sendMessage("§8§m--------------------------");
-            if (gp.getPlayerType() == winningTeam) {
-                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
-                player.sendTitle("§a§lYOU WIN!", winningTeam == PlayerType.HUNTER ? "§7You managed to eliminate the runners!" : "§7You managed to survive the hunters!", 20, 80, 20);
+
+            if (winningTeam == null) {
+                player.sendMessage("§8§m--------------------------");
+                player.sendMessage("§e§lTHIS GAME ENDED IN A DRAW!");
+                player.sendMessage("");
+                player.sendMessage("§cNo one won this game!");
+                player.sendMessage("§7You will get teleported to the lobby shortly.");
+                player.sendMessage("§8§m--------------------------");
+
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
+                player.sendTitle("§e§lDRAW!", "§7No one won this game!", 20, 80, 20);
             } else {
-                player.sendTitle("§c§lYOU LOST!", gp.getPlayerType() == PlayerType.HUNTER ? "§7You were beaten by the runners!" : "§7You were eliminated by the hunters!", 20, 80, 20);
+                player.sendMessage("§8§m--------------------------");
+                player.sendMessage("§d§l" + winningTeam + "S HAVE WON THIS MANHUNT!");
+                player.sendMessage("");
+                player.sendMessage(gp.getPlayerType() == winningTeam ? "§aCongrats you won!" : "§cYou lost!");
+                player.sendMessage("§7You will get teleported to the lobby shortly.");
+                player.sendMessage("§8§m--------------------------");
+                if (gp.getPlayerType() == winningTeam) {
+                    player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1, 1);
+                    player.sendTitle("§a§lYOU WIN!", winningTeam == PlayerType.HUNTER ? "§7You managed to eliminate the runners!" : "§7You managed to survive the hunters!", 20, 80, 20);
+                } else {
+                    player.playSound(player.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1, 1);
+                    player.sendTitle("§c§lYOU LOST!", gp.getPlayerType() == PlayerType.HUNTER ? "§7You were beaten by the runners!" : "§7You were eliminated by the hunters!", 20, 80, 20);
+                }
             }
         }
 
@@ -239,31 +302,72 @@ public class Game {
     }
 
     public void delete() {
-        Location loc = Manhunt.get().getConfig().getLocation("lobby");
-        for (Player p : Objects.requireNonNull(Bukkit.getWorld("manhunt_" + identifier)).getPlayers()) {
+        Location loc = Manhunt.get().getLobby();
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
             p.teleport(loc);
+            p.setInvisible(false);
+            p.setFlying(false);
+            p.setAllowFlight(false);
+            for (Player p1 : Bukkit.getOnlinePlayers()) {
+                p.showPlayer(Manhunt.get(), p1);
+                p1.showPlayer(Manhunt.get(), p);
+            }
         }
 
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv delete manhunt_" + identifier);
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv confirm");
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv delete manhunt_" + identifier + "_nether");
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv confirm");
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv delete manhunt_" + identifier + "_the_end");
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv confirm");
+        try {
+            World w = Bukkit.getWorld("manhunt_" + identifier);
+            World w1 = Bukkit.getWorld("manhunt_" + identifier + "_nether");
+            World w2 = Bukkit.getWorld("manhunt_" + identifier + "_the_end");
+            if (w != null) {
+                Bukkit.unloadWorld(w, false);
+                FileUtils.deleteDirectory(w.getWorldFolder());
+            }
+            if (w1 != null) {
+                Bukkit.unloadWorld(w1, false);
+                FileUtils.deleteDirectory(w1.getWorldFolder());
+            }
+            if (w2 != null) {
+                Bukkit.unloadWorld(w2, false);
+                FileUtils.deleteDirectory(w2.getWorldFolder());
+            }
+        } catch (IOException ignored) {
+        }
 
         this.players.clear();
         games.remove(this);
     }
 
     public void create() {
-        long min = -9223372036854775800L;
-        long max = 9223372036854775800L;
-        long random = min + (long) (Math.random() * (max - min));
+        int random = ThreadLocalRandom.current().nextInt(Manhunt.get().getWorldSeeds().size());
+        long seed = Manhunt.get().getWorldSeeds().get(random);
 
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv create manhunt_" + identifier + " NORMAL -s " + random);
+        WorldCreator creator = new WorldCreator("manhunt_" + identifier);
+        creator.environment(World.Environment.NORMAL);
+        creator.seed(seed);
+        creator.createWorld();
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + " NORMAL");
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Manhunt.get(), () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv create manhunt_" + identifier + "_nether NETHER"), 40L);
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Manhunt.get(), () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv create manhunt_" + identifier + "_the_end END"), 80L);
+        WorldCreator creatorNether = new WorldCreator("manhunt_" + identifier + "_nether");
+        creatorNether.environment(World.Environment.NETHER);
+        creatorNether.seed(seed);
+
+        WorldCreator creatorEnd = new WorldCreator("manhunt_" + identifier + "_the_end");
+        creatorEnd.environment(World.Environment.THE_END);
+        creatorEnd.seed(seed);
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(Manhunt.get(), () -> {
+            World w = creatorNether.createWorld();
+            w.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
+            w.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + "_nether NETHER");
+        }, 60L);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(Manhunt.get(), () -> {
+            World w = creatorEnd.createWorld();
+            w.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
+            w.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + "_the_end THE_END");
+        }, 120L);
 
         Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> {
             World world = Bukkit.getWorld("manhunt_" + identifier);
@@ -283,12 +387,17 @@ public class Game {
 
             status = GameStatus.WAITING;
 
-            for (GamePlayer gp : players) {
+            for (GamePlayer gp : getOnlinePlayers(null)) {
                 Player p = Bukkit.getPlayer(gp.getUuid());
                 if (p == null) continue;
                 p.teleport(this.schematic.getSpawnLocation());
                 gp.prepareForGame(getStatus());
                 gp.updateScoreboard();
+            }
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (Game.getGame(player) == null) {
+                    addPlayer(player);
+                }
             }
         }, 60L);
     }
@@ -296,6 +405,14 @@ public class Game {
 
     public List<GamePlayer> getPlayers() {
         return players;
+    }
+
+    public List<GamePlayer> getOnlinePlayers(@Nullable PlayerType type) {
+        List<GamePlayer> prs = new ArrayList<>();
+        for (GamePlayer gp : players) {
+            if ((type == null || gp.getPlayerType() == type) && gp.isOnline()) prs.add(gp);
+        }
+        return prs;
     }
 
     public List<GamePlayer> getPlayers(PlayerType type) {
@@ -359,6 +476,9 @@ public class Game {
 
     public void setDoDaylightCycle(boolean doDaylightCycle) {
         this.doDaylightCycle = doDaylightCycle;
+        World w = getWorld();
+        if (w == null) return;
+        w.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, doDaylightCycle);
     }
 
     public PlayerType getWinningTeam() {
@@ -395,7 +515,7 @@ public class Game {
 
     public void sendMessage(@Nullable PlayerType type, @Nonnull String message) {
         List<GamePlayer> receivers = this.players;
-        if (type != null) receivers = getPlayers(type);
+        if (type != null) receivers = getOnlinePlayers(type);
 
         for (GamePlayer gp : receivers) {
             Player p = Bukkit.getPlayer(gp.getUuid());
@@ -406,7 +526,7 @@ public class Game {
 
     public void sendTitle(@Nullable PlayerType type, @Nonnull String title, @Nonnull String subtitle, int fadeIn, int stay, int fadeOut) {
         List<GamePlayer> receivers = this.players;
-        if (type != null) receivers = getPlayers(type);
+        if (type != null) receivers = getOnlinePlayers(type);
 
         for (GamePlayer gp : receivers) {
             Player p = Bukkit.getPlayer(gp.getUuid());
@@ -456,7 +576,6 @@ public class Game {
             int max = 4; // 15
             int random = (int) Math.floor(Math.random()*(max-low+1)+low); // random minute between 8-15.
             this.nextEventTime = this.nextEventTime + (random * 60);
-            sendMessage(null,"§aNext twist will occur in §b" + random + " minutes!");
         }
         else if (this.status == GameStatus.WAITING || this.status == GameStatus.STARTING ||
         this.status == GameStatus.LOADING) {

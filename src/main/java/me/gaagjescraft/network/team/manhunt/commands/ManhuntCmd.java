@@ -68,12 +68,13 @@ public class ManhuntCmd implements CommandExecutor {
         }
 
         if (args.length == 0) {
-            p.sendMessage("§7§m---------------&r §6§lManHunt §7§m---------------");
+            p.sendMessage("§7§m---------------&r §6§lManhunt §7§m---------------");
             p.sendMessage("§b/manhunt stop §f> §7Stop your current manhunt game.");
             p.sendMessage("§b/manhunt start §f> §7Start your current manhunt game.");
             p.sendMessage("§b/manhunt addrunner <player> §f> §7Make a player a runner.");
             p.sendMessage("§b/manhunt removerunner <player> §f> §7Demote a runner to a hunter.");
             p.sendMessage("§b/manhunt runners §f> §7Get a list of runners.");
+            p.sendMessage("§b/manhunt forcetwist If> §7Force the twist to start.");
             p.sendMessage("§7§m---------------------------------------");
             return true;
         } else {
@@ -84,6 +85,18 @@ public class ManhuntCmd implements CommandExecutor {
             } else if (args[0].equalsIgnoreCase("start")) {
                 p.sendMessage(ChatColor.GREEN + "Starting your current game...");
                 game.start();
+                return true;
+            } else if (args[0].equalsIgnoreCase("forcetwist")) {
+                if (game.getStatus() != GameStatus.PLAYING) {
+                    p.sendMessage("§cThe game must be playing in order to force an event");
+                    return true;
+                }
+                if (game.isEventActive()) {
+                    p.sendMessage("§cA twist is already active right now!");
+                    return true;
+                }
+                p.sendMessage("§aForced the selected twist for this game.");
+                game.getScheduler().doEvent();
                 return true;
             } else if (args[0].equalsIgnoreCase("addrunner")) {
                 if (args.length == 1)
@@ -105,6 +118,7 @@ public class ManhuntCmd implements CommandExecutor {
                         p.sendMessage(ChatColor.RED + "That player is already a runner.");
                     } else {
                         targetGP.setPlayerType(PlayerType.RUNNER);
+                        game.getRunnerTeleporterMenu().update();
                         p.sendMessage(ChatColor.GREEN + "You promoted " + target.getName() + " to a runner.");
                     }
                 }
@@ -129,12 +143,13 @@ public class ManhuntCmd implements CommandExecutor {
                         p.sendMessage(ChatColor.RED + "That player is not a runner.");
                     } else {
                         targetGP.setPlayerType(PlayerType.HUNTER);
+                        game.getRunnerTeleporterMenu().update();
                         p.sendMessage(ChatColor.GREEN + "You demoted " + target.getName() + " to a hunter.");
                     }
                 }
                 return true;
             } else if (args[0].equalsIgnoreCase("runners")) {
-                p.sendMessage("§7§m---------------&r §6§lManHunt §7§m---------------");
+                p.sendMessage("§7§m---------------&r §6§lManhunt §7§m---------------");
                 p.sendMessage("§bRunners:");
                 for (GamePlayer gps : game.getPlayers(PlayerType.RUNNER)) {
                     Player pp = Bukkit.getPlayer(gps.getUuid());
@@ -142,12 +157,13 @@ public class ManhuntCmd implements CommandExecutor {
                 }
                 p.sendMessage("§7§m---------------------------------------");
             } else {
-                p.sendMessage("§7§m---------------&r §6§lManHunt §7§m---------------");
+                p.sendMessage("§7§m---------------&r §6§lManhunt §7§m---------------");
                 p.sendMessage("§b/manhunt stop §f> §7Stop your current manhunt game.");
                 p.sendMessage("§b/manhunt start §f> §7Start your current manhunt game.");
                 p.sendMessage("§b/manhunt addrunner <player> §f> §7Make a player a runner.");
                 p.sendMessage("§b/manhunt removerunner <player> §f> §7Demote a runner to a hunter.");
                 p.sendMessage("§b/manhunt runners §f> §7Get a list of runners.");
+                p.sendMessage("§b/manhunt forcetwist If> §7Force the twist to start.");
                 p.sendMessage("§7§m---------------------------------------");
                 return true;
             }

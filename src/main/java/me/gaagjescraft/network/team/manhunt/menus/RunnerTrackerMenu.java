@@ -29,7 +29,7 @@ public class RunnerTrackerMenu {
 
     public void update() {
         int size = 9;
-        this.runnersList = game.getPlayers(PlayerType.RUNNER);
+        this.runnersList = game.getOnlinePlayers(PlayerType.RUNNER);
         int runners = runnersList.size();
         if (runners <= 9) size = 18;
         else if (runners <= 18) size = 27;
@@ -37,8 +37,8 @@ public class RunnerTrackerMenu {
         else if (runners <= 36) size = 45;
         else if (runners <= 45) size = 54;
 
-        Inventory teleportMenu = Bukkit.createInventory(null, size, "§6§lManHunt Teleporter Menu");
-        Inventory trackMenu = Bukkit.createInventory(null, size, "§6§lManHunt Tracker Menu");
+        Inventory teleportMenu = Bukkit.createInventory(null, size, "Manhunt Teleporter Menu");
+        Inventory trackMenu = Bukkit.createInventory(null, size, "Manhunt Tracker Menu");
 
         teleportMenu.setItem(size - 5, Itemizer.CLOSE_ITEM);
         trackMenu.setItem(size - 5, Itemizer.CLOSE_ITEM);
@@ -46,9 +46,7 @@ public class RunnerTrackerMenu {
         int slot = 0;
         for (GamePlayer runner : runnersList) {
             if (slot == size - 9) break;
-            if (runner == null) continue;
             Player player = Bukkit.getPlayer(runner.getUuid());
-            if (player == null) continue;
 
             ItemStack item = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta) item.getItemMeta();
@@ -67,6 +65,7 @@ public class RunnerTrackerMenu {
             meta1.addItemFlags(ItemFlag.values());
             item1.setItemMeta(meta1);
             trackMenu.setItem(slot, item1);
+            slot++;
         }
 
         this.teleporterMenu = teleportMenu;

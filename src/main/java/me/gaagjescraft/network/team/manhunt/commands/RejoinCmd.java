@@ -1,30 +1,33 @@
 package me.gaagjescraft.network.team.manhunt.commands;
 
 import me.gaagjescraft.network.team.manhunt.games.Game;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class LeaveCmd implements CommandExecutor {
+public class RejoinCmd implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "You must be a player in order to perform this command.");
+            sender.sendMessage("§cYou must be a player to perform this command.");
             return true;
         }
 
         Player player = (Player) sender;
         Game game = Game.getGame(player);
         if (game == null) {
-            player.sendMessage("§cYou're not in a game!");
+            sender.sendMessage("§cYou have no game to join back in.");
             return true;
         }
 
-        game.removePlayer(player);
-        //player.sendMessage("§cYou left your game.");
-        return true;
+        if (!game.addPlayer(player)) {
+            sender.sendMessage("§cWe failed to put you back into your previous game!");
+            return true;
+        } else {
+            sender.sendMessage("§5You have been put into your old game.");
+            return true;
+        }
     }
 }

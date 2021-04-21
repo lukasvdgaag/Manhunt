@@ -24,14 +24,14 @@ public class AdditionsBoard {
         this.player = player;
         this.linecount = linecount;
         this.board = Manhunt.get().getServer().getScoreboardManager().getNewScoreboard();
-        this.objective = this.board.registerNewObjective("sb1", "sb2");
+        this.objective = this.board.registerNewObjective("ExodusMC", "dummy", "§6§lMANHUNT");
         this.objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        this.objective.setDisplayName("...");
 
         int score = linecount;
         for (int i = 0; i < linecount; i++) { // looping through the lines
             Team t = this.board.registerNewTeam("plus-" + i); // creating the team
             t.addEntry(ChatColor.values()[i] + ""); // assigning a color to the team
+            t.setPrefix("§r");
             this.objective.getScore(ChatColor.values()[i] + "").setScore(score); // sets the score number
             score--;
         }
@@ -48,7 +48,9 @@ public class AdditionsBoard {
     }
 
     public void setLine(int arg0, String arg1) {
-        Team arg2 = board.getTeam("plus-" + arg0 + ""); // Get the team we need
+        if (!player.getScoreboard().equals(this.board)) player.setScoreboard(this.board);
+
+        Team arg2 = board.getTeam("plus-" + arg0); // Get the team we need
         if (arg1 == null) arg1 = ""; // Line null, making it empty
         arg1 = ChatColor.translateAlternateColorCodes('&', arg1);
 

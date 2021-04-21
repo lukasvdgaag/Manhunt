@@ -27,7 +27,7 @@ public class ManhuntGamesMenu implements Listener {
     private List<Player> viewers = new ArrayList<>();
 
     public void openMenu(Player player) {
-        Inventory inventory = Bukkit.createInventory(null, 27, "§6§lManHunt Events");
+        Inventory inventory = Bukkit.createInventory(null, 27, "Manhunt Events");
 
         inventory.setItem(22, Itemizer.CLOSE_ITEM);
 
@@ -61,14 +61,14 @@ public class ManhuntGamesMenu implements Listener {
                 status = "§cThis game is ending.";
             }
 
-            meta.setDisplayName("§a" + g.getIdentifier() + "'s ManHunt");
+            meta.setDisplayName("§a" + g.getIdentifier() + "'s Manhunt");
             meta.setLore(Lists.newArrayList("", "§7Hunt down the speed runners",
                     "§7and kill them without dying yourself.",
                     "§7Hunters win if all runners are dead.", "",
-                    "§bThere are §e" + g.getPlayers(PlayerType.HUNTER).size() + "§7/§e" + g.getMaxPlayers() + "§b hunters competing §e" + g.getPlayers(PlayerType.RUNNER).size() + "§b runners.",
+                    "§bThere are §e" + g.getOnlinePlayers(PlayerType.HUNTER).size() + "§7/§e" + g.getMaxPlayers() + "§b hunters competing §e" + g.getOnlinePlayers(PlayerType.RUNNER).size() + "§b runners.",
                     status,
                     "",
-                    g.getPlayers(PlayerType.HUNTER).size() < g.getMaxPlayers() ? "§6Click §eto join the game." : "§cThis game is full."));
+                    g.getOnlinePlayers(PlayerType.HUNTER).size() < g.getMaxPlayers() ? "§6Click §eto join the game." : "§cThis game is full."));
             meta.addItemFlags(ItemFlag.values());
             meta.setOwningPlayer(Bukkit.getOfflinePlayer(g.getIdentifier()));
             item.setItemMeta(meta);
@@ -89,7 +89,7 @@ public class ManhuntGamesMenu implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
-        if (!e.getView().getTitle().equals("§6§lManHunt Events")) return;
+        if (!e.getView().getTitle().equals("Manhunt Events")) return;
         if (e.getSlot() < 0) return;
 
         e.setCancelled(true);
@@ -110,11 +110,10 @@ public class ManhuntGamesMenu implements Listener {
         Game g = games.get(e.getSlot());
         if (g == null) return;
 
-        if (g.getPlayers(PlayerType.HUNTER).size() < g.getMaxPlayers()) {
-            g.addPlayer((Player) e.getWhoClicked());
-        } else {
-            e.getWhoClicked().sendMessage(ChatColor.RED + g.getIdentifier() + "'s game is full :/");
-        }
+        boolean result = g.addPlayer((Player) e.getWhoClicked());
+        if (!result)
+            e.getWhoClicked().sendMessage(ChatColor.RED + g.getIdentifier() + "'s game is full or unavailable right now!");
+
         e.getWhoClicked().closeInventory();
     }
 

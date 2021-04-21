@@ -2,10 +2,7 @@ package me.gaagjescraft.network.team.manhunt.menus;
 
 import com.google.common.collect.Lists;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
-import me.gaagjescraft.network.team.manhunt.games.Game;
-import me.gaagjescraft.network.team.manhunt.games.GameSetup;
-import me.gaagjescraft.network.team.manhunt.games.GameStatus;
-import me.gaagjescraft.network.team.manhunt.games.HeadstartType;
+import me.gaagjescraft.network.team.manhunt.games.*;
 import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -33,8 +30,8 @@ public class ManhuntGameSetupMenu implements Listener {
 
 
     public void openMenu(Player player, Game game) {
-        player.playSound(player.getLocation(), Sound.BLOCK_CHEST_OPEN, 0.5f, 1);
-        Inventory inventory = Bukkit.createInventory(null, 54, "§6§lHost ManHunt Event");
+        player.playSound(player.getLocation(), Sound.BLOCK_IRON_DOOR_OPEN, 0.5f, 1);
+        Inventory inventory = Bukkit.createInventory(null, 54, "Host Manhunt Event");
         player.openInventory(inventory);
         updateItems(player, game);
     }
@@ -93,8 +90,7 @@ public class ManhuntGameSetupMenu implements Listener {
         List<String> hlore = Lists.newArrayList("", "§7Runners will get a headstart", "§7of §e" + Manhunt.get().getUtil().secondsToTimeString(setup.getHeadstart().getSeconds(), "string") + "§7 to", "§7prepare for the hunters.", "");
         if (setup.getGame() == null || setup.getGame().getStatus() == GameStatus.WAITING) {
             hlore.add("§6Click§e to edit.");
-        }
-        else {
+        } else {
             hlore.add("§cYou can't change this once");
             hlore.add("§cthe game has started.");
         }
@@ -103,7 +99,21 @@ public class ManhuntGameSetupMenu implements Listener {
 
         inventory.setItem(31, headstart);
 
-        inventory.setItem(33, Itemizer.createItem(Material.BLACK_CONCRETE,1,"§c§lCOMING SOON!", Lists.newArrayList("§7This module will release soon!")));
+        int runnerAmount = setup.getGame() == null ? 0 : game.getPlayers(PlayerType.RUNNER).size();
+        //inventory.setItem(33, Itemizer.createItem(Material.BLACK_CONCRETE,1,"§c§lCOMING SOON!", Lists.newArrayList("§7This module will release soon!")));
+        ItemStack run = new ItemStack(Material.OAK_SIGN);
+        ItemMeta rmeta = run.getItemMeta();
+        rmeta.setDisplayName("§bManage Runners §7(§e" + runnerAmount + "§7)");
+        if (setup.getGame() != null) {
+            rmeta.setLore(Lists.newArrayList("", "§7Manage the current runners", "§7in this game and add", "§7new runners to the game.", "",
+                    "§6Click§e to manage runners."));
+        } else {
+            rmeta.setLore(Lists.newArrayList("", "§7Manage the current runners", "§7in this game and add", "§7new runners to the game.", "",
+                    "§cYou can't change this if the", "§cgame hasn't been created yet."));
+        }
+        rmeta.addItemFlags(ItemFlag.values());
+        run.setItemMeta(rmeta);
+        inventory.setItem(33, run);
 
         ItemStack teamfire = new ItemStack(setup.isAllowFriendlyFire() ? Material.DIAMOND_SWORD : Material.WOODEN_SWORD);
         ItemMeta tfmeta = teamfire.getItemMeta();
@@ -143,7 +153,7 @@ public class ManhuntGameSetupMenu implements Listener {
 
     @EventHandler
     public void onClose(InventoryCloseEvent e) {
-        if (!e.getView().getTitle().equals("§6§lHost ManHunt Event")) return;
+        if (!e.getView().getTitle().equals("Host Manhunt Event")) return;
         Player player = (Player) e.getPlayer();
         player.playSound(player.getLocation(), Sound.BLOCK_CHEST_CLOSE, 0.5f, 1);
     }
@@ -151,7 +161,7 @@ public class ManhuntGameSetupMenu implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
-        if (!e.getView().getTitle().equals("§6§lHost ManHunt Event")) return;
+        if (!e.getView().getTitle().equals("Host Manhunt Event")) return;
         if (e.getSlot() < 0) return;
 
         e.setCancelled(true);
@@ -193,7 +203,15 @@ public class ManhuntGameSetupMenu implements Listener {
             allowFriendlyFireDelays.add(player);
             Bukkit.getScheduler().runTaskLater(Manhunt.get(), ()->allowFriendlyFireDelays.remove(player),20L);
         } else if (e.getSlot() == 13 && setup.getGame() == null) {
+            player.closeInventory();
             Manhunt.get().getManhuntPlayerAmountSetupMenu().openMenu(player, setup);
+        } else if (e.getSlot() == 33) {
+            if (setup.getGame() == null) {
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
+            } else {
+                player.closeInventory();
+                Manhunt.get().getManhuntRunnerManageMenu().open(player, setup.getGame());
+            }
         } else if (e.getSlot() == 53) {
             // submitting the game.
             if (setup.getGame() == null) {
@@ -224,7 +242,7 @@ public class ManhuntGameSetupMenu implements Listener {
                 game.start();
 
                 player.sendMessage(ChatColor.GREEN + "Your game has been started.");
-                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+                player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 1, 1);
                 player.closeInventory();
             }
         }

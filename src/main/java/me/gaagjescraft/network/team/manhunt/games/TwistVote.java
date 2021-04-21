@@ -7,7 +7,8 @@ public enum TwistVote {
     SPEED_BOOST("speed boost"),
     BLINDNESS("random blindness"),
     ACID_RAIN("acid rain"),
-    RANDOM_YEET("random yeets");
+    RANDOM_YEET("random yeets"),
+    HARDCORE("hardcore");
 
     String displayName;
 

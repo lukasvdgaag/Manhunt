@@ -21,7 +21,7 @@ public class ManhuntHeadstartSetupMenu implements Listener {
 
     public void openMenu(Player player, GameSetup setup) {
         player.playSound(player.getLocation(), Sound.BLOCK_CHEST_OPEN, 0.5f, 1);
-        Inventory inventory = Bukkit.createInventory(null, 18, "§6§lManHunt Headstart");
+        Inventory inventory = Bukkit.createInventory(null, 18, "Manhunt Headstart");
         player.openInventory(inventory);
         updateItems(player, setup);
     }
@@ -43,7 +43,7 @@ public class ManhuntHeadstartSetupMenu implements Listener {
         inventory.setItem(7,Itemizer.createItem(Material.REDSTONE_TORCH,1, "§c2 minutes"  + (setup.getHeadstart()== HeadstartType.TWO_MINUTES?" §a(selected)":""), Lists.newArrayList("", "§7The runners will have a", "§e" + Manhunt.get().getUtil().secondsToTimeString(HeadstartType.TWO_MINUTES.getSeconds(), "string") + "§7 headstart.", "",
                 "§6Click§e to select.")));
 
-        inventory.setItem(13, Itemizer.CLOSE_ITEM);
+        inventory.setItem(13, Itemizer.createItem(Material.LIME_CONCRETE, 1, "§a§lSave Settings", Lists.newArrayList("", "§7Save the settings and", "§7go back to the main", "§7settings menu.", "", "§6Click§e to go back.")));
 
         int slot = 1;
         if (setup.getHeadstart() == HeadstartType.ONE_MINUTE) slot = 3;
@@ -59,7 +59,7 @@ public class ManhuntHeadstartSetupMenu implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
-        if (!e.getView().getTitle().equals("§6§lManHunt Headstart")) return;
+        if (!e.getView().getTitle().equals("Manhunt Headstart")) return;
         if (e.getSlot() < 0) return;
 
         e.setCancelled(true);
@@ -89,6 +89,7 @@ public class ManhuntHeadstartSetupMenu implements Listener {
         }
         else if (e.getSlot() == 13) {
             // continue setup
+            player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 1, 1);
             Manhunt.get().getManhuntGameSetupMenu().openMenu(player, setup.getGame());
         }
     }
