@@ -20,6 +20,9 @@ public class RejoinCmd implements CommandExecutor {
         if (game == null) {
             sender.sendMessage("§cYou have no game to join back in.");
             return true;
+        } else if (game.getPlayer(player).isOnline()) {
+            sender.sendMessage("§cYou are already in this game.");
+            return true;
         }
 
         if (!game.addPlayer(player)) {

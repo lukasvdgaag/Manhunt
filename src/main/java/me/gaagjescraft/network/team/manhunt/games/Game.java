@@ -41,6 +41,7 @@ public class Game {
     private boolean eventActive;
     private HeadstartType headStart;
     private String server;
+    private boolean dragonDefeated;
 
     private Game(String id, boolean twistsAllowed, UUID host, int maxPlayers) {
         this.identifier = id;
@@ -58,6 +59,7 @@ public class Game {
         this.runnerTrackerMenu = new RunnerTrackerMenu(this);
         this.eventActive = false;
         this.headStart = HeadstartType.HALF_MINUTE;
+        this.dragonDefeated = false;
         determineNextEventTime();
 
         this.players.add(new GamePlayer(
@@ -90,6 +92,14 @@ public class Game {
         }
         if (!gms.isEmpty()) return gms.get(ThreadLocalRandom.current().nextInt(gms.size()));
         return null;
+    }
+
+    public boolean isDragonDefeated() {
+        return dragonDefeated;
+    }
+
+    public void setDragonDefeated(boolean dragonDefeated) {
+        this.dragonDefeated = dragonDefeated;
     }
 
     public String getServer() {
@@ -245,6 +255,7 @@ public class Game {
         }
 
         if (draw) winningTeam = null;
+        else if (isDragonDefeated()) winningTeam = PlayerType.RUNNER;
         else if (aliveRunners == 0) winningTeam = PlayerType.HUNTER;
         else if (aliveHunters == 0 || (forceWin && aliveRunners == aliveHunters)) winningTeam = PlayerType.RUNNER;
 
@@ -279,7 +290,11 @@ public class Game {
                 player.sendMessage("§8§m--------------------------");
                 if (gp.getPlayerType() == winningTeam) {
                     player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1, 1);
-                    player.sendTitle("§a§lYOU WIN!", winningTeam == PlayerType.HUNTER ? "§7You managed to eliminate the runners!" : "§7You managed to survive the hunters!", 20, 80, 20);
+                    if (isDragonDefeated()) {
+                        player.sendTitle("§a§lYOU WIN!", "§7Your team managed to defeat the dragon!", 20, 80, 20);
+                    } else {
+                        player.sendTitle("§a§lYOU WIN!", winningTeam == PlayerType.HUNTER ? "§7You managed to eliminate the runners!" : "§7You managed to survive the hunters!", 20, 80, 20);
+                    }
                 } else {
                     player.playSound(player.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1, 1);
                     player.sendTitle("§c§lYOU LOST!", gp.getPlayerType() == PlayerType.HUNTER ? "§7You were beaten by the runners!" : "§7You were eliminated by the hunters!", 20, 80, 20);
@@ -322,14 +337,17 @@ public class Game {
             if (w != null) {
                 Bukkit.unloadWorld(w, false);
                 FileUtils.deleteDirectory(w.getWorldFolder());
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier);
             }
             if (w1 != null) {
                 Bukkit.unloadWorld(w1, false);
                 FileUtils.deleteDirectory(w1.getWorldFolder());
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier + "_nether");
             }
             if (w2 != null) {
                 Bukkit.unloadWorld(w2, false);
                 FileUtils.deleteDirectory(w2.getWorldFolder());
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier + "_the_end");
             }
         } catch (IOException ignored) {
         }

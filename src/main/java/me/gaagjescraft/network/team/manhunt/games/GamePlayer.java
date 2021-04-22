@@ -407,6 +407,8 @@ public class GamePlayer {
         player.setFlying(false);
         player.setAllowFlight(false);
         player.setGameMode(GameMode.SURVIVAL);
+        player.setHealth(20);
+        player.setMaxHealth(20);
     }
 
     public void updateScoreboard() {

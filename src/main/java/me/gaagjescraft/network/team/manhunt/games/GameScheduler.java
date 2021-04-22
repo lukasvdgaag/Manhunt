@@ -283,10 +283,10 @@ public class GameScheduler {
             for (GamePlayer gp : game.getOnlinePlayers(null)) {
                 Player player = Bukkit.getPlayer(gp.getUuid());
                 if (player == null) continue;
-                if (!gp.isFullyDead()) player.setHealth(4);
+                if (!gp.isFullyDead()) player.setHealth(6);
                 player.playSound(player.getLocation(), Sound.ENTITY_WITCH_CELEBRATE, 1, 1);
-                player.sendMessage("§c§lHARDCORE activated! §cEvery player has been cursed with 2 hearts and no regeneration for 30 seconds!");
-                player.sendTitle("§c§lHARDCORE!", "§7You have 2 hearts and won't regen for 30s!", 20, 50, 20);
+                player.sendMessage("§c§lHARDCORE activated! §cEvery player has been cursed with 3 hearts and no regeneration for 30 seconds!");
+                player.sendTitle("§c§lHARDCORE!", "§7You have 3 hearts and won't regen for 30s!", 20, 50, 20);
             }
 
             Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> {

@@ -46,7 +46,7 @@ public class ManhuntTwistVoteMenu implements Listener {
 
         int hardcoreVotes = game.getTwistVotes(TwistVote.HARDCORE);
         ItemStack hardcoreItem = Itemizer.createItem(Material.REDSTONE, Math.max(hardcoreVotes, 1), "§bHardcore",
-                Lists.newArrayList("", "§7Every player's health will", "§7be set to 4hp (2 hearts).", "§7During this time, you are", "§7not able to regain health.", "", "§e" + hardcoreVotes + " votes."));
+                Lists.newArrayList("", "§7Every player's health will", "§7be set to 6hp (3 hearts).", "§7During this time, you are", "§7not able to regain health.", "", "§e" + hardcoreVotes + " votes."));
         teleportMenu.setItem(10, hardcoreItem);
 
         int extraHealthVotes = game.getTwistVotes(TwistVote.EXTRA_HEALTH);
