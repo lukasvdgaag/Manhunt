@@ -320,6 +320,7 @@ public class Config {
     public String cannotLeaveWaitingZoneMessage;
     public String cannotLeaveLobbyMessage;
     public List<String> autoRejoinMessage;
+    public boolean autoJoinOnlinePlayersWhenGameCreated;
 
 
     private File file;
@@ -344,6 +345,7 @@ public class Config {
         this.joinGameOnServerJoin = conf.getBoolean("join-game-on-server-join");
         this.announceTwistVoteToEntireGame = conf.getBoolean("announce-twist-vote-to-entire-game");
         this.teleportPlayersToLobbyInVoid = conf.getBoolean("teleport-players-to-lobby-in-void");
+        this.autoJoinOnlinePlayersWhenGameCreated = conf.getBoolean("auto-join-online-players-when-game-created");
 
         this.seeds = conf.getLongList("seeds");
         this.lobby = conf.getLocation("lobby");
@@ -667,6 +669,7 @@ public class Config {
         conf.set("teleport-lobby-on-server-join", teleportLobbyOnServerJoin);
         conf.set("announce-twist-vote-to-entire-game", announceTwistVoteToEntireGame);
         conf.set("teleport-players-to-lobby-in-void", teleportPlayersToLobbyInVoid);
+        conf.set("auto-join-online-players-when-game-created", autoJoinOnlinePlayersWhenGameCreated);
 
         conf.set("seeds", seeds);
         conf.set("lobby", lobby);

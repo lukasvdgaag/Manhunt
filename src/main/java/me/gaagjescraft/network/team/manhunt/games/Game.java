@@ -393,21 +393,24 @@ public class Game {
 
         boolean deleteMsgSent = false;
 
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            p.teleport(loc);
-            p.setInvisible(false);
-            p.setFlying(false);
-            p.setAllowFlight(false);
-            for (Player p1 : Bukkit.getOnlinePlayers()) {
-                p.showPlayer(Manhunt.get(), p1);
-                p1.showPlayer(Manhunt.get(), p);
+        for (GamePlayer gp : players) {
+            Player p = Bukkit.getPlayer(gp.getUuid());
+            if (p != null) {
+                p.teleport(loc);
+                p.setInvisible(false);
+                p.setFlying(false);
+                p.setAllowFlight(false);
+                for (GamePlayer gp1 : players) {
+                    Player p1 = Bukkit.getPlayer(gp1.getUuid());
+                    if (p1 == null) continue;
+                    p.showPlayer(Manhunt.get(), p1);
+                    p1.showPlayer(Manhunt.get(), p);
+                }
+                if (!deleteMsgSent && Manhunt.get().getCfg().bungeeMode) {
+                    deleteMsgSent = true;
+                    p.sendPluginMessage(Manhunt.get(), "exodus:manhunt", Manhunt.get().getPluginMessageHandler().createDeleteGameMessage(this.identifier));
+                }
             }
-
-            if (!deleteMsgSent && Manhunt.get().getCfg().bungeeMode) {
-                deleteMsgSent = true;
-                p.sendPluginMessage(Manhunt.get(), "exodus:manhunt", Manhunt.get().getPluginMessageHandler().createDeleteGameMessage(this.identifier));
-            }
-
         }
 
         try {
@@ -498,9 +501,11 @@ public class Game {
                 gp.prepareForGame(getStatus());
                 gp.updateScoreboard();
             }
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                if (Game.getGame(player) == null) {
-                    addPlayer(player);
+            if (Manhunt.get().getCfg().autoJoinOnlinePlayersWhenGameCreated) {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    if (Game.getGame(player) == null) {
+                        addPlayer(player);
+                    }
                 }
             }
         }, 60L);
