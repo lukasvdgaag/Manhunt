@@ -5,9 +5,6 @@ bungee:
   server-name: lobby
   game-servers:
     - manhunt-1
-bungee-mode: false
-is-lobby-server: false
-server-name: lobby
 join-game-on-server-join: false
 teleport-lobby-on-server-join: true
 announce-twist-vote-to-entire-game: false
@@ -77,9 +74,9 @@ items:
     manhunt-material: COMPASS
     manhunt-displayname: '&bManhunt Event'
     manhunt-lore:
-      - '§7Hunt down the speed runners'
-      - '§7and kill them without dying yourself.'
-      - '§7Hunters win if all runners are dead.'
+      - '&7Hunt down the speed runners'
+      - '&7and kill them without dying yourself.'
+      - '&7Hunters win if all runners are dead.'
       - ''
       - '&bThere are &e%totalplayers% &bplayers online in &e%totalgames% &bgames.'
       - ''
@@ -448,12 +445,12 @@ items:
     settings-material: COMPARATOR
     settings-displayname: '&eGame Settings (&7Right-Click&7)'
     settings-lore:
-      - '&7Change the game settings.'\
+      - '&7Change the game settings.'
     fill-material: BLACK_STAINED_GLASS_PANE
 
 
 prefixes:
-  global: '§8§lGLOBAL'
+  global: '&8&lGLOBAL'
   runner: '&e&lRUNNER&e'
   hunter: '&7&lHUNTER&7'
   dead: '&c&lDEAD'
@@ -518,19 +515,19 @@ sounds:
 
 
 actionbar:
-  tracking-other-dimension: '§a§lTRACKING: %color%%player% &f- &cDifferent dimension!'
+  tracking-other-dimension: '&a&lTRACKING: %color%%player% &f- &cDifferent dimension!'
   tracking: '&a&lTRACKING: %color%%player% &f- &c%distance%m away!'
-  respawned-worldspawn: '§aYou respawned at the spawn because you had no bed spawn.'
-  respawned-bed: '§aYou respawned at your bed location because you set your spawnpoint!'
+  respawned-worldspawn: '&aYou respawned at the spawn because you had no bed spawn.'
+  respawned-bed: '&aYou respawned at your bed location because you set your spawnpoint!'
 
 titles:
   game-end:
     draw: '&e&lDRAW!\n&7No one won this game!'
-    win-runner-dragon: '§a§lYOU WIN!\n§7Your team managed to defeat the dragon!'
-    win-runner: '§a§lYOU WIN!\n§7You managed to survive the hunters!'
-    win-hunter: '§a§lYOU WIN!\n§7You managed to eliminate the runners!'
-    lose-runner: '§c§lYOU LOST!\n§7You were eliminated by the hunters!'
-    lose-hunter: '§c§lYOU LOST!\n§7You were beaten by the runners!'
+    win-runner-dragon: '&a&lYOU WIN!\n&7Your team managed to defeat the dragon!'
+    win-runner: '&a&lYOU WIN!\n&7You managed to survive the hunters!'
+    win-hunter: '&a&lYOU WIN!\n&7You managed to eliminate the runners!'
+    lose-runner: '&c&lYOU LOST!\n&7You were eliminated by the hunters!'
+    lose-hunter: '&c&lYOU LOST!\n&7You were beaten by the runners!'
   dragon-defeated: '&5&lDRAGON DEFEATED!\n&7%player% defeated the dragon and won!'
   death: '&c&lYOU DIED!\n&7You have %lives% left.'
   runner-down: '&7&lSPEED RUNNER DOWN!\n&c%player% died!'
@@ -539,8 +536,8 @@ titles:
   runner-added: '&e&lNEW RUNNER!\n&b%player% &ais now a speed runner!'
   respawning-soon: '&e&l%time%\n&aRespawning you soon...'
   hunter-release-countdown: '&c&l%time%\n&7You will be released shortly!'
-  hunters-released-hunter: '&e&lRELEASED!\n§aYou have been released. Go get ''em!'
-  hunters-released-runner: '&c&lWATCH OUT!\n§eThe hunters have been released!'
+  hunters-released-hunter: '&e&lRELEASED!\n&aYou have been released. Go get ''em!'
+  hunters-released-runner: '&c&lWATCH OUT!\n&eThe hunters have been released!'
   starting-countdown: '&c&l%time%\n&7Starting soon!'
   game-start-hunter: '&a&lGAME HAS STARTED!\n&bThe speedrunners have a &e%time% &bheadstart.'
   game-start-runner: '&a&lGAME HAS STARTED!\n&bHunters will be released in &e%time%&b!'
@@ -548,7 +545,7 @@ titles:
     random-yeet: '&9&lYEET!\n&cYou got yeeted into the air!'
     speed-boost: '&b&lSPEED!\n&aThe runners received speed for &e20 seconds&a!'
     blindness: '&5&lBLINDNESS!\n&cHunters are blinded for &e10 seconds&c!'
-    acid-rain: '§2§lACID RAIN!\n§cYou better seek shelter!'
+    acid-rain: '&2&lACID RAIN!\n&cYou better seek shelter!'
     hardcore: '&c&lHARDCORE!\n&7You have 3 hearts and won''t regen for 30s!'
 
 messages:
@@ -560,13 +557,13 @@ messages:
   runner-add-cancelled: '&cThe runner adding has been cancelled.'
   runner-add-try-again: '&7Try again, or type ''cancel'' to cancel.'
   runner-add-instructions:
-    - '§bType the name of the player in the chat to turn them into a runner.'
+    - '&bType the name of the player in the chat to turn them into a runner.'
     - '&7The target player does have to be in the game.'
     - '&cType ''cancel'' to cancel.'
   menu-runner-manager-cannot-remove-host: '&cYou can''t remove the host as a runner!'
   game-unavailable: '&c%host%''s game is full or just not joinable right now.'
   game-created: '&aSuccessfully saved your game settings. Please wait for your game to finish loading. You will get teleported when it is ready.'
-  already-own-game: 'It seems like you already have a game running. Let''s wait for that one to finish first. If you wish to force stop your current game, please type §7/manhunt stop§c.'
+  already-own-game: 'It seems like you already have a game running. Let''s wait for that one to finish first. If you wish to force stop your current game, please type &7/manhunt stop&c.'
   game-discard: '&cYou discarded your new manhunt event host.'
   tracking-player: '&aYou are now tracking %prefix% %color%%player%'
   teleporting-player: '&aYou have been teleported to %prefix% %color%%player%'
@@ -583,40 +580,40 @@ messages:
     random-yeet: '&aIt''s time for a random yeet! Wooosh!'
     speed-boost: '&bSpeed %strength% has been applied to the runners for &e20 seconds&b!'
     blindness: '&5All hunters have been blinded for &e10 seconds&5!'
-    acid-rain: '§2Acid rain incoming! Seek shelter...'
-    acid-rain-ended: '§cIt''s safe outside again. Acid rain has ended!'
-    hardcore: '§c§lHARDCORE activated! §cEvery player has been cursed with 3 hearts and no regeneration for 30 seconds!'
-    hardcore-ended: '§cHardcore mode has ended. Everyone''s health has been restored and you can now regenerate health again!'
+    acid-rain: '&2Acid rain incoming! Seek shelter...'
+    acid-rain-ended: '&cIt''s safe outside again. Acid rain has ended!'
+    hardcore: '&c&lHARDCORE activated! &cEvery player has been cursed with 3 hearts and no regeneration for 30 seconds!'
+    hardcore-ended: '&cHardcore mode has ended. Everyone''s health has been restored and you can now regenerate health again!'
   game-start-runner:
-    - '§8§m--------------------------'
+    - '&8&m--------------------------'
     - '&aThe game has started!'
     - '&bThe speedrunners will have a &c%time%&b headstart.'
     - '&bYou have &c%time%&b to prepare for the hunters!'
-    - '§8§m--------------------------'
+    - '&8&m--------------------------'
   game-start-hunter:
-    - '§8§m--------------------------'
+    - '&8&m--------------------------'
     - '&aThe game has started!'
     - '&bThe speedrunners will have a &c%time%&b headstart.'
     - '&bYou will be released in &c%time%&b!'
-    - '§8§m--------------------------'
+    - '&8&m--------------------------'
   twist-select:
     - '&eThe twist &a&l%twist%&e won with &6%votes% votes&e!'
-    - '§8§m--------------------------'
+    - '&8&m--------------------------'
 
   starting-countdown: '&eGame is starting in %time% seconds!'
   hunters-released:
-    - '§8§m--------------------------'
+    - '&8&m--------------------------'
     - '&cThe hunters have been released from the sky!'
-    - '§8§m--------------------------'
-  hunter-release-countdown: '§7Hunters will be released in §e%time%&7!'
+    - '&8&m--------------------------'
+  hunter-release-countdown: '&7Hunters will be released in &e%time%&7!'
   thanks-for-playing: '&bThanks for playing Manhunt on ExodusMC!'
-  respawned-bed: '§aYou respawned at your bed location because you set your spawnpoint!'
+  respawned-bed: '&aYou respawned at your bed location because you set your spawnpoint!'
   runner-added: '&e%player% &ais now a speed runner!'
   runner-removed: '&e%player% &cis no longer a speed runner!'
   player-twist-voted: '&eYou voted for &a&l%twist%&e!'
   twist-voted: '%color%%player% &evoted for twist &a&l%twist%&e. &7%votes% votes!'
-  delayed-leave-start: '§cYou will §c§lLEAVE§c your game in §e3 seconds§c! Click again to cancel.'
-  delayed-leave-cancel: '§cYou cancelled your §c§lLEAVE§c.'
+  delayed-leave-start: '&cYou will &c&lLEAVE&c your game in &e3 seconds&c! Click again to cancel.'
+  delayed-leave-cancel: '&cYou cancelled your &c&lLEAVE&c.'
   player-left-game: '&cYou left your game.'
   runner-entered-nether: '%prefix% %player% &ahas reached &c&lTHE NETHER&a!'
   runner-entered-end: '%prefix% %player% &ahas reached &5&lTHE END&a!'
@@ -655,32 +652,32 @@ messages:
   game-left: '%prefix% %player% &cleft the game! &b[%players%/%maxplayers%]'
   game-host-left: '&dGame host %player% &cleft the game! &b[%players%/%maxplayers%]'
   player-left-waiting: '&cYou left your current game. If you want to join back, type &e/rejoin&c or join through the &e/event&c menu!'
-  player-left-playing: '§cYou left your current game. We did take one of your lives. If you want to join back, type §e/rejoin§c or join through the §e/event§c menu!'
+  player-left-playing: '&cYou left your current game. We did take one of your lives. If you want to join back, type &e/rejoin&c or join through the &e/event&c menu!'
   game-end:
     draw:
-      - '§8§m--------------------------'
-      - '§e§lTHIS GAME ENDED IN A DRAW!'
+      - '&8&m--------------------------'
+      - '&e&lTHIS GAME ENDED IN A DRAW!'
       - ''
-      - '§cNo one won this game!'
-      - '§7You will get teleported to the lobby shortly.'
-      - '§8§m--------------------------'
+      - '&cNo one won this game!'
+      - '&7You will get teleported to the lobby shortly.'
+      - '&8&m--------------------------'
     win:
-      - '§8§m--------------------------'
-      - '§d§l%winner%S HAVE WON THIS MANHUNT!'
+      - '&8&m--------------------------'
+      - '&d&l%winner%S HAVE WON THIS MANHUNT!'
       - ''
       - '&aCongratulations, you won!'
-      - '§7You will get teleported to the lobby shortly.'
-      - '§8§m--------------------------'
+      - '&7You will get teleported to the lobby shortly.'
+      - '&8&m--------------------------'
     lose:
-      - '§8§m--------------------------'
-      - '§d§l%winner%S HAVE WON THIS MANHUNT!'
+      - '&8&m--------------------------'
+      - '&d&l%winner%S HAVE WON THIS MANHUNT!'
       - ''
       - '&aOh no, you lose!'
-      - '§7You will get teleported to the lobby shortly.'
-      - '§8§m--------------------------'
+      - '&7You will get teleported to the lobby shortly.'
+      - '&8&m--------------------------'
 
 scoreboards:
-  title: '§6§lMANHUNT'
+  title: '&6&lMANHUNT'
   loading:
     - '&fHost: &a%host%'
     - ''

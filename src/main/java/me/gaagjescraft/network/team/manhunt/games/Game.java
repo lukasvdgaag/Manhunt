@@ -420,19 +420,19 @@ public class Game {
             if (w != null) {
                 Bukkit.unloadWorld(w, false);
                 FileUtils.deleteDirectory(w.getWorldFolder());
-                if (Bukkit.getPluginManager().isPluginEnabled("MultiverseCore"))
+                if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier);
             }
             if (w1 != null) {
                 Bukkit.unloadWorld(w1, false);
                 FileUtils.deleteDirectory(w1.getWorldFolder());
-                if (Bukkit.getPluginManager().isPluginEnabled("MultiverseCore"))
+                if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier + "_nether");
             }
             if (w2 != null) {
                 Bukkit.unloadWorld(w2, false);
                 FileUtils.deleteDirectory(w2.getWorldFolder());
-                if (Bukkit.getPluginManager().isPluginEnabled("MultiverseCore"))
+                if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier + "_the_end");
             }
         } catch (IOException ignored) {
@@ -450,7 +450,7 @@ public class Game {
         creator.environment(World.Environment.NORMAL);
         creator.seed(seed);
         creator.createWorld();
-        if (Bukkit.getPluginManager().isPluginEnabled("MultiverseCore"))
+        if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + " NORMAL");
 
         WorldCreator creatorNether = new WorldCreator("manhunt_" + identifier + "_nether");
@@ -465,14 +465,14 @@ public class Game {
             World w = creatorNether.createWorld();
             w.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
             w.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
-            if (Bukkit.getPluginManager().isPluginEnabled("MultiverseCore"))
+            if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + "_nether NETHER");
         }, 60L);
         Bukkit.getScheduler().scheduleSyncDelayedTask(Manhunt.get(), () -> {
             World w = creatorEnd.createWorld();
             w.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
             w.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
-            if (Bukkit.getPluginManager().isPluginEnabled("MultiverseCore"))
+            if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + "_the_end THE_END");
         }, 120L);
 

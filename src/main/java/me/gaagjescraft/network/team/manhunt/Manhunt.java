@@ -67,8 +67,8 @@ public class Manhunt extends JavaPlugin {
         getLogger().info("");
         getLogger().info("This is a premium plugin and is licensed to GCNT.");
         getLogger().info("It is not allowed to resell or redistribute the plugin.");
-        if (Bukkit.getPluginManager().isPluginEnabled("MultiverseCore")) {
-            getLogger().info("Found MultiverseCore! We will register the Manhunt worlds so everything will work smoothly. Please know that in order for portals to work, you need to have Multiverse Portals installed too.");
+        if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core")) {
+            getLogger().info("Found Multiverse-Core! We will register the Manhunt worlds so everything will work smoothly. Please know that in order for portals to work, you need to have Multiverse Portals installed too.");
         }
         if (Bukkit.getPluginManager().isPluginEnabled("WorldEdit")) {
             getLogger().info("Found WorldEdit! This is used to handle the waiting lobby schematic pasting and removing.");
