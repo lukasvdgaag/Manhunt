@@ -1,7 +1,9 @@
 package me.gaagjescraft.network.team.manhunt.events;
 
+import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.*;
 import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
+import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -45,8 +47,12 @@ public class DeathEventHandler implements Listener {
                     EnderDragon dragon = ((EnderDragon) e.getEntity());
                     if (dragon.getHealth() - e.getFinalDamage() <= 0) {
                         dragon.getBossBar().removeAll();
-                        game.sendMessage(null, "§5§lTHE ENDERDRAGON HAS BEEN DEFEATED BY " + dgp.getPrefix() + " " + damager.getName());
-                        game.sendTitle(null, "§5§lDRAGON DEFEATED!", "§7" + damager.getName() + " defeated the dragon and won!", 20, 50, 20);
+                        game.sendMessage(null, Util.c(Manhunt.get().getCfg().dragonDefeatedMessage).replace("%prefix%", dgp.getPrefix()).replace("%player%", damager.getName()));
+                        for (GamePlayer gp : game.getPlayers(null)) {
+                            Player p = Bukkit.getPlayer(gp.getUuid());
+                            if (p == null || !gp.isOnline()) continue;
+                            Util.sendTitle(p, Util.c(Manhunt.get().getCfg().dragonDefeatedTitle).replace("%prefix%", dgp.getPrefix()).replace("%player%", damager.getName()), 20, 50, 20);
+                        }
                         game.setDragonDefeated(true);
                         game.checkForWin(true);
                     }
@@ -167,34 +173,29 @@ public class DeathEventHandler implements Listener {
         if (gp.getPlayerType() == PlayerType.RUNNER && gp.getDeaths() == 1) {
             String killMsg = determineDeathMessage(player, cause, killer);
 
-            player.sendTitle("§c§lYOU DIED!", "§7You have 0 lives left.", 20, 60, 20);
+            Util.sendTitle(player, Util.c(Manhunt.get().getCfg().deathTitle).replace("%lives%", "0"), 20, 60, 20);
 
             for (GamePlayer gp1 : game.getPlayers()) {
                 Player p = Bukkit.getPlayer(gp1.getUuid());
 
                 if (gp1.getTracking() != null && gp1.getTracking().getUuid().equals(player.getUniqueId())) {
-                    if (p != null)
-                        p.sendMessage("§cYour tracker has been reset because the runner you were tracking died.");
+                    if (p != null && gp1.isOnline())
+                        p.sendMessage(Util.c(Manhunt.get().getCfg().trackerResetDiedMessage));
                     gp1.setTracking(null);
                 }
 
                 if (p == null) continue;
 
-                p.sendMessage("§7§lSPEED RUNNER DOWN!");
+                p.sendMessage(Util.c(Manhunt.get().getCfg().runnerDownMessage));
                 p.sendMessage(killMsg);
                 if (!p.equals(player)) {
-                    p.sendTitle("§7§lSPEED RUNNER DOWN!", "§c" + player.getName() + " died!", 20, 60, 20);
+                    Util.sendTitle(p, Util.c(Manhunt.get().getCfg().runnerDownTitle).replace("%player%", player.getName()), 20, 60, 20);
                 }
             }
         } else if (gp.getPlayerType() == PlayerType.HUNTER && gp.getDeaths() <= 3) {
             String killMsg = determineDeathMessage(player, cause, killer);
-
-            if (gp.getDeaths() >= 3) {
-                // out of lives
-                player.sendTitle("§c§lYOU DIED!", "§7You have 0 lives left.", 20, 60, 20);
-            } else {
-                player.sendTitle("§c§lYOU DIED!", "§7You have " + (3 - gp.getDeaths()) + " lives left.", 5, 30, 5);
-            }
+            int livesLeft = gp.getDeaths() >= 3 ? 0 : (3 - gp.getDeaths());
+            Util.sendTitle(player, Util.c(Manhunt.get().getCfg().deathTitle).replace("%lives%", livesLeft + ""), 20, 60, 20);
 
             game.sendMessage(null, killMsg);
         }

@@ -3,6 +3,7 @@ package me.gaagjescraft.network.team.manhunt.games;
 import com.google.common.collect.Lists;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.menus.RunnerTrackerMenu;
+import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
 import org.bukkit.entity.Player;
@@ -43,6 +44,11 @@ public class Game {
     private String server;
     private boolean dragonDefeated;
 
+    private int bungeeHunterCount;
+    private int bungeeRunnerCount;
+    private String bungeeServer;
+    private UUID hostUUID;
+
     private Game(String id, boolean twistsAllowed, UUID host, int maxPlayers) {
         this.identifier = id;
         this.twistsAllowed = twistsAllowed;
@@ -60,6 +66,11 @@ public class Game {
         this.eventActive = false;
         this.headStart = HeadstartType.HALF_MINUTE;
         this.dragonDefeated = false;
+        this.bungeeServer = null;
+        this.hostUUID = host;
+
+        this.bungeeHunterCount = 0;
+        this.bungeeRunnerCount = 0;
         determineNextEventTime();
 
         this.players.add(new GamePlayer(
@@ -94,6 +105,51 @@ public class Game {
         return null;
     }
 
+    public static List<Game> getGames() {
+        return games;
+    }
+
+    public static Game getGame(String id) {
+        for (Game g : games) if (g.getIdentifier().equalsIgnoreCase(id)) return g;
+        return null;
+    }
+
+    public int getBungeeHunterCount() {
+        return bungeeHunterCount;
+    }
+
+    public void setBungeeHunterCount(int bungeeHunterCount) {
+        this.bungeeHunterCount = bungeeHunterCount;
+    }
+
+    public int getBungeeRunnerCount() {
+        return bungeeRunnerCount;
+    }
+
+    public void setBungeeRunnerCount(int bungeeRunnerCount) {
+        this.bungeeRunnerCount = bungeeRunnerCount;
+    }
+
+    public String getBungeeServer() {
+        return bungeeServer;
+    }
+
+    public void setBungeeServer(String bungeeServer) {
+        this.bungeeServer = bungeeServer;
+    }
+
+    public void sendUpdate() {
+        if (!Manhunt.get().getCfg().bungeeMode) return;
+        for (GamePlayer gp : players) {
+            Player p = Bukkit.getPlayer(gp.getUuid());
+            if (p == null) continue;
+            p.sendPluginMessage(Manhunt.get(), "exodus:manhunt", Manhunt.get().getPluginMessageHandler().createUpdateGameMessage(
+                    identifier, hostUUID, allowFriendlyFire, maxPlayers, headStart.name(), doDaylightCycle, allowFriendlyFire, status.name(), getOnlinePlayers(PlayerType.RUNNER).size(), getOnlinePlayers(PlayerType.HUNTER).size()
+            ));
+            return;
+        }
+    }
+
     public boolean isDragonDefeated() {
         return dragonDefeated;
     }
@@ -104,15 +160,6 @@ public class Game {
 
     public String getServer() {
         return server;
-    }
-
-    public static List<Game> getGames() {
-        return games;
-    }
-
-    public static Game getGame(String id) {
-        for (Game g : games) if (g.getIdentifier().equalsIgnoreCase(id)) return g;
-        return null;
     }
 
     public void setServer(String server) {
@@ -142,17 +189,24 @@ public class Game {
             for (GamePlayer gp : online) {
                 Player p = Bukkit.getPlayer(gp.getUuid());
                 if (p == null) continue;
-                p.sendMessage(gamePlayer.getPrefix() + " " + player.getName() + "§a joined the game! §b[" + getOnlinePlayers(null).size() + "/" + (maxPlayers + online.size()) + "]");
+                p.sendMessage(Util.c(Manhunt.get().getCfg().gameJoinMessage)
+                        .replace("%prefix%", gamePlayer.getPrefix())
+                        .replace("%color%", gamePlayer.getColor())
+                        .replace("%player%", player.getName())
+                        .replace("%players%", maxPlayers + "")
+                        .replace("%maxplayers%", (maxPlayers + getOnlinePlayers(PlayerType.RUNNER).size()) + ""));
             }
         } else {
             gamePlayer.prepareForSpectate();
         }
 
-        if (getStatus() == GameStatus.WAITING) player.teleport(this.schematic.getSpawnLocation());
+        if (getStatus() == GameStatus.WAITING || getStatus() == GameStatus.STARTING ||
+                (getStatus() == GameStatus.PLAYING && gamePlayer.getPlayerType() == PlayerType.HUNTER && getTimer() <= getHeadStart().getSeconds()))
+            player.teleport(this.schematic.getSpawnLocation());
         else player.teleport(Bukkit.getWorld("manhunt_" + identifier).getSpawnLocation());
 
         this.getRunnerTeleporterMenu().update();
-
+        sendUpdate();
         return true;
     }
 
@@ -169,12 +223,12 @@ public class Game {
 
         gamePlayer.restoreForLobby();
         gamePlayer.leaveGameDelayed(true);
-        player.teleport(Manhunt.get().getLobby());
+        player.teleport(Manhunt.get().getCfg().lobby);
         if (getStatus() == GameStatus.WAITING || getStatus() == GameStatus.STARTING || getStatus() == GameStatus.STOPPING) {
-            player.sendMessage("§cYou left your current game. If you want to join back, type §e/rejoin§c or join through the §e/event§c menu!");
+            player.sendMessage(Util.c(Manhunt.get().getCfg().playerLeftWaitingMessage));
         } else {
             gamePlayer.addDeath();
-            player.sendMessage("§cYou left your current game. We did take one of your life(s). If you want to join back, type §e/rejoin§c or join through the §e/event§c menu!");
+            player.sendMessage(Util.c(Manhunt.get().getCfg().playerLeftPlayingMessage));
         }
         //this.players.remove(gamePlayer);
         gamePlayer.setOnline(false);
@@ -209,12 +263,25 @@ public class Game {
                 }
             }
 
+            String hostLeaveMessage = Util.c(Manhunt.get().getCfg().gameHostLeftMessage)
+                    .replace("%prefix%", gamePlayer.getPrefix())
+                    .replace("%player%", player.getName())
+                    .replace("%color%", gamePlayer.getColor())
+                    .replace("%players%", getOnlinePlayers(null).size() + "")
+                    .replace("%maxplayers%", maxPlayers + "/" + getOnlinePlayers(PlayerType.RUNNER).size());
+            String leaveMessage = Util.c(Manhunt.get().getCfg().gameLeftMessage)
+                    .replace("%prefix%", gamePlayer.getPrefix())
+                    .replace("%player%", player.getName())
+                    .replace("%color%", gamePlayer.getColor())
+                    .replace("%players%", getOnlinePlayers(null).size() + "")
+                    .replace("%maxplayers%", maxPlayers + "/" + getOnlinePlayers(PlayerType.RUNNER).size());
+
             for (GamePlayer gp : getOnlinePlayers(null)) {
                 Player p = Bukkit.getPlayer(gp.getUuid());
                 if (p == null) continue;
                 if (getStatus() == GameStatus.WAITING) {
                     if (gamePlayer.isHost()) {
-                        p.sendMessage("§dGame host " + player.getName() + "§c left the game! §b[" + getOnlinePlayers(null).size() + "/" + (maxPlayers + getOnlinePlayers(PlayerType.RUNNER).size()) + "]");
+                        p.sendMessage(hostLeaveMessage);
                         /*if (newHost != null)
                             p.sendMessage("§d" + Bukkit.getPlayer(newHost.getUuid()).getName() + " has been assigned as new host!");
                         if (changedHostPlayerType)
@@ -222,17 +289,17 @@ public class Game {
                     }
                     return;
                 } else {
-                    if (gamePlayer.getPlayerType() == PlayerType.HUNTER)
-                        p.sendMessage(gamePlayer.getPrefix() + " " + player.getName() + "§c left the game! §b[" + getOnlinePlayers(null).size() + "/" + (maxPlayers + getOnlinePlayers(PlayerType.RUNNER).size()) + "]");
-                    else {
-                        p.sendMessage(gamePlayer.getPrefix() + " " + player.getName() + "§c left the game! §b[" + getOnlinePlayers(null).size() + "/" + (maxPlayers + getOnlinePlayers(PlayerType.RUNNER).size()) + "]");
-                    }
+                    p.sendMessage(leaveMessage);
                 }
             }
         }
         this.getRunnerTeleporterMenu().update();
         for (GamePlayer gp : players) {
             gp.updateScoreboard();
+        }
+        sendUpdate();
+        if (getOnlinePlayers(null).isEmpty() && Manhunt.get().getCfg().bungeeMode) {
+            player.sendPluginMessage(Manhunt.get(), "exodus:manhunt", Manhunt.get().getPluginMessageHandler().createDeleteGameMessage(this.identifier));
         }
         checkForWin(false);
     }
@@ -272,36 +339,41 @@ public class Game {
 
 
             if (winningTeam == null) {
-                player.sendMessage("§8§m--------------------------");
-                player.sendMessage("§e§lTHIS GAME ENDED IN A DRAW!");
-                player.sendMessage("");
-                player.sendMessage("§cNo one won this game!");
-                player.sendMessage("§7You will get teleported to the lobby shortly.");
-                player.sendMessage("§8§m--------------------------");
-
-                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
-                player.sendTitle("§e§lDRAW!", "§7No one won this game!", 20, 80, 20);
+                for (String s : Manhunt.get().getCfg().gameEndDrawMessage) {
+                    player.sendMessage(Util.c(s));
+                }
+                player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().gameEndDrawSound), 1, 1);
+                Util.sendTitle(player, Manhunt.get().getCfg().gameEndDrawTitle, 20, 80, 20);
             } else {
-                player.sendMessage("§8§m--------------------------");
-                player.sendMessage("§d§l" + winningTeam + "S HAVE WON THIS MANHUNT!");
-                player.sendMessage("");
-                player.sendMessage(gp.getPlayerType() == winningTeam ? "§aCongrats you won!" : "§cYou lost!");
-                player.sendMessage("§7You will get teleported to the lobby shortly.");
-                player.sendMessage("§8§m--------------------------");
+                List<String> msgs = gp.getPlayerType() == winningTeam ? Manhunt.get().getCfg().gameEndWinMessage : Manhunt.get().getCfg().gameEndLoseMessage;
+                for (String s : msgs) {
+                    player.sendMessage(Util.c(s.replace("%winner%", winningTeam.name())
+                            .replace("%player%", player.getName())
+                            .replace("%kills%", gp.getKills() + "")));
+                }
+
                 if (gp.getPlayerType() == winningTeam) {
-                    player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1, 1);
+                    player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().gameEndWinSound), 1, 1);
                     if (isDragonDefeated()) {
-                        player.sendTitle("§a§lYOU WIN!", "§7Your team managed to defeat the dragon!", 20, 80, 20);
+                        Util.sendTitle(player, Manhunt.get().getCfg().gameEndWinRunnerDragonTitle, 20, 80, 20);
                     } else {
-                        player.sendTitle("§a§lYOU WIN!", winningTeam == PlayerType.HUNTER ? "§7You managed to eliminate the runners!" : "§7You managed to survive the hunters!", 20, 80, 20);
+                        if (winningTeam == PlayerType.HUNTER) {
+                            Util.sendTitle(player, Manhunt.get().getCfg().gameEndWinHunterTitle, 20, 80, 20);
+                        } else {
+                            Util.sendTitle(player, Manhunt.get().getCfg().gameEndWinRunnerTitle, 20, 80, 20);
+                        }
                     }
                 } else {
-                    player.playSound(player.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1, 1);
-                    player.sendTitle("§c§lYOU LOST!", gp.getPlayerType() == PlayerType.HUNTER ? "§7You were beaten by the runners!" : "§7You were eliminated by the hunters!", 20, 80, 20);
+                    player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().gameEndLoseSound), 1, 1);
+                    if (gp.getPlayerType() == PlayerType.HUNTER) {
+                        Util.sendTitle(player, Manhunt.get().getCfg().gameEndLoseHunterTitle, 20, 80, 20);
+                    } else {
+                        Util.sendTitle(player, Manhunt.get().getCfg().gameEndLoseRunnerTitle, 20, 80, 20);
+                    }
                 }
             }
         }
-
+        sendUpdate();
         if (this.getStatus() != GameStatus.STOPPING) stopGame(false);
     }
 
@@ -317,7 +389,9 @@ public class Game {
     }
 
     public void delete() {
-        Location loc = Manhunt.get().getLobby();
+        Location loc = Manhunt.get().getCfg().lobby;
+
+        boolean deleteMsgSent = false;
 
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.teleport(loc);
@@ -328,6 +402,12 @@ public class Game {
                 p.showPlayer(Manhunt.get(), p1);
                 p1.showPlayer(Manhunt.get(), p);
             }
+
+            if (!deleteMsgSent && Manhunt.get().getCfg().bungeeMode) {
+                deleteMsgSent = true;
+                p.sendPluginMessage(Manhunt.get(), "exodus:manhunt", Manhunt.get().getPluginMessageHandler().createDeleteGameMessage(this.identifier));
+            }
+
         }
 
         try {
@@ -337,17 +417,20 @@ public class Game {
             if (w != null) {
                 Bukkit.unloadWorld(w, false);
                 FileUtils.deleteDirectory(w.getWorldFolder());
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier);
+                if (Bukkit.getPluginManager().isPluginEnabled("MultiverseCore"))
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier);
             }
             if (w1 != null) {
                 Bukkit.unloadWorld(w1, false);
                 FileUtils.deleteDirectory(w1.getWorldFolder());
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier + "_nether");
+                if (Bukkit.getPluginManager().isPluginEnabled("MultiverseCore"))
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier + "_nether");
             }
             if (w2 != null) {
                 Bukkit.unloadWorld(w2, false);
                 FileUtils.deleteDirectory(w2.getWorldFolder());
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier + "_the_end");
+                if (Bukkit.getPluginManager().isPluginEnabled("MultiverseCore"))
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier + "_the_end");
             }
         } catch (IOException ignored) {
         }
@@ -357,14 +440,15 @@ public class Game {
     }
 
     public void create() {
-        int random = ThreadLocalRandom.current().nextInt(Manhunt.get().getWorldSeeds().size());
-        long seed = Manhunt.get().getWorldSeeds().get(random);
+        int random = ThreadLocalRandom.current().nextInt(Manhunt.get().getCfg().seeds.size());
+        long seed = Manhunt.get().getCfg().seeds.get(random);
 
         WorldCreator creator = new WorldCreator("manhunt_" + identifier);
         creator.environment(World.Environment.NORMAL);
         creator.seed(seed);
         creator.createWorld();
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + " NORMAL");
+        if (Bukkit.getPluginManager().isPluginEnabled("MultiverseCore"))
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + " NORMAL");
 
         WorldCreator creatorNether = new WorldCreator("manhunt_" + identifier + "_nether");
         creatorNether.environment(World.Environment.NETHER);
@@ -378,13 +462,15 @@ public class Game {
             World w = creatorNether.createWorld();
             w.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
             w.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + "_nether NETHER");
+            if (Bukkit.getPluginManager().isPluginEnabled("MultiverseCore"))
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + "_nether NETHER");
         }, 60L);
         Bukkit.getScheduler().scheduleSyncDelayedTask(Manhunt.get(), () -> {
             World w = creatorEnd.createWorld();
             w.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
             w.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + "_the_end THE_END");
+            if (Bukkit.getPluginManager().isPluginEnabled("MultiverseCore"))
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + "_the_end THE_END");
         }, 120L);
 
         Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> {
@@ -572,12 +658,12 @@ public class Game {
         this.selectedTwist = twists.get(r);
     }
 
-    public void setEventActive(boolean eventActive) {
-        this.eventActive = eventActive;
-    }
-
     public boolean isEventActive() {
         return eventActive;
+    }
+
+    public void setEventActive(boolean eventActive) {
+        this.eventActive = eventActive;
     }
 
     public HeadstartType getHeadStart() {
@@ -592,12 +678,11 @@ public class Game {
         if (this.status == GameStatus.PLAYING) {
             int low = 2; // 8
             int max = 4; // 15
-            int random = (int) Math.floor(Math.random()*(max-low+1)+low); // random minute between 8-15.
+            int random = (int) Math.floor(Math.random() * (max - low + 1) + low); // random minute between 8-15.
             this.nextEventTime = this.nextEventTime + (random * 60);
-        }
-        else if (this.status == GameStatus.WAITING || this.status == GameStatus.STARTING ||
-        this.status == GameStatus.LOADING) {
-            this.nextEventTime = this.headStart.getSeconds() + (60*2); // 60*5
+        } else if (this.status == GameStatus.WAITING || this.status == GameStatus.STARTING ||
+                this.status == GameStatus.LOADING) {
+            this.nextEventTime = this.headStart.getSeconds() + (60 * 2); // 60*5
         }
     }
 

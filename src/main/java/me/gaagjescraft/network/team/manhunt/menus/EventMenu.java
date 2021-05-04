@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
+import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -15,27 +16,30 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.List;
+
 public class EventMenu implements Listener {
 
     public void openMenu(Player player) {
-        Inventory inventory = Bukkit.createInventory(null, 36, "Events");
+        Inventory inventory = Bukkit.createInventory(null, 36, Util.c(Manhunt.get().getCfg().menuEventsTitle));
 
-        ItemStack manhunt = new ItemStack(Material.COMPASS);
+        ItemStack manhunt = new ItemStack(Material.valueOf(Manhunt.get().getCfg().eventMenuManhuntMaterial));
         ItemMeta manhuntMeta = manhunt.getItemMeta();
-        manhuntMeta.setDisplayName("§bManhunt Event");
+        manhuntMeta.setDisplayName(Util.c(Manhunt.get().getCfg().eventMenuManhuntDisplayname));
 
         int players = 0;
         int games = 0;
         for (Game g : Game.getGames()) {
             games++;
-            players += g.getPlayers().size();
+            players += g.getOnlinePlayers(null).size();
         }
 
-        manhuntMeta.setLore(Lists.newArrayList("", "§7Hunt down the speed runners",
-                "§7and kill them without dying yourself.",
-                "§7Hunters win if all runners are dead.", "",
-                "§bThere are §e" + players + "§b players online in §e" + games + "§b games.", "",
-                "§6Click §eto view all games."));
+        List<String> lore = Lists.newArrayList();
+        for (String s : Manhunt.get().getCfg().eventMenuManhuntLore) {
+            lore.add(Util.c(s).replace("%totalplayers%", players + "").replace("%totalgames%", games + ""));
+        }
+
+        manhuntMeta.setLore(lore);
         manhuntMeta.addItemFlags(ItemFlag.values());
         manhunt.setItemMeta(manhuntMeta);
         inventory.setItem(13, manhunt);
@@ -53,7 +57,7 @@ public class EventMenu implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
-        if (!e.getView().getTitle().equals("Events")) return;
+        if (!e.getView().getTitle().equals(Util.c(Manhunt.get().getCfg().menuEventsTitle))) return;
         if (e.getSlot() < 0) return;
 
         e.setCancelled(true);

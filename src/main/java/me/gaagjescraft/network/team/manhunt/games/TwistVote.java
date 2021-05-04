@@ -1,5 +1,7 @@
 package me.gaagjescraft.network.team.manhunt.games;
 
+import me.gaagjescraft.network.team.manhunt.Manhunt;
+
 public enum TwistVote {
 
     NONE("none"),
@@ -10,7 +12,7 @@ public enum TwistVote {
     RANDOM_YEET("random yeets"),
     HARDCORE("hardcore");
 
-    String displayName;
+    private String displayName;
 
     TwistVote(String display) {
         this.displayName = display;
@@ -18,5 +20,9 @@ public enum TwistVote {
 
     public String getDisplayName() {
         return displayName;
+    }
+
+    public void updateDisplayName() {
+        this.displayName = Manhunt.get().getCfg().getFile().getString("prefixes.twists." + this.name().toLowerCase().replace("_", "-"), getDisplayName());
     }
 }

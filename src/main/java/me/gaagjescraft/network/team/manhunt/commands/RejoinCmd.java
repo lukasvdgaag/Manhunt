@@ -1,6 +1,8 @@
 package me.gaagjescraft.network.team.manhunt.commands;
 
+import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.Game;
+import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -18,19 +20,18 @@ public class RejoinCmd implements CommandExecutor {
         Player player = (Player) sender;
         Game game = Game.getGame(player);
         if (game == null) {
-            sender.sendMessage("§cYou have no game to join back in.");
+            player.sendMessage(Util.c(Manhunt.get().getCfg().noGameToRejoinMessage));
             return true;
         } else if (game.getPlayer(player).isOnline()) {
-            sender.sendMessage("§cYou are already in this game.");
+            player.sendMessage(Util.c(Manhunt.get().getCfg().alreadyInGameRejoinMessage));
             return true;
         }
 
         if (!game.addPlayer(player)) {
-            sender.sendMessage("§cWe failed to put you back into your previous game!");
-            return true;
+            player.sendMessage(Util.c(Manhunt.get().getCfg().rejoinFailMessage));
         } else {
-            sender.sendMessage("§5You have been put into your old game.");
-            return true;
+            player.sendMessage(Util.c(Manhunt.get().getCfg().playerRejoinedMessage));
         }
+        return true;
     }
 }

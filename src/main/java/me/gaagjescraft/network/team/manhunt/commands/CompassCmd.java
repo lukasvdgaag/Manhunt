@@ -1,8 +1,10 @@
 package me.gaagjescraft.network.team.manhunt.commands;
 
+import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.games.GameStatus;
 import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
+import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -24,12 +26,12 @@ public class CompassCmd implements CommandExecutor {
         Game game = Game.getGame(player);
 
         if (game == null) {
-            player.sendMessage(ChatColor.RED + "You're not in a game!");
+            player.sendMessage(Util.c(Manhunt.get().getCfg().notIngameMessage));
             return true;
         }
 
         if (game.getStatus() != GameStatus.PLAYING || game.getTimer() < game.getHeadStart().getSeconds()) {
-            player.sendMessage(ChatColor.RED + "You can't get a compass right now!");
+            player.sendMessage(Util.c(Manhunt.get().getCfg().compassUnavailableMessage));
             return true;
         }
 
@@ -37,13 +39,13 @@ public class CompassCmd implements CommandExecutor {
             ItemStack item = player.getInventory().getItem(i);
             if (item == null || item.getType() == Material.AIR) continue;
             if (item.isSimilar(Itemizer.MANHUNT_RUNNER_TRACKER)) {
-                player.sendMessage(ChatColor.RED + "You already have a runner tracker in your inventory!");
+                player.sendMessage(Util.c(Manhunt.get().getCfg().compassAlreadyAddedMessage));
                 return true;
             }
         }
 
         player.getInventory().addItem(Itemizer.MANHUNT_RUNNER_TRACKER);
-        player.sendMessage(ChatColor.GREEN + "The runner tracker has been added to your inventory!");
+        player.sendMessage(Util.c(Manhunt.get().getCfg().compassGivenMessage));
         return true;
     }
 }

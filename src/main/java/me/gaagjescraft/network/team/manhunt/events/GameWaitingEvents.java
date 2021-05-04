@@ -6,6 +6,7 @@ import me.gaagjescraft.network.team.manhunt.games.GamePlayer;
 import me.gaagjescraft.network.team.manhunt.games.GameStatus;
 import me.gaagjescraft.network.team.manhunt.games.PlayerType;
 import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
+import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
@@ -72,12 +73,13 @@ public class GameWaitingEvents implements Listener {
 
     @EventHandler
     public void onMobSpawn(EntitySpawnEvent e) {
-        if (e.getEntityType() == EntityType.BAT || e.getEntityType() == EntityType.SQUID) {
+        if (e.getLocation().getWorld().getName().startsWith("manhunt_") && (e.getEntityType() == EntityType.BAT || e.getEntityType() == EntityType.SQUID)) {
             e.setCancelled(true);
             return;
         }
+        if (Manhunt.get().getCfg().lobby == null) return;
 
-        if (e.getLocation().getWorld().getName().equals(Manhunt.get().getLobby().getWorld().getName())) {
+        if (e.getLocation().getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
             e.setCancelled(true);
             return;
         }
@@ -94,9 +96,11 @@ public class GameWaitingEvents implements Listener {
     @EventHandler
     public void onPickup(EntityPickupItemEvent e) {
         if (e.getEntity().getType() != EntityType.PLAYER) return;
+        if (Manhunt.get().getCfg().lobby == null) return;
+
         Player player = (Player) e.getEntity();
 
-        if (player.getWorld().getName().equals(Manhunt.get().getLobby().getWorld().getName())) {
+        if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
             e.setCancelled(true);
             return;
         }
@@ -162,8 +166,10 @@ public class GameWaitingEvents implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
+        if (Manhunt.get().getCfg().lobby == null) return;
+
         Player player = e.getPlayer();
-        if (player.getWorld().getName().equals(Manhunt.get().getLobby().getWorld().getName())) {
+        if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
             e.setCancelled(true);
             return;
         }
@@ -186,9 +192,11 @@ public class GameWaitingEvents implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
+        if (Manhunt.get().getCfg().lobby == null) return;
+
         Player player = e.getPlayer();
 
-        if (player.getWorld().getName().equals(Manhunt.get().getLobby().getWorld().getName())) {
+        if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
             e.setCancelled(true);
             return;
         }
@@ -211,8 +219,9 @@ public class GameWaitingEvents implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onDamage(EntityDamageEvent e) {
         if (e.getEntity().getType() != EntityType.PLAYER) return;
+        if (Manhunt.get().getCfg().lobby == null) return;
 
-        String loc = Manhunt.get().getLobby().getWorld().getName();
+        String loc = Manhunt.get().getCfg().lobby.getWorld().getName();
         if (loc.equals(e.getEntity().getWorld().getName())) {
             e.setCancelled(true);
             return;
@@ -239,8 +248,10 @@ public class GameWaitingEvents implements Listener {
 
     @EventHandler
     public void onBlockPlace(PlayerDropItemEvent e) {
+        if (Manhunt.get().getCfg().lobby == null) return;
+
         Player player = e.getPlayer();
-        if (player.getWorld().getName().equals(Manhunt.get().getLobby().getWorld().getName())) {
+        if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
             e.setCancelled(true);
             return;
         }
@@ -287,8 +298,10 @@ public class GameWaitingEvents implements Listener {
 
     @EventHandler
     public void onHunger(FoodLevelChangeEvent e) {
+        if (Manhunt.get().getCfg().lobby == null) return;
+
         Player player = (Player) e.getEntity();
-        if (player.getWorld().getName().equals(Manhunt.get().getLobby().getWorld().getName())) {
+        if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
             e.setCancelled(true);
             return;
         }
@@ -323,12 +336,14 @@ public class GameWaitingEvents implements Listener {
 
         if (worldName.endsWith("_nether") && !gp.isReachedNether()) {
             gp.setReachedNether(true);
+            Util.sendTitle(e.getPlayer(), Util.c(Manhunt.get().getCfg().playerEnteredNetherTitle.replace("%prefix%", gp.getPrefix()).replace("%player%", e.getPlayer().getName())), 20, 50, 20);
+
             e.getPlayer().sendTitle("§c§lNETHER", "§7You have entered the nether!", 20, 50, 20);
             for (GamePlayer gp2 : game.getOnlinePlayers(null)) {
                 Player p = Bukkit.getPlayer(gp2.getUuid());
                 if (p == null) continue;
-                p.sendMessage(gp.getPrefix() + " " + e.getPlayer().getName() + "§a has reached §c§lTHE NETHER§a!");
-                p.playSound(p.getLocation(), Sound.ENTITY_BLAZE_DEATH, 1, 1);
+                p.sendMessage(Util.c(Manhunt.get().getCfg().runnerEnteredNetherMessage.replace("%prefix%", gp.getPrefix()).replace("%player%", e.getPlayer().getName())));
+                p.playSound(p.getLocation(), Sound.valueOf(Manhunt.get().getCfg().runnerEnteredNetherSound), 1, 1);
             }
         } else if (worldName.endsWith("_the_end") && !gp.isReachedEnd()) {
             gp.setReachedEnd(true);
@@ -336,8 +351,8 @@ public class GameWaitingEvents implements Listener {
             for (GamePlayer gp2 : game.getOnlinePlayers(null)) {
                 Player p = Bukkit.getPlayer(gp2.getUuid());
                 if (p == null) continue;
-                p.sendMessage(gp.getPrefix() + " " + e.getPlayer().getName() + "§a has reached §5§lTHE END§a!");
-                p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1, 1);
+                p.sendMessage(Util.c(Manhunt.get().getCfg().runnerEnteredEndMessage.replace("%prefix%", gp.getPrefix()).replace("%player%", e.getPlayer().getName())));
+                p.playSound(p.getLocation(), Sound.valueOf(Manhunt.get().getCfg().runnerEnteredEndSound), 1, 1);
             }
         }
 
@@ -345,8 +360,10 @@ public class GameWaitingEvents implements Listener {
 
     @EventHandler
     public void onHandSwitch(PlayerSwapHandItemsEvent e) {
+        if (Manhunt.get().getCfg().lobby == null) return;
+
         Player player = e.getPlayer();
-        if (player.getWorld().getName().equals(Manhunt.get().getLobby().getWorld().getName())) {
+        if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
             e.setCancelled(true);
             return;
         }

@@ -3,9 +3,8 @@ package me.gaagjescraft.network.team.manhunt.events;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.games.GamePlayer;
-import me.gaagjescraft.network.team.manhunt.games.GameStatus;
+import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -39,24 +38,45 @@ public class GameEventsHandlers implements Listener {
         GamePlayer gp = game.getPlayer(player);
 
         e.setCancelled(true);
-        String msg;
+        String message = Util.c(Manhunt.get().getCfg().chatFormat
+                .replace("%prefix%", gp.getPrefix(true))
+                .replace("%color%", gp.getColor())
+                .replace("%message%", e.getMessage()));
 
-        if (game.getStatus() == GameStatus.PLAYING)
-            msg = "§7[" + gp.getPrefix(true) + "S§7] " + ChatColor.getLastColors(gp.getPrefix()) + player.getName() + "§f: §f" + e.getMessage();
-        else
-            msg = "§7[§8§lGLOBAL§7] " + ChatColor.getLastColors(gp.getPrefix()) + player.getName() + "§f: §f" + e.getMessage();
-
-        for (GamePlayer gps : game.getOnlinePlayers(null)) {
-            Player p = Bukkit.getPlayer(gps.getUuid());
-            if (p == null) continue;
-            if (game.getStatus() == GameStatus.PLAYING) {
-                if (gp.isFullyDead()) {
-                    if (gps.isFullyDead()) p.sendMessage(msg);
-                } else {
-                    if (gps.getPlayerType() == gp.getPlayerType()) p.sendMessage(msg);
+        if (Manhunt.get().getCfg().chatPerTeam) {
+            for (GamePlayer gps : game.getOnlinePlayers(null)) {
+                Player p = Bukkit.getPlayer(gps.getUuid());
+                if (p == null) continue;
+                if (Manhunt.get().getCfg().separateDeadChat) {
+                    if (gp.isFullyDead()) {
+                        if (gps.isFullyDead()) {
+                            p.sendMessage(message);
+                        }
+                        continue;
+                    } else if (!gp.isFullyDead() && gp.isFullyDead()) continue;
                 }
-            } else {
-                p.sendMessage(msg);
+                if (gp.getPlayerType() == gps.getPlayerType()) {
+                    // same team
+                    p.sendMessage(message);
+                }
+            }
+        } else {
+            for (GamePlayer gps : game.getOnlinePlayers(null)) {
+                Player p = Bukkit.getPlayer(gps.getUuid());
+                if (p == null) continue;
+                if (Manhunt.get().getCfg().separateDeadChat) {
+                    if (gp.isFullyDead()) {
+                        if (gps.isFullyDead()) {
+                            p.sendMessage(message);
+                        }
+                    } else {
+                        if (!gps.isFullyDead()) {
+                            p.sendMessage(message);
+                        }
+                    }
+                } else {
+                    p.sendMessage(message);
+                }
             }
         }
     }

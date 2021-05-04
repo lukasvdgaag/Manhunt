@@ -1,6 +1,7 @@
 package me.gaagjescraft.network.team.manhunt.games;
 
 import me.gaagjescraft.network.team.manhunt.Manhunt;
+import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.entity.Player;
 
 public class GameSetup {
@@ -41,7 +42,9 @@ public class GameSetup {
         this.headstart = headstart;
         if (getGame() != null) {
             getGame().setHeadStart(headstart);
-            if (announce) getGame().sendMessage(null, "§b" + host.getName() + "§e has changed the runners headstart to §a§l"+ Manhunt.get().getUtil().secondsToTimeString(headstart.getSeconds(), "string") + "§e.");
+            if (announce) {
+                getGame().sendMessage(null, Util.c(Manhunt.get().getCfg().headstartChangeMessage.replace("%time%", Manhunt.get().getUtil().secondsToTimeString(headstart.getSeconds(), "string")).replace("%player%", host.getName())));
+            }
         }
     }
 
@@ -64,7 +67,9 @@ public class GameSetup {
             for (GamePlayer gp : this.game.getPlayers()) {
                 gp.prepareForGame(GameStatus.WAITING);
             }
-            if (announce) getGame().sendMessage(null, "§b" + host.getName() + "§e has " + (this.allowTwists ? "enabled" : "disabled") + " §a§lTwists§e.");
+            if (announce) {
+                getGame().sendMessage(null, Util.c(this.allowTwists ? Manhunt.get().getCfg().toggleTwistsEnabledMessage : Manhunt.get().getCfg().toggleTwistsDisabledMessage).replace("%player%", host.getName()));
+            }
         }
     }
 
@@ -84,7 +89,9 @@ public class GameSetup {
         this.doDaylightCycle = doDaylightCycle;
         if (getGame() != null) {
             getGame().setDoDaylightCycle(this.doDaylightCycle);
-            if (announce) getGame().sendMessage(null, "§b" + host.getName() + "§e has " + (this.doDaylightCycle ? "enabled" : "disabled") + " §a§lDaylight Cycle§e.");
+            if (announce) {
+                getGame().sendMessage(null, Util.c(this.doDaylightCycle ? Manhunt.get().getCfg().toggleDaylightEnabledMessage : Manhunt.get().getCfg().toggleDaylightDisabledMessage).replace("%player%", host.getName()));
+            }
         }
     }
 
@@ -96,7 +103,9 @@ public class GameSetup {
         this.allowFriendlyFire = allowFriendlyFire;
         if (getGame() != null) {
             getGame().setAllowFriendlyFire(this.allowFriendlyFire);
-            if (announce) getGame().sendMessage(null, "§b" + host.getName() + "§e has " + (this.allowFriendlyFire ? "enabled" : "disabled") + " §a§lFriendly Fire§e.");
+            if (announce) {
+                getGame().sendMessage(null, Util.c(this.allowFriendlyFire ? Manhunt.get().getCfg().toggleFriendlyFireEnabledMessage : Manhunt.get().getCfg().toggleFriendlyFireDisabledMessage).replace("%player%", host.getName()));
+            }
         }
     }
 

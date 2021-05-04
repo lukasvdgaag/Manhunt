@@ -6,6 +6,7 @@ import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.games.GamePlayer;
 import me.gaagjescraft.network.team.manhunt.games.PlayerType;
 import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
+import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -32,7 +33,7 @@ public class ManhuntRunnerManageMenu implements Listener {
     }
 
     public void open(Player player, Game game) {
-        Inventory menu = Bukkit.createInventory(null, 27, "Manhunt Runner Manager");
+        Inventory menu = Bukkit.createInventory(null, 27, Util.c(Manhunt.get().getCfg().menuRunnerManagerTitle));
         player.playSound(player.getLocation(), Sound.BLOCK_CHEST_OPEN, 1, 1);
         player.openInventory(menu);
         updateItems(player, game);
@@ -52,22 +53,36 @@ public class ManhuntRunnerManageMenu implements Listener {
             ItemStack item = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta) item.getItemMeta();
             meta.setOwningPlayer(op);
-            meta.setDisplayName("§e" + op.getName() + (gp.isHost() ? " §6(Host)" : ""));
-            meta.setLore(Lists.newArrayList("", gp.isHost() ? "§cYou can't remove the host." : "§6Shift Click§e to remove runner."));
+            meta.setDisplayName(Util.c(
+                    gp.isHost() ? Manhunt.get().getCfg().runnerManagerMenuHostRunnerDisplayname : Manhunt.get().getCfg().runnerManagerMenuGeneralRunnerDisplayname
+            ).replace("%player%", op.getName()));
+            List<String> lore = gp.isHost() ? Manhunt.get().getCfg().runnerManagerMenuHostRunnerLore : Manhunt.get().getCfg().runnerManagerMenuGeneralRunnerLore;
+            for (int i = 0; i < lore.size(); i++) {
+                lore.set(i, Util.c(lore.get(i).replace("%player%", op.getName())));
+            }
+            meta.setLore(lore);
             meta.addItemFlags(ItemFlag.values());
             item.setItemMeta(meta);
             menu.setItem(slot, item);
             slot++;
         }
 
-        menu.setItem(26, Itemizer.createItem(Material.OAK_SIGN, 1, "§bAdd new runner", Lists.newArrayList("", "§7Promote a hunter to a", "§7runner. Please know that", "§7the target player has", "§7to be in this game.", "", "§6Click§e to add a new player.")));
-        menu.setItem(22, Itemizer.createItem(Material.LIME_CONCRETE, 1, "§a§lSave Settings", Lists.newArrayList("", "§7Save the settings and", "§7go back to the main", "§7settings menu.", "", "§6Click§e to go back.")));
+        menu.setItem(22, Itemizer.createItem(
+                Manhunt.get().getCfg().runnerManagerMenuSaveMaterial, 1,
+                Manhunt.get().getCfg().runnerManagerMenuSaveDisplayname,
+                Manhunt.get().getCfg().runnerManagerMenuSaveLore
+        ));
+        menu.setItem(26, Itemizer.createItem(
+                Manhunt.get().getCfg().runnerManagerMenuAddRunnerMaterial, 1,
+                Manhunt.get().getCfg().runnerManagerMenuAddRunnerDisplayname,
+                Manhunt.get().getCfg().runnerManagerMenuAddRunnerLore
+        ));
     }
 
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
-        if (!e.getView().getTitle().equals("Manhunt Runner Manager")) return;
+        if (!e.getView().getTitle().equals(Util.c(Manhunt.get().getCfg().menuRunnerManagerTitle))) return;
         if (e.getSlot() < 0) return;
 
         e.setCancelled(true);
@@ -86,14 +101,14 @@ public class ManhuntRunnerManageMenu implements Listener {
                     if (e.getClick().isShiftClick()) {
                         GamePlayer gp = runners.get(e.getSlot());
                         if (gp.isHost()) {
-                            player.sendMessage("§cYou can't remove the host as a runner!");
-                            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
+                            player.sendMessage(Util.c(Manhunt.get().getCfg().menuRunnerManagerCannotRemoveHostMessage));
+                            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuRunnerManagerCannotRemoveHostSound), 1, 1);
                         } else {
                             Player target = Bukkit.getPlayer(gp.getUuid());
-                            player.sendMessage("§cYou removed " + target.getName() + " as runner!");
+                            player.sendMessage(Util.c(Manhunt.get().getCfg().playerRemoveRunnerMessage.replace("%player%", target.getName())));
                             gp.setPlayerType(PlayerType.HUNTER);
                             game.getRunnerTeleporterMenu().update();
-                            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_YES, 1, 1);
+                            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().runnerRemovedSound), 1, 1);
                             this.chatPlayers.remove(player);
                             open(player, game);
                         }
@@ -103,13 +118,13 @@ public class ManhuntRunnerManageMenu implements Listener {
             }
         } else if (e.getSlot() == 22) {
             // continue setup
-            player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 1, 1);
+            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHeadstartSaveSound), 1, 1);
             Manhunt.get().getManhuntGameSetupMenu().openMenu(player, game);
         } else if (e.getSlot() == 26) {
             this.chatPlayers.add(player);
-            player.sendMessage("§bType the name of the player in the chat to turn them into a runner.");
-            player.sendMessage("§7The target player does have to be in the game.");
-            player.sendMessage("§cType 'cancel' to cancel.");
+            for (String s : Manhunt.get().getCfg().runnerAddInstructionsMessage) {
+                player.sendMessage(Util.c(s));
+            }
             player.closeInventory();
         }
     }
@@ -127,33 +142,33 @@ public class ManhuntRunnerManageMenu implements Listener {
         e.setCancelled(true);
 
         if (e.getMessage().equalsIgnoreCase("cancel")) {
-            e.getPlayer().sendMessage("§cCancelled the runner adding.");
+            e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().runnerAddCancelledMessage));
             this.chatPlayers.remove(e.getPlayer());
             return;
         }
 
         Player target = Bukkit.getPlayer(e.getMessage());
         if (target == null) {
-            e.getPlayer().sendMessage("§cThat player is not online.");
-            e.getPlayer().sendMessage("§7Try again, or type 'cancel' to cancel.");
+            e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().playerNotOnlineMessage));
+            e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().runnerAddTryAgainMessage));
             return;
         }
 
         GamePlayer targetGP = game.getPlayer(target);
         if (targetGP == null) {
-            e.getPlayer().sendMessage("§cThat player is not in your game.");
-            e.getPlayer().sendMessage("§7Try again, or type 'cancel' to cancel.");
+            e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().targetPlayerNotIngameMessage.replace("%player%", target.getName())));
+            e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().runnerAddTryAgainMessage));
             return;
         }
 
         if (targetGP.getPlayerType() == PlayerType.RUNNER) {
-            e.getPlayer().sendMessage("§cThat player is already a runner.");
-            e.getPlayer().sendMessage("§7Try again, or type 'cancel' to cancel.");
+            e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().targetPlayerAlreadyRunnerMessage.replace("%player%", target.getName())));
+            e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().runnerAddTryAgainMessage));
             return;
         }
 
         targetGP.setPlayerType(PlayerType.RUNNER);
-        e.getPlayer().sendMessage("§aYou made " + target.getName() + " a runner!");
+        e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().playerAddRunnerMessage.replace("%player%", target.getName())));
         this.chatPlayers.remove(e.getPlayer());
     }
 

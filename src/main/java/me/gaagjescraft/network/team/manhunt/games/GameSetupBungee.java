@@ -29,10 +29,11 @@ public class GameSetupBungee {
 
     public void requestNextGameCreation() {
         this.startedSearching = true;
-        List<String> servers = Manhunt.get().getConfig().getStringList("game_servers");
+        List<String> servers = Manhunt.get().getCfg().gameServers;
         for (String server : servers) {
             if (!serversChecked.contains(server)) {
                 Manhunt.get().getUtil().createGameServer(this.gameSetup, server);
+                serversChecked.add(server);
                 return;
             }
         }

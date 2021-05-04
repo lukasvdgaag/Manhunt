@@ -1,6 +1,8 @@
 package me.gaagjescraft.network.team.manhunt.commands;
 
+import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.Game;
+import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -19,12 +21,11 @@ public class LeaveCmd implements CommandExecutor {
         Player player = (Player) sender;
         Game game = Game.getGame(player);
         if (game == null) {
-            player.sendMessage("§cYou're not in a game!");
+            player.sendMessage(Util.c(Manhunt.get().getCfg().notIngameMessage));
             return true;
         }
 
         game.removePlayer(player);
-        //player.sendMessage("§cYou left your game.");
         return true;
     }
 }

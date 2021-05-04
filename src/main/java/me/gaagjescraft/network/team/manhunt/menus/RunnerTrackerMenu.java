@@ -1,10 +1,11 @@
 package me.gaagjescraft.network.team.manhunt.menus;
 
-import com.google.common.collect.Lists;
+import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.games.GamePlayer;
 import me.gaagjescraft.network.team.manhunt.games.PlayerType;
 import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
+import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -37,8 +38,8 @@ public class RunnerTrackerMenu {
         else if (runners <= 36) size = 45;
         else if (runners <= 45) size = 54;
 
-        Inventory teleportMenu = Bukkit.createInventory(null, size, "Manhunt Teleporter Menu");
-        Inventory trackMenu = Bukkit.createInventory(null, size, "Manhunt Tracker Menu");
+        Inventory teleportMenu = Bukkit.createInventory(null, size, Util.c(Manhunt.get().getCfg().menuTeleporterTitle));
+        Inventory trackMenu = Bukkit.createInventory(null, size, Util.c(Manhunt.get().getCfg().menuTrackerTitle));
 
         teleportMenu.setItem(size - 5, Itemizer.CLOSE_ITEM);
         trackMenu.setItem(size - 5, Itemizer.CLOSE_ITEM);
@@ -51,8 +52,12 @@ public class RunnerTrackerMenu {
             ItemStack item = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta) item.getItemMeta();
             meta.setOwningPlayer(Bukkit.getOfflinePlayer(runner.getUuid()));
-            meta.setDisplayName("§e" + player.getName());
-            meta.setLore(Lists.newArrayList("", "§6Click§e to teleport."));
+            meta.setDisplayName(Util.c(Manhunt.get().getCfg().teleporterMenuPlayerDisplayname.replace("%player%", player.getName())));
+            List<String> lore = Manhunt.get().getCfg().teleporterMenuPlayerLore;
+            for (int i = 0; i < lore.size(); i++) {
+                lore.set(i, Util.c(lore.get(i).replace("%player%", player.getName())));
+            }
+            meta.setLore(lore);
             meta.addItemFlags(ItemFlag.values());
             item.setItemMeta(meta);
             teleportMenu.setItem(slot, item);
@@ -60,8 +65,12 @@ public class RunnerTrackerMenu {
             ItemStack item1 = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta1 = (SkullMeta) item1.getItemMeta();
             meta1.setOwningPlayer(Bukkit.getOfflinePlayer(runner.getUuid()));
-            meta1.setDisplayName("§e" + player.getName());
-            meta1.setLore(Lists.newArrayList("", "§6Click§e to track."));
+            meta1.setDisplayName(Util.c(Manhunt.get().getCfg().trackerMenuPlayerDisplayname.replace("%player%", player.getName())));
+            List<String> lore1 = Manhunt.get().getCfg().trackerMenuPlayerLore;
+            for (int i = 0; i < lore1.size(); i++) {
+                lore1.set(i, Util.c(lore1.get(i).replace("%player%", player.getName())));
+            }
+            meta1.setLore(lore);
             meta1.addItemFlags(ItemFlag.values());
             item1.setItemMeta(meta1);
             trackMenu.setItem(slot, item1);

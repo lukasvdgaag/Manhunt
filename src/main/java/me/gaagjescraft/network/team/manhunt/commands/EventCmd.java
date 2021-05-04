@@ -2,6 +2,7 @@ package me.gaagjescraft.network.team.manhunt.commands;
 
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.Game;
+import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -19,15 +20,14 @@ public class EventCmd implements CommandExecutor {
         Player p = (Player) sender;
 
         if (args.length >= 1 && args[0].equalsIgnoreCase("setspawn") && p.hasPermission("exodus.events.setspawn")) {
-            Manhunt.get().getConfig().set("lobby", p.getLocation());
-            Manhunt.get().saveConfig();
-            Manhunt.get().reloadConfig();
-            p.sendMessage("§aSuccessfully set the events spawnpoint!");
+            Manhunt.get().getCfg().lobby = p.getLocation();
+            Manhunt.get().getCfg().save();
+            p.sendMessage(Util.c(Manhunt.get().getCfg().lobbySetMessage));
             return true;
         }
 
         if (Game.getGame(p) == null) Manhunt.get().getEventMenu().openMenu(p);
-        else p.sendMessage(ChatColor.RED + "You can't do this while you're in a game.");
+        else p.sendMessage(Util.c(Manhunt.get().getCfg().notWhilePlayingMessage));
         return true;
     }
 }

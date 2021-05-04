@@ -4,6 +4,10 @@ version: 1.0.0
 description: Manhunt plugin for ExodusMC
 author: GaagjesCraft Network Team (GCNT)
 api-version: 1.16
+depend:
+  - WorldEdit
+softdepend:
+  - MultiverseCore
 load: POSTWORLD
 
 commands:

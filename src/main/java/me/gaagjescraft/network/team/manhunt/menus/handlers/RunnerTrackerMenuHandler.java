@@ -1,9 +1,10 @@
 package me.gaagjescraft.network.team.manhunt.menus.handlers;
 
+import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.games.GamePlayer;
+import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,7 +16,7 @@ public class RunnerTrackerMenuHandler implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
-        if (!e.getView().getTitle().equals("Manhunt Tracker Menu") && !e.getView().getTitle().equals("Manhunt Teleporter Menu"))
+        if (!e.getView().getTitle().equals(Util.c(Manhunt.get().getCfg().menuTrackerTitle)) && !e.getView().getTitle().equals(Util.c(Manhunt.get().getCfg().menuTeleporterTitle)))
             return;
         if (e.getSlot() < 0) return;
 
@@ -42,24 +43,29 @@ public class RunnerTrackerMenuHandler implements Listener {
             GamePlayer targetGP = game.getRunnerTeleporterMenu().getRunnersList().get(i);
             Player target = Bukkit.getPlayer(targetGP.getUuid());
             if (target == null) {
-                player.sendMessage(ChatColor.RED + "Something went wrong whilst " + (teleporting ? "teleporting you to this player." : "tracking this player."));
+                if (teleporting) {
+                    player.sendMessage(Util.c(Manhunt.get().getCfg().failedTeleportingMessage));
+                } else {
+                    player.sendMessage(Util.c(Manhunt.get().getCfg().failedTrackingMessage));
+                }
                 return;
             }
             if (target.getUniqueId().equals(player.getUniqueId())) {
-                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
-                if (teleporting) player.sendMessage(ChatColor.RED + "You can't teleport to yourself!");
-                else player.sendMessage(ChatColor.RED + "You can't track yourself!");
+                player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().playerIsYouSound), 1, 1);
+                player.sendMessage(Util.c(Manhunt.get().getCfg().playerIsYouMessage));
                 return;
             }
 
             player.closeInventory();
-            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().trackingPlayerSound), 1, 1);
             if (teleporting) {
                 player.teleport(target.getLocation());
-                player.sendMessage("§aYou have been teleported to " + targetGP.getPrefix() + " " + target.getName());
+                player.sendMessage(Util.c(Manhunt.get().getCfg().teleportingPlayerMessage.replace("%prefix%", targetGP.getPrefix())
+                        .replace("%color%", targetGP.getColor()).replace("%player%", target.getName())));
             } else {
                 gp.setTracking(game.getRunnerTeleporterMenu().getRunnersList().get(i));
-                player.sendMessage("§aYou are now tracking " + targetGP.getPrefix() + " " + target.getName());
+                player.sendMessage(Util.c(Manhunt.get().getCfg().trackingPlayerMessage.replace("%prefix%", targetGP.getPrefix())
+                        .replace("%color%", targetGP.getColor()).replace("%player%", target.getName())));
             }
         }
 

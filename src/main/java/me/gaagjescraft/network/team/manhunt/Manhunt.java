@@ -5,20 +5,17 @@ import me.gaagjescraft.network.team.manhunt.events.DeathEventHandler;
 import me.gaagjescraft.network.team.manhunt.events.GameEventsHandlers;
 import me.gaagjescraft.network.team.manhunt.events.GameWaitingEvents;
 import me.gaagjescraft.network.team.manhunt.events.LeaveEventHandler;
-import me.gaagjescraft.network.team.manhunt.games.Game;
-import me.gaagjescraft.network.team.manhunt.games.GamePlayer;
-import me.gaagjescraft.network.team.manhunt.games.GameStatus;
-import me.gaagjescraft.network.team.manhunt.games.PlayerType;
+import me.gaagjescraft.network.team.manhunt.events.bungee.PluginMessageHandler;
+import me.gaagjescraft.network.team.manhunt.games.*;
 import me.gaagjescraft.network.team.manhunt.menus.*;
 import me.gaagjescraft.network.team.manhunt.menus.handlers.RunnerTrackerMenuHandler;
+import me.gaagjescraft.network.team.manhunt.utils.Config;
+import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.List;
 
 public class Manhunt extends JavaPlugin {
 
@@ -30,9 +27,9 @@ public class Manhunt extends JavaPlugin {
     private ManhuntTwistVoteMenu manhuntTwistVoteMenu;
     private ManhuntHeadstartSetupMenu manhuntHeadstartSetupMenu;
     private ManhuntRunnerManageMenu manhuntRunnerManageMenu;
+    private PluginMessageHandler pluginMessageHandler;
     private Util util;
-    private List<Long> worldSeeds;
-    private Location lobby;
+    private Config config;
 
     public static Manhunt get() {
         return instance;
@@ -41,28 +38,52 @@ public class Manhunt extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        config = new Config();
 
-        this.eventMenu = new EventMenu();
+        for (TwistVote vote : TwistVote.values()) {
+            vote.updateDisplayName();
+        }
+        util = new Util();
+        Itemizer.load();
+
+        eventMenu = new EventMenu();
         manhuntGamesMenu = new ManhuntGamesMenu();
         manhuntGameSetupMenu = new ManhuntGameSetupMenu();
         manhuntPlayerAmountSetupMenu = new ManhuntPlayerAmountSetupMenu();
         manhuntTwistVoteMenu = new ManhuntTwistVoteMenu();
         manhuntHeadstartSetupMenu = new ManhuntHeadstartSetupMenu();
         manhuntRunnerManageMenu = new ManhuntRunnerManageMenu();
-        util = new Util();
-
-        saveDefaultConfig();
-        reloadConfig();
-
-        this.worldSeeds = getConfig().getLongList("seeds");
-        this.lobby = getConfig().getLocation("lobby");
+        pluginMessageHandler = new PluginMessageHandler();
 
         loadCAE();
         loadSchedulers();
+
+        getLogger().info("----------------------------------");
+        getLogger().info("Manhunt");
+        getLogger().info("");
+        getLogger().info("Author: GaagjesCraft Network Team (GCNT)");
+        getLogger().info("Website: https://gaagjescraft.net/");
+        getLogger().info("Version: " + this.getDescription().getVersion());
+        getLogger().info("");
+        getLogger().info("This is a premium plugin and is licensed to GCNT.");
+        getLogger().info("It is not allowed to resell or redistribute the plugin.");
+        if (Bukkit.getPluginManager().isPluginEnabled("MultiverseCore")) {
+            getLogger().info("Found MultiverseCore! We will register the Manhunt worlds so everything will work smoothly. Please know that in order for portals to work, you need to have Multiverse Portals installed too.");
+        }
+        if (Bukkit.getPluginManager().isPluginEnabled("WorldEdit")) {
+            getLogger().info("Found WorldEdit! This is used to handle the waiting lobby schematic pasting and removing.");
+        }
+        getLogger().info("");
+        getLogger().info("This plugin was created in collaboration with ExodusMC.");
+        getLogger().info("Do not claim this project as yours.");
+        getLogger().info("----------------------------------");
     }
 
-    public Location getLobby() {
-        return lobby;
+    @Override
+    public void onDisable() {
+        for (Game game : Game.getGames()) {
+            game.delete();
+        }
     }
 
     public EventMenu getEventMenu() {
@@ -93,21 +114,27 @@ public class Manhunt extends JavaPlugin {
         return manhuntRunnerManageMenu;
     }
 
+    public PluginMessageHandler getPluginMessageHandler() {
+        return pluginMessageHandler;
+    }
+
     public Util getUtil() {
         return util;
     }
 
-    public List<Long> getWorldSeeds() {
-        return worldSeeds;
+    public Config getCfg() {
+        return config;
     }
 
     private void loadSchedulers() {
         getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
-            for (Player p : getLobby().getWorld().getPlayers()) {
-                if (p.getLocation().getBlockY() < 50) {
-                    p.teleport(getLobby());
-                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
-                    p.sendMessage("§cYou can't leave the lobby!");
+            if (Manhunt.get().getCfg().teleportPlayersToLobbyInVoid) {
+                for (Player p : getCfg().lobby.getWorld().getPlayers()) {
+                    if (p.getLocation().getBlockY() < 50) {
+                        p.teleport(getCfg().lobby);
+                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
+                        p.sendMessage(Util.c(Manhunt.get().getCfg().cannotLeaveLobbyMessage));
+                    }
                 }
             }
 
@@ -118,7 +145,7 @@ public class Manhunt extends JavaPlugin {
                         if (p == null) continue;
                         if (p.getLocation().getBlockY() <= 150) {
                             if (game.getStatus() != GameStatus.PLAYING || (game.getStatus() == GameStatus.PLAYING && game.getTimer() <= game.getHeadStart().getSeconds() && gp.getPlayerType() == PlayerType.HUNTER)) {
-                                p.sendMessage("§cYou can't leave the waiting zone yet.");
+                                p.sendMessage(Util.c(Manhunt.get().getCfg().cannotLeaveWaitingZoneMessage));
                                 p.teleport(game.getSchematic().getSpawnLocation());
                                 p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                             }
@@ -144,6 +171,8 @@ public class Manhunt extends JavaPlugin {
         getServer().getPluginManager().registerEvents(manhuntHeadstartSetupMenu, this);
         getServer().getPluginManager().registerEvents(manhuntRunnerManageMenu, this);
         getServer().getPluginManager().registerEvents(new RunnerTrackerMenuHandler(), this);
+        //getServer().getMessenger().registerIncomingPluginChannel(this, "exodus:manhunt", pluginMessageHandler);
+        //getServer().getMessenger().registerOutgoingPluginChannel(this, "exodus:manhunt");
 
         getServer().getPluginManager().registerEvents(new DeathEventHandler(), this);
         getServer().getPluginManager().registerEvents(new GameWaitingEvents(), this);

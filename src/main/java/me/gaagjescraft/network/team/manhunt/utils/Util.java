@@ -6,6 +6,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.GameSetup;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -14,13 +15,31 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.UUID;
 
 public class Util {
 
+    public static List<String> r(List<String> items, String search, String replace) {
+        for (int i = 0; i < items.size(); i++) {
+            items.set(i, items.get(i).replace(search, replace));
+        }
+        return items;
+    }
+
+    public static String c(String a) {
+        return ChatColor.translateAlternateColorCodes('&', a);
+    }
+
+    public static void sendTitle(Player player, String cfgMsg, int in, int stay, int out) {
+        String[] titles = cfgMsg.split("\\\\n");
+        if (titles.length == 0) return;
+        player.sendTitle(c(titles[0]), titles.length >= 2 ? c(titles[1]) : "", in, stay, out);
+    }
+
     public void createGameServer(GameSetup setup, String targetGameServer) {
         Player host = setup.getHost();
-        String json = "{'server_name': '" + Manhunt.get().getConfig().getString("server_name") + "', 'game_server':'" + targetGameServer + "', 'host':'" + host.getUniqueId() + "', 'host_uuid':'" + setup.getHost().getUniqueId().toString() + "', " +
+        String json = "{'server_name': '" + Manhunt.get().getCfg().serverName + "', 'game_server':'" + targetGameServer + "', 'host':'" + host.getUniqueId() + "', 'host_uuid':'" + setup.getHost().getUniqueId().toString() + "', " +
                 "'max_players':" + setup.getMaxPlayers() + ", 'headstart:'" + setup.getHeadstart().name() + "', " +
                 "'allow_twists':" + setup.isAllowTwists() + ", 'daylight_cycle':" + setup.isDoDaylightCycle() + ", 'friendly_fire':" + setup.isAllowFriendlyFire() + "}";
         ByteArrayDataOutput out = ByteStreams.newDataOutput();

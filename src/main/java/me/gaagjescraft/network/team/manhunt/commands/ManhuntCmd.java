@@ -5,6 +5,7 @@ import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.games.GamePlayer;
 import me.gaagjescraft.network.team.manhunt.games.GameStatus;
 import me.gaagjescraft.network.team.manhunt.games.PlayerType;
+import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -26,11 +27,11 @@ public class ManhuntCmd implements CommandExecutor {
             // have the ability to stop others' games.
             Game game = Game.getGame(args[1]);
             if (game == null) {
-                p.sendMessage(ChatColor.RED + "There's no game with that id.");
+                p.sendMessage(Util.c(Manhunt.get().getCfg().invalidGameIdMessage));
                 return true;
             }
             if (game.getStatus() == GameStatus.STOPPING) {
-                p.sendMessage(ChatColor.RED + "That game is already stopping.");
+                p.sendMessage(Util.c(Manhunt.get().getCfg().gameAlreadyStoppingMessage));
                 return true;
             }
             game.stopGame(true);
@@ -39,11 +40,11 @@ public class ManhuntCmd implements CommandExecutor {
             // have the ability to stop others' games.
             Game game = Game.getGame(args[1]);
             if (game == null) {
-                p.sendMessage(ChatColor.RED + "There's no game with that id.");
+                p.sendMessage(Util.c(Manhunt.get().getCfg().invalidGameIdMessage));
                 return true;
             }
             if (game.getStatus() != GameStatus.WAITING) {
-                p.sendMessage(ChatColor.RED + "You can only start a loaded game that is waiting for players to join.");
+                p.sendMessage(Util.c(Manhunt.get().getCfg().gameMustBeWaitingMessage));
                 return true;
             }
             game.start();
@@ -58,12 +59,14 @@ public class ManhuntCmd implements CommandExecutor {
 
         GamePlayer gp = game.getPlayer(p);
         if (gp == null) {
-            p.sendMessage(ChatColor.RED + "Something went wrong :/");
+            p.sendMessage(Util.c(Manhunt.get().getCfg().somethingWentWrong));
+
             return true;
         }
 
         if (!gp.isHost()) {
-            p.sendMessage(ChatColor.RED + "Nothing for you to see here... just play your game!");
+            p.sendMessage(Util.c(Manhunt.get().getCfg().commandNoHostMessage));
+
             return true;
         }
 
@@ -79,23 +82,23 @@ public class ManhuntCmd implements CommandExecutor {
             return true;
         } else {
             if (args[0].equalsIgnoreCase("stop")) {
-                p.sendMessage(ChatColor.GREEN + "Stopping your current game...");
+                p.sendMessage(Util.c(Manhunt.get().getCfg().stoppingGameMessage));
                 game.stopGame(true);
                 return true;
             } else if (args[0].equalsIgnoreCase("start")) {
-                p.sendMessage(ChatColor.GREEN + "Starting your current game...");
+                p.sendMessage(Util.c(Manhunt.get().getCfg().startingGameMessage));
                 game.start();
                 return true;
             } else if (args[0].equalsIgnoreCase("forcetwist")) {
                 if (game.getStatus() != GameStatus.PLAYING) {
-                    p.sendMessage("§cThe game must be playing in order to force an event");
+                    p.sendMessage(Util.c(Manhunt.get().getCfg().gameMustBePlayingMessage));
                     return true;
                 }
                 if (game.isEventActive()) {
-                    p.sendMessage("§cA twist is already active right now!");
+                    p.sendMessage(Util.c(Manhunt.get().getCfg().twistAlreadyActiveMessage));
                     return true;
                 }
-                p.sendMessage("§aForced the selected twist for this game.");
+                p.sendMessage(Util.c(Manhunt.get().getCfg().twistForcedMessage));
                 game.getScheduler().doEvent();
                 return true;
             } else if (args[0].equalsIgnoreCase("addrunner")) {
@@ -104,22 +107,22 @@ public class ManhuntCmd implements CommandExecutor {
                 else {
                     Player target = Bukkit.getPlayer(args[1]);
                     if (target == null) {
-                        p.sendMessage(ChatColor.RED + "That player is not online.");
+                        p.sendMessage(Util.c(Manhunt.get().getCfg().playerNotOnlineMessage));
                         return true;
                     } else if (target.equals(p)) {
-                        p.sendMessage(ChatColor.RED + "That's you, silly!");
+                        p.sendMessage(Util.c(Manhunt.get().getCfg().playerIsYouMessage));
                         return true;
                     }
 
                     GamePlayer targetGP = game.getPlayer(target);
                     if (targetGP == null) {
-                        p.sendMessage(ChatColor.RED + "That player is not in your game.");
+                        p.sendMessage(Util.c(Manhunt.get().getCfg().targetPlayerNotIngameMessage));
                     } else if (targetGP.getPlayerType() == PlayerType.RUNNER) {
-                        p.sendMessage(ChatColor.RED + "That player is already a runner.");
+                        p.sendMessage(Util.c(Manhunt.get().getCfg().targetPlayerAlreadyRunnerMessage));
                     } else {
                         targetGP.setPlayerType(PlayerType.RUNNER);
                         game.getRunnerTeleporterMenu().update();
-                        p.sendMessage(ChatColor.GREEN + "You promoted " + target.getName() + " to a runner.");
+                        p.sendMessage(Util.c(Manhunt.get().getCfg().playerAddRunnerMessage).replace("%player%", target.getName()));
                     }
                 }
                 return true;
@@ -129,22 +132,22 @@ public class ManhuntCmd implements CommandExecutor {
                 else {
                     Player target = Bukkit.getPlayer(args[1]);
                     if (target == null) {
-                        p.sendMessage(ChatColor.RED + "That player is not online.");
+                        p.sendMessage(Util.c(Manhunt.get().getCfg().playerNotOnlineMessage));
                         return true;
                     } else if (target.equals(p)) {
-                        p.sendMessage(ChatColor.RED + "That's you, silly!");
+                        p.sendMessage(Util.c(Manhunt.get().getCfg().playerIsYouMessage));
                         return true;
                     }
 
                     GamePlayer targetGP = game.getPlayer(target);
                     if (targetGP == null) {
-                        p.sendMessage(ChatColor.RED + "That player is not in your game.");
+                        p.sendMessage(Util.c(Manhunt.get().getCfg().targetPlayerNotIngameMessage));
                     } else if (targetGP.getPlayerType() != PlayerType.RUNNER) {
-                        p.sendMessage(ChatColor.RED + "That player is not a runner.");
+                        p.sendMessage(Util.c(Manhunt.get().getCfg().targetPlayerNoRunner));
                     } else {
                         targetGP.setPlayerType(PlayerType.HUNTER);
                         game.getRunnerTeleporterMenu().update();
-                        p.sendMessage(ChatColor.GREEN + "You demoted " + target.getName() + " to a hunter.");
+                        p.sendMessage(Util.c(Manhunt.get().getCfg().playerRemoveRunnerMessage).replace("%player%", target.getName()));
                     }
                 }
                 return true;
