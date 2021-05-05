@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RunnerTrackerMenu {
@@ -52,10 +53,11 @@ public class RunnerTrackerMenu {
             ItemStack item = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta) item.getItemMeta();
             meta.setOwningPlayer(Bukkit.getOfflinePlayer(runner.getUuid()));
-            meta.setDisplayName(Util.c(Manhunt.get().getCfg().teleporterMenuPlayerDisplayname.replace("%player%", player.getName())));
+            meta.setDisplayName(Util.c(Manhunt.get().getCfg().teleporterMenuPlayerDisplayname.replaceAll("%player%", player.getName())));
             List<String> lore = Manhunt.get().getCfg().teleporterMenuPlayerLore;
+            lore = new ArrayList<>(lore);
             for (int i = 0; i < lore.size(); i++) {
-                lore.set(i, Util.c(lore.get(i).replace("%player%", player.getName())));
+                lore.set(i, Util.c(lore.get(i).replaceAll("%player%", player.getName())));
             }
             meta.setLore(lore);
             meta.addItemFlags(ItemFlag.values());
@@ -65,10 +67,11 @@ public class RunnerTrackerMenu {
             ItemStack item1 = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta1 = (SkullMeta) item1.getItemMeta();
             meta1.setOwningPlayer(Bukkit.getOfflinePlayer(runner.getUuid()));
-            meta1.setDisplayName(Util.c(Manhunt.get().getCfg().trackerMenuPlayerDisplayname.replace("%player%", player.getName())));
+            meta1.setDisplayName(Util.c(Manhunt.get().getCfg().trackerMenuPlayerDisplayname.replaceAll("%player%", player.getName())));
             List<String> lore1 = Manhunt.get().getCfg().trackerMenuPlayerLore;
+            lore1 = new ArrayList<>(lore1);
             for (int i = 0; i < lore1.size(); i++) {
-                lore1.set(i, Util.c(lore1.get(i).replace("%player%", player.getName())));
+                lore1.set(i, Util.c(lore1.get(i).replaceAll("%player%", player.getName())));
             }
             meta1.setLore(lore);
             meta1.addItemFlags(ItemFlag.values());

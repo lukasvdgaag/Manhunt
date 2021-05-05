@@ -189,12 +189,12 @@ public class Game {
             for (GamePlayer gp : online) {
                 Player p = Bukkit.getPlayer(gp.getUuid());
                 if (p == null) continue;
-                p.sendMessage(Util.c(Manhunt.get().getCfg().gameJoinMessage)
-                        .replace("%prefix%", gamePlayer.getPrefix())
-                        .replace("%color%", gamePlayer.getColor())
-                        .replace("%player%", player.getName())
-                        .replace("%players%", maxPlayers + "")
-                        .replace("%maxplayers%", (maxPlayers + getOnlinePlayers(PlayerType.RUNNER).size()) + ""));
+                p.sendMessage(Util.c(Manhunt.get().getCfg().gameJoinMessage
+                        .replaceAll("%prefix%", gamePlayer.getPrefix())
+                        .replaceAll("%color%", gamePlayer.getColor())
+                        .replaceAll("%player%", player.getName())
+                        .replaceAll("%players%", getOnlinePlayers(null).size() + "")
+                        .replaceAll("%maxplayers%", (maxPlayers + getOnlinePlayers(PlayerType.RUNNER).size()) + "")));
             }
         } else {
             gamePlayer.prepareForSpectate();
@@ -263,18 +263,18 @@ public class Game {
                 }
             }
 
-            String hostLeaveMessage = Util.c(Manhunt.get().getCfg().gameHostLeftMessage)
-                    .replace("%prefix%", gamePlayer.getPrefix())
-                    .replace("%player%", player.getName())
-                    .replace("%color%", gamePlayer.getColor())
-                    .replace("%players%", getOnlinePlayers(null).size() + "")
-                    .replace("%maxplayers%", maxPlayers + "/" + getOnlinePlayers(PlayerType.RUNNER).size());
-            String leaveMessage = Util.c(Manhunt.get().getCfg().gameLeftMessage)
-                    .replace("%prefix%", gamePlayer.getPrefix())
-                    .replace("%player%", player.getName())
-                    .replace("%color%", gamePlayer.getColor())
-                    .replace("%players%", getOnlinePlayers(null).size() + "")
-                    .replace("%maxplayers%", maxPlayers + "/" + getOnlinePlayers(PlayerType.RUNNER).size());
+            String hostLeaveMessage = Util.c(Manhunt.get().getCfg().gameHostLeftMessage
+                    .replaceAll("%prefix%", gamePlayer.getPrefix())
+                    .replaceAll("%player%", player.getName())
+                    .replaceAll("%color%", gamePlayer.getColor())
+                    .replaceAll("%players%", getOnlinePlayers(null).size() + "")
+                    .replaceAll("%maxplayers%", (maxPlayers + getOnlinePlayers(PlayerType.RUNNER).size()) + ""));
+            String leaveMessage = Util.c(Manhunt.get().getCfg().gameLeftMessage
+                    .replaceAll("%prefix%", gamePlayer.getPrefix())
+                    .replaceAll("%player%", player.getName())
+                    .replaceAll("%color%", gamePlayer.getColor())
+                    .replaceAll("%players%", getOnlinePlayers(null).size() + "")
+                    .replaceAll("%maxplayers%", (maxPlayers + getOnlinePlayers(PlayerType.RUNNER).size() + "")));
 
             for (GamePlayer gp : getOnlinePlayers(null)) {
                 Player p = Bukkit.getPlayer(gp.getUuid());
@@ -347,9 +347,9 @@ public class Game {
             } else {
                 List<String> msgs = gp.getPlayerType() == winningTeam ? Manhunt.get().getCfg().gameEndWinMessage : Manhunt.get().getCfg().gameEndLoseMessage;
                 for (String s : msgs) {
-                    player.sendMessage(Util.c(s.replace("%winner%", winningTeam.name())
-                            .replace("%player%", player.getName())
-                            .replace("%kills%", gp.getKills() + "")));
+                    player.sendMessage(Util.c(s.replaceAll("%winner%", winningTeam.name())
+                            .replaceAll("%player%", player.getName())
+                            .replaceAll("%kills%", gp.getKills() + "")));
                 }
 
                 if (gp.getPlayerType() == winningTeam) {

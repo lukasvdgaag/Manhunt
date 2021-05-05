@@ -36,7 +36,7 @@ public class EventMenu implements Listener {
 
         List<String> lore = Lists.newArrayList();
         for (String s : Manhunt.get().getCfg().eventMenuManhuntLore) {
-            lore.add(Util.c(s).replace("%totalplayers%", players + "").replace("%totalgames%", games + ""));
+            lore.add(Util.c(s).replaceAll("%totalplayers%", players + "").replaceAll("%totalgames%", games + ""));
         }
 
         manhuntMeta.setLore(lore);

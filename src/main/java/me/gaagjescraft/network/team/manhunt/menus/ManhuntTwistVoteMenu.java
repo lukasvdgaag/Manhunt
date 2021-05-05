@@ -23,6 +23,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ManhuntTwistVoteMenu implements Listener {
@@ -46,34 +47,34 @@ public class ManhuntTwistVoteMenu implements Listener {
         Inventory teleportMenu = player.getOpenInventory().getTopInventory();
 
         int hardcoreVotes = game.getTwistVotes(TwistVote.HARDCORE);
-        ItemStack hardcoreItem = Itemizer.createItem(Material.valueOf(Manhunt.get().getCfg().twistVoteMenuHardcoreMaterial), Math.max(hardcoreVotes, 1),
+        ItemStack hardcoreItem = Itemizer.createItem((Manhunt.get().getCfg().twistVoteMenuHardcoreMaterial), Math.max(hardcoreVotes, 1),
                 Manhunt.get().getCfg().twistVoteMenuHardcoreDisplayname,
                 Util.r(Manhunt.get().getCfg().twistVoteMenuHardcoreLore, "%votes%", hardcoreVotes + ""));
         teleportMenu.setItem(10, hardcoreItem);
 
         int extraHealthVotes = game.getTwistVotes(TwistVote.EXTRA_HEALTH);
         ItemStack healthitem = Itemizer.createItem(
-                Material.valueOf(Manhunt.get().getCfg().twistVoteMenuExtraHealthMaterial), Math.max(extraHealthVotes, 1), Manhunt.get().getCfg().twistVoteMenuExtraHealthDisplayname,
+                (Manhunt.get().getCfg().twistVoteMenuExtraHealthMaterial), Math.max(extraHealthVotes, 1), Manhunt.get().getCfg().twistVoteMenuExtraHealthDisplayname,
                 Util.r(Manhunt.get().getCfg().twistVoteMenuExtraHealthLore, "%votes%", extraHealthVotes + ""));
         teleportMenu.setItem(12, healthitem);
 
         int blindnessVotes = game.getTwistVotes(TwistVote.BLINDNESS);
-        ItemStack blindnessitem = Itemizer.createItem(Material.valueOf(Manhunt.get().getCfg().twistVoteMenuBlindnessMaterial), Math.max(blindnessVotes, 1), Manhunt.get().getCfg().twistVoteMenuBlindnessDisplayname,
+        ItemStack blindnessitem = Itemizer.createItem((Manhunt.get().getCfg().twistVoteMenuBlindnessMaterial), Math.max(blindnessVotes, 1), Manhunt.get().getCfg().twistVoteMenuBlindnessDisplayname,
                 Util.r(Manhunt.get().getCfg().twistVoteMenuBlindnessLore, "%votes%", blindnessVotes + ""));
         teleportMenu.setItem(14, blindnessitem);
 
         int yeetVotes = game.getTwistVotes(TwistVote.RANDOM_YEET);
-        ItemStack yeetitem = Itemizer.createItem(Material.valueOf(Manhunt.get().getCfg().twistVoteMenuRandomYeetMaterial), Math.max(yeetVotes, 1), Manhunt.get().getCfg().twistVoteMenuRandomYeetDisplayname,
+        ItemStack yeetitem = Itemizer.createItem((Manhunt.get().getCfg().twistVoteMenuRandomYeetMaterial), Math.max(yeetVotes, 1), Manhunt.get().getCfg().twistVoteMenuRandomYeetDisplayname,
                 Util.r(Manhunt.get().getCfg().twistVoteMenuRandomYeetLore, "%votes%", yeetVotes + ""));
         teleportMenu.setItem(16, yeetitem);
 
         int speedVotes = game.getTwistVotes(TwistVote.SPEED_BOOST);
-        ItemStack speeditem = Itemizer.createItem(Material.valueOf(Manhunt.get().getCfg().twistVoteMenuSpeedBoostMaterial), Math.max(speedVotes, 1), Manhunt.get().getCfg().twistVoteMenuSpeedBoostDisplayname,
+        ItemStack speeditem = Itemizer.createItem((Manhunt.get().getCfg().twistVoteMenuSpeedBoostMaterial), Math.max(speedVotes, 1), Manhunt.get().getCfg().twistVoteMenuSpeedBoostDisplayname,
                 Util.r(Manhunt.get().getCfg().twistVoteMenuSpeedBoostLore, "%votes%", speedVotes + ""));
         teleportMenu.setItem(29, speeditem);
 
         int noneVotes = game.getTwistVotes(TwistVote.NONE);
-        ItemStack noneitem = Itemizer.createItem(Material.valueOf(Manhunt.get().getCfg().twistVoteMenuNoneMaterial), Math.max(noneVotes, 1), Manhunt.get().getCfg().twistVoteMenuNoneDisplayname,
+        ItemStack noneitem = Itemizer.createItem((Manhunt.get().getCfg().twistVoteMenuNoneMaterial), Math.max(noneVotes, 1), Manhunt.get().getCfg().twistVoteMenuNoneDisplayname,
                 Util.r(Manhunt.get().getCfg().twistVoteMenuNoneLore, "%votes%", noneVotes + ""));
         teleportMenu.setItem(31, noneitem);
 
@@ -86,9 +87,11 @@ public class ManhuntTwistVoteMenu implements Listener {
         }
         meta.setDisplayName(Util.c(Manhunt.get().getCfg().twistVoteMenuAcidRainDisplayname));
         List<String> lore = Manhunt.get().getCfg().twistvoteMenuAcidRainLore;
+        lore = new ArrayList<>(lore);
         for (int i = 0; i < lore.size(); i++) {
-            lore.set(i, Util.c(lore.get(i).replace("%votes%", acidRainVotes + "")));
+            lore.set(i, Util.c(lore.get(i).replaceAll("%votes%", acidRainVotes + "")));
         }
+        meta.setLore(lore);
         meta.addItemFlags(ItemFlag.values());
         item.setItemMeta(meta);
         teleportMenu.setItem(33, item);

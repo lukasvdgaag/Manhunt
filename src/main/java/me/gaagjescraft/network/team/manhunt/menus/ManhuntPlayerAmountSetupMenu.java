@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ManhuntPlayerAmountSetupMenu implements Listener {
@@ -52,12 +53,13 @@ public class ManhuntPlayerAmountSetupMenu implements Listener {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(Util.c(
                 plus ? Manhunt.get().getCfg().maxHuntersMenuAddDisplayname : Manhunt.get().getCfg().maxHuntersMenuRemoveDisplayname
-        ).replace("%number%", number + "").replace("%amount%", currentSize + ""));
+        ).replaceAll("%number%", number + "").replaceAll("%amount%", currentSize + ""));
         List<String> lore = plus ? Manhunt.get().getCfg().maxHuntersMenuAddLore : Manhunt.get().getCfg().maxHuntersMenuRemoveLore;
+        lore = new ArrayList<>(lore);
         for (int i = 0; i < lore.size(); i++) {
             lore.set(i, Util.c(lore.get(i)
-                    .replace("%number%", number + "")
-                    .replace("%amount%", currentSize + "")));
+                    .replaceAll("%number%", number + "")
+                    .replaceAll("%amount%", currentSize + "")));
         }
         meta.setLore(lore);
         meta.addItemFlags(ItemFlag.values());
@@ -82,16 +84,22 @@ public class ManhuntPlayerAmountSetupMenu implements Listener {
         int current = setup.getMaxPlayers();
 
         if (e.getSlot() == 9) {
+            if (current > 4)
+                player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound), 1, 1);
+            else player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             setup.setMaxPlayers(Math.max(current - 25, 4));
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound), 1, 1);
             updateItems(player, setup);
         } else if (e.getSlot() == 10) {
+            if (current > 4)
+                player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound), 1, 1);
+            else player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             setup.setMaxPlayers(Math.max(current - 10, 4));
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound), 1, 1);
             updateItems(player, setup);
         } else if (e.getSlot() == 11) {
+            if (current > 4)
+                player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound), 1, 1);
+            else player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             setup.setMaxPlayers(Math.max(current - 1, 4));
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound), 1, 1);
             updateItems(player, setup);
         }
         else if (e.getSlot() == 13) {
@@ -99,16 +107,22 @@ public class ManhuntPlayerAmountSetupMenu implements Listener {
             Manhunt.get().getManhuntGameSetupMenu().openMenu(player, setup.getGame());
         }
         else if (e.getSlot() == 15) {
+            if (current < 100)
+                player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound), 1, 2);
+            else player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             setup.setMaxPlayers(Math.min(current + 1, 100));
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound), 1, 2);
             updateItems(player, setup);
         } else if (e.getSlot() == 16) {
+            if (current < 100)
+                player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound), 1, 2);
+            else player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             setup.setMaxPlayers(Math.min(current + 10, 100));
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound), 1, 2);
             updateItems(player, setup);
         } else if (e.getSlot() == 17) {
+            if (current < 100)
+                player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound), 1, 2);
+            else player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             setup.setMaxPlayers(Math.min(current + 25, 100));
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound), 1, 2);
             updateItems(player, setup);
         }
 

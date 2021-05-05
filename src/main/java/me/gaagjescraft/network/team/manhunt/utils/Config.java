@@ -333,6 +333,7 @@ public class Config {
             Manhunt.get().saveResource("config.yml", false);
         }
         load();
+        save();
     }
 
     public void load() {
@@ -363,9 +364,9 @@ public class Config {
         this.gameEndLoseMessage = conf.getStringList("messages.game-end.lose");
         this.gameEndDrawMessage = conf.getStringList("messages.game-end.draw");
         this.notIngameMessage = conf.getString("messages.not-ingame");
-        this.compassUnavailableMessage = conf.getString("messages.compassUnavailable");
-        this.compassAlreadyAddedMessage = conf.getString("messages.compassAlreadyAdded");
-        this.compassGivenMessage = conf.getString("messages.compassGiven");
+        this.compassUnavailableMessage = conf.getString("messages.compass-unavailable");
+        this.compassAlreadyAddedMessage = conf.getString("messages.compass-already-added");
+        this.compassGivenMessage = conf.getString("messages.compass-given");
         this.lobbySetMessage = conf.getString("messages.lobby-set");
         this.notWhilePlayingMessage = conf.getString("messages.not-while-playing");
         this.invalidGameIdMessage = conf.getString("messages.invalid-game-id");
@@ -438,6 +439,7 @@ public class Config {
         this.cannotLeaveLobbyMessage = conf.getString("messages.cannot-leave-lobby");
         this.cannotLeaveWaitingZoneMessage = conf.getString("messages.cannot-leave-waiting-zone");
         this.autoRejoinMessage = conf.getStringList("messages.auto-rejoin");
+        this.runnerDownMessage = conf.getString("messages.runner-down");
 
         this.menuTrackerTitle = conf.getString("menus.tracker-title");
         this.menuTeleporterTitle = conf.getString("menus.teleporter-title");
@@ -541,7 +543,7 @@ public class Config {
         eventMenuManhuntMaterial = conf.getString("items.event-menu.manhunt-material");
         eventMenuManhuntDisplayname = conf.getString("items.event-menu.manhunt-displayname");
         eventMenuManhuntLore = conf.getStringList("items.event-menu.manhunt-lore");
-        hostMenuTwistEnabledMaterial = conf.getString("items.host-menu.twist-enabled.material");
+        hostMenuTwistEnabledMaterial = conf.getString("items.host-menu.twist-enabled-material");
         hostMenuTwistEnabledDisplayname = conf.getString("items.host-menu.twist-enabled-displayname");
         hostMenuTwistEnabledLore = conf.getStringList("items.host-menu.twist-enabled-lore");
         hostMenuTwistDisabledMaterial = conf.getString("items.host-menu.twist-disabled-material");
@@ -580,8 +582,8 @@ public class Config {
         headstartMenuOneMinuteHeadstartDisplayname = conf.getString("items.headstart-menu.one-minute-headstart-displayname");
         headstartMenuOneHalfMinuteHeadstartMaterial = conf.getString("items.headstart-menu.one-half-minute-headstart-material");
         headstartMenuOneHalfMinuteHeadstartDisplayname = conf.getString("items.headstart-menu.one-half-minute-headstart-displayname");
-        headstartMenuTwoMinutesHeadstartMaterial = conf.getString("items.headstart-menu.two-minute-headstart-material");
-        headstartMenuTwoMinutesHeadstartDisplayname = conf.getString("items.headstart-menu.two-minute-headstart-displayname");
+        headstartMenuTwoMinutesHeadstartMaterial = conf.getString("items.headstart-menu.two-minutes-headstart-material");
+        headstartMenuTwoMinutesHeadstartDisplayname = conf.getString("items.headstart-menu.two-minutes-headstart-displayname");
         headstartMenuHeadstartLore = conf.getStringList("items.headstart-menu.headstart-lore");
         headstartMenuSaveMaterial = conf.getString("items.headstart-menu.save-material");
         headstartMenuSaveDisplayname = conf.getString("items.headstart-menu.save-displayname");
@@ -863,7 +865,7 @@ public class Config {
         conf.set("items.event-menu.manhunt-material", eventMenuManhuntMaterial);
         conf.set("items.event-menu.manhunt-displayname", eventMenuManhuntDisplayname);
         conf.set("items.event-menu.manhunt-lore", eventMenuManhuntLore);
-        conf.set("items.host-menu.twist-enabled.material", hostMenuTwistEnabledMaterial);
+        conf.set("items.host-menu.twist-enabled-material", hostMenuTwistEnabledMaterial);
         conf.set("items.host-menu.twist-enabled-displayname", hostMenuTwistEnabledDisplayname);
         conf.set("items.host-menu.twist-enabled-lore", hostMenuTwistEnabledLore);
         conf.set("items.host-menu.twist-disabled-material", hostMenuTwistDisabledMaterial);
@@ -902,8 +904,8 @@ public class Config {
         conf.set("items.headstart-menu.one-minute-headstart-displayname", headstartMenuOneMinuteHeadstartDisplayname);
         conf.set("items.headstart-menu.one-half-minute-headstart-material", headstartMenuOneHalfMinuteHeadstartMaterial);
         conf.set("items.headstart-menu.one-half-minute-headstart-displayname", headstartMenuOneHalfMinuteHeadstartDisplayname);
-        conf.set("items.headstart-menu.two-minute-headstart-material", headstartMenuTwoMinutesHeadstartMaterial);
-        conf.set("items.headstart-menu.two-minute-headstart-displayname", headstartMenuTwoMinutesHeadstartDisplayname);
+        conf.set("items.headstart-menu.two-minutes-headstart-material", headstartMenuTwoMinutesHeadstartMaterial);
+        conf.set("items.headstart-menu.two-minutes-headstart-displayname", headstartMenuTwoMinutesHeadstartDisplayname);
         conf.set("items.headstart-menu.headstart-lore", headstartMenuHeadstartLore);
         conf.set("items.headstart-menu.save-material", headstartMenuSaveMaterial);
         conf.set("items.headstart-menu.save-displayname", headstartMenuSaveDisplayname);

@@ -23,6 +23,6 @@ public enum TwistVote {
     }
 
     public void updateDisplayName() {
-        this.displayName = Manhunt.get().getCfg().getFile().getString("prefixes.twists." + this.name().toLowerCase().replace("_", "-"), getDisplayName());
+        this.displayName = Manhunt.get().getCfg().getFile().getString("prefixes.twists." + this.name().toLowerCase().replaceAll("_", "-"), getDisplayName());
     }
 }

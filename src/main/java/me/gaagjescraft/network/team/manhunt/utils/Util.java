@@ -15,14 +15,16 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class Util {
 
-    public static List<String> r(List<String> items, String search, String replace) {
+    public static List<String> r(List<String> items, String search, String replaceAll) {
+        items = new ArrayList<>(items);
         for (int i = 0; i < items.size(); i++) {
-            items.set(i, items.get(i).replace(search, replace));
+            items.set(i, items.get(i).replaceAll(search, replaceAll));
         }
         return items;
     }

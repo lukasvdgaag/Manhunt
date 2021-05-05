@@ -23,7 +23,7 @@ public class ManhuntCmd implements CommandExecutor {
         }
         Player p = (Player) sender;
 
-        if (args.length >= 2 && args[0].equalsIgnoreCase("stop") && p.hasPermission("exodus.event.admin")) {
+        if (args.length >= 2 && args[0].equalsIgnoreCase("stop") && p.hasPermission("manhunt.admin")) {
             // have the ability to stop others' games.
             Game game = Game.getGame(args[1]);
             if (game == null) {
@@ -36,7 +36,7 @@ public class ManhuntCmd implements CommandExecutor {
             }
             game.stopGame(true);
             return true;
-        } else if (args.length >= 2 && args[0].equalsIgnoreCase("start") && p.hasPermission("exodus.event.admin")) {
+        } else if (args.length >= 2 && args[0].equalsIgnoreCase("start") && p.hasPermission("manhunt.admin")) {
             // have the ability to stop others' games.
             Game game = Game.getGame(args[1]);
             if (game == null) {
@@ -51,8 +51,8 @@ public class ManhuntCmd implements CommandExecutor {
             return true;
         }
 
-        Game game = Game.getGame(p);
-        if (game == null) {
+        Game game = (Game.getGame(p));
+        if (game == null || !game.getPlayer(p).isOnline()) {
             Manhunt.get().getManhuntGamesMenu().openMenu(p);
             return true;
         }
@@ -122,7 +122,7 @@ public class ManhuntCmd implements CommandExecutor {
                     } else {
                         targetGP.setPlayerType(PlayerType.RUNNER);
                         game.getRunnerTeleporterMenu().update();
-                        p.sendMessage(Util.c(Manhunt.get().getCfg().playerAddRunnerMessage).replace("%player%", target.getName()));
+                        p.sendMessage(Util.c(Manhunt.get().getCfg().playerAddRunnerMessage).replaceAll("%player%", target.getName()));
                     }
                 }
                 return true;
@@ -147,7 +147,7 @@ public class ManhuntCmd implements CommandExecutor {
                     } else {
                         targetGP.setPlayerType(PlayerType.HUNTER);
                         game.getRunnerTeleporterMenu().update();
-                        p.sendMessage(Util.c(Manhunt.get().getCfg().playerRemoveRunnerMessage).replace("%player%", target.getName()));
+                        p.sendMessage(Util.c(Manhunt.get().getCfg().playerRemoveRunnerMessage).replaceAll("%player%", target.getName()));
                     }
                 }
                 return true;

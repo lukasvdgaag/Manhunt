@@ -43,7 +43,7 @@ public class GameSetup {
         if (getGame() != null) {
             getGame().setHeadStart(headstart);
             if (announce) {
-                getGame().sendMessage(null, Util.c(Manhunt.get().getCfg().headstartChangeMessage.replace("%time%", Manhunt.get().getUtil().secondsToTimeString(headstart.getSeconds(), "string")).replace("%player%", host.getName())));
+                getGame().sendMessage(null, Util.c(Manhunt.get().getCfg().headstartChangeMessage.replaceAll("%time%", Manhunt.get().getUtil().secondsToTimeString(headstart.getSeconds(), "string")).replaceAll("%player%", host.getName())));
             }
         }
     }
@@ -68,7 +68,7 @@ public class GameSetup {
                 gp.prepareForGame(GameStatus.WAITING);
             }
             if (announce) {
-                getGame().sendMessage(null, Util.c(this.allowTwists ? Manhunt.get().getCfg().toggleTwistsEnabledMessage : Manhunt.get().getCfg().toggleTwistsDisabledMessage).replace("%player%", host.getName()));
+                getGame().sendMessage(null, Util.c(this.allowTwists ? Manhunt.get().getCfg().toggleTwistsEnabledMessage : Manhunt.get().getCfg().toggleTwistsDisabledMessage).replaceAll("%player%", host.getName()));
             }
         }
     }
@@ -90,7 +90,7 @@ public class GameSetup {
         if (getGame() != null) {
             getGame().setDoDaylightCycle(this.doDaylightCycle);
             if (announce) {
-                getGame().sendMessage(null, Util.c(this.doDaylightCycle ? Manhunt.get().getCfg().toggleDaylightEnabledMessage : Manhunt.get().getCfg().toggleDaylightDisabledMessage).replace("%player%", host.getName()));
+                getGame().sendMessage(null, Util.c(this.doDaylightCycle ? Manhunt.get().getCfg().toggleDaylightEnabledMessage : Manhunt.get().getCfg().toggleDaylightDisabledMessage).replaceAll("%player%", host.getName()));
             }
         }
     }
@@ -104,7 +104,7 @@ public class GameSetup {
         if (getGame() != null) {
             getGame().setAllowFriendlyFire(this.allowFriendlyFire);
             if (announce) {
-                getGame().sendMessage(null, Util.c(this.allowFriendlyFire ? Manhunt.get().getCfg().toggleFriendlyFireEnabledMessage : Manhunt.get().getCfg().toggleFriendlyFireDisabledMessage).replace("%player%", host.getName()));
+                getGame().sendMessage(null, Util.c(this.allowFriendlyFire ? Manhunt.get().getCfg().toggleFriendlyFireEnabledMessage : Manhunt.get().getCfg().toggleFriendlyFireDisabledMessage).replaceAll("%player%", host.getName()));
             }
         }
     }

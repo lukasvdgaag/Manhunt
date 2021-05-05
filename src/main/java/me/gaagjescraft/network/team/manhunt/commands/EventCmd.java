@@ -26,7 +26,8 @@ public class EventCmd implements CommandExecutor {
             return true;
         }
 
-        if (Game.getGame(p) == null) Manhunt.get().getEventMenu().openMenu(p);
+        Game game = (Game.getGame(p));
+        if (game == null || !game.getPlayer(p).isOnline()) Manhunt.get().getEventMenu().openMenu(p);
         else p.sendMessage(Util.c(Manhunt.get().getCfg().notWhilePlayingMessage));
         return true;
     }

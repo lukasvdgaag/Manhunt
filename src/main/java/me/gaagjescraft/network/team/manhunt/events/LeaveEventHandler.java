@@ -31,7 +31,7 @@ public class LeaveEventHandler implements Listener {
                         for (Game g : Game.getGames()) {
                             if (g.addPlayer(e.getPlayer())) {
                                 for (String s : Manhunt.get().getCfg().autoRejoinMessage) {
-                                    e.getPlayer().sendMessage(Util.c(s.replace("%host%", g.getIdentifier())));
+                                    e.getPlayer().sendMessage(Util.c(s.replaceAll("%host%", g.getIdentifier())));
                                 }
                                 return;
                             }

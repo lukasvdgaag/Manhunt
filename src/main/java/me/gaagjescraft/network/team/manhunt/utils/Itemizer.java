@@ -30,7 +30,7 @@ public class Itemizer {
         HEAD_PLUS = Manhunt.get().getUtil().getCustomTextureHead("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjliODYxYWFiYjMxNmM0ZWQ3M2I0ZTU0MjgzMDU3ODJlNzM1NTY1YmEyYTA1MzkxMmUxZWZkODM0ZmE1YTZmIn19fQ==");
         HEAD_MINUS = Manhunt.get().getUtil().getCustomTextureHead("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2M4ZTdkNDZkNjkzMzQxZjkxZDI4NjcyNmYyNTU1ZWYxNTUxNGUzNDYwYjI3NWU5NzQ3ODQyYmM5ZTUzZGYifX19");
 
-        FILL_ITEM = createItem(Material.valueOf(Manhunt.get().getCfg().generalFillMaterial), 1, "&r", Lists.newArrayList());
+        FILL_ITEM = createItem(Material.valueOf(Manhunt.get().getCfg().generalFillMaterial), 1, "§r", Lists.newArrayList());
         CLOSE_ITEM = createItem(Manhunt.get().getCfg().generalCloseMaterial, 1, Manhunt.get().getCfg().generalCloseDisplayname, Manhunt.get().getCfg().generalCloseLore);
         FILL_NO_GAMES = createItem(Manhunt.get().getCfg().gamesMenuNoGamesMaterial, 1, Manhunt.get().getCfg().gamesMenuNoGamesDisplayname, Manhunt.get().getCfg().gamesMenuNoGamesLore);
         NEW_GAME_ITEM = createItem(Manhunt.get().getCfg().gamesMenuHostGameMaterial, 1, Manhunt.get().getCfg().gamesMenuHostGameDisplayname, Manhunt.get().getCfg().gamesMenuHostGameLore);
@@ -49,7 +49,7 @@ public class Itemizer {
             lines.add(Util.c(s));
         }
         displayName = Util.c(displayName);
-        return createItem(Material.valueOf(material.toUpperCase()), amount, displayName, lore);
+        return createItem(Material.valueOf(material.toUpperCase()), amount, displayName, lines);
     }
 
     public static ItemStack createItem(Material material, int amount, String displayName, List<String> lore) {

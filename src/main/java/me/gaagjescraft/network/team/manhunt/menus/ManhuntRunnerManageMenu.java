@@ -22,6 +22,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ManhuntRunnerManageMenu implements Listener {
@@ -55,10 +56,11 @@ public class ManhuntRunnerManageMenu implements Listener {
             meta.setOwningPlayer(op);
             meta.setDisplayName(Util.c(
                     gp.isHost() ? Manhunt.get().getCfg().runnerManagerMenuHostRunnerDisplayname : Manhunt.get().getCfg().runnerManagerMenuGeneralRunnerDisplayname
-            ).replace("%player%", op.getName()));
+            ).replaceAll("%player%", op.getName()));
             List<String> lore = gp.isHost() ? Manhunt.get().getCfg().runnerManagerMenuHostRunnerLore : Manhunt.get().getCfg().runnerManagerMenuGeneralRunnerLore;
+            lore = new ArrayList<>(lore);
             for (int i = 0; i < lore.size(); i++) {
-                lore.set(i, Util.c(lore.get(i).replace("%player%", op.getName())));
+                lore.set(i, Util.c(lore.get(i).replaceAll("%player%", op.getName())));
             }
             meta.setLore(lore);
             meta.addItemFlags(ItemFlag.values());
@@ -105,7 +107,7 @@ public class ManhuntRunnerManageMenu implements Listener {
                             player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuRunnerManagerCannotRemoveHostSound), 1, 1);
                         } else {
                             Player target = Bukkit.getPlayer(gp.getUuid());
-                            player.sendMessage(Util.c(Manhunt.get().getCfg().playerRemoveRunnerMessage.replace("%player%", target.getName())));
+                            player.sendMessage(Util.c(Manhunt.get().getCfg().playerRemoveRunnerMessage.replaceAll("%player%", target.getName())));
                             gp.setPlayerType(PlayerType.HUNTER);
                             game.getRunnerTeleporterMenu().update();
                             player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().runnerRemovedSound), 1, 1);
@@ -156,19 +158,19 @@ public class ManhuntRunnerManageMenu implements Listener {
 
         GamePlayer targetGP = game.getPlayer(target);
         if (targetGP == null) {
-            e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().targetPlayerNotIngameMessage.replace("%player%", target.getName())));
+            e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().targetPlayerNotIngameMessage.replaceAll("%player%", target.getName())));
             e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().runnerAddTryAgainMessage));
             return;
         }
 
         if (targetGP.getPlayerType() == PlayerType.RUNNER) {
-            e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().targetPlayerAlreadyRunnerMessage.replace("%player%", target.getName())));
+            e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().targetPlayerAlreadyRunnerMessage.replaceAll("%player%", target.getName())));
             e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().runnerAddTryAgainMessage));
             return;
         }
 
         targetGP.setPlayerType(PlayerType.RUNNER);
-        e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().playerAddRunnerMessage.replace("%player%", target.getName())));
+        e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().playerAddRunnerMessage.replaceAll("%player%", target.getName())));
         this.chatPlayers.remove(e.getPlayer());
     }
 

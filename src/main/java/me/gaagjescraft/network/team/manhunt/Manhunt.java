@@ -38,6 +38,7 @@ public class Manhunt extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        reloadConfig();
         config = new Config();
 
         for (TwistVote vote : TwistVote.values()) {

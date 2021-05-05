@@ -1,12 +1,12 @@
 package me.gaagjescraft.network.team.manhunt.games;
 
+import com.google.common.collect.Lists;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.utils.AdditionsBoard;
 import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.apache.commons.compress.utils.Lists;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -17,6 +17,7 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.RenderType;
 import org.bukkit.scoreboard.Scoreboard;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -140,12 +141,12 @@ public class GamePlayer {
         Player track = Bukkit.getPlayer(tracking.getUuid());
         if (track == null || player == null) return;
         if (!track.getWorld().getName().equals(player.getWorld().getName())) {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingOtherDimensionActionbar.replace("%player%", track.getName()).replace("%color%", tracking.getColor()))));
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingOtherDimensionActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", tracking.getColor()))));
             return;
         }
         player.setCompassTarget(track.getLocation());
         int distance = (int) player.getLocation().distance(track.getLocation());
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingActionbar.replace("%player%", track.getName()).replace("%color%", tracking.getColor()).replace("%distance%", distance + ""))));
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", tracking.getColor()).replaceAll("%distance%", distance + ""))));
     }
 
     public boolean isReachedEnd() {
@@ -183,10 +184,10 @@ public class GamePlayer {
     public void setTwistVoted(TwistVote twistVoted) {
         this.twistVoted = twistVoted;
         if (Manhunt.get().getCfg().announceTwistVoteToEntireGame) {
-            game.sendMessage(null, Util.c(Manhunt.get().getCfg().twistVotedMessage.replace("%color%", getColor()).replace("%player%", Bukkit.getPlayer(uuid).getName()).replace("%twist%", twistVoted.getDisplayName())));
+            game.sendMessage(null, Util.c(Manhunt.get().getCfg().twistVotedMessage.replaceAll("%color%", getColor()).replaceAll("%player%", Bukkit.getPlayer(uuid).getName()).replaceAll("%twist%", twistVoted.getDisplayName())));
         } else {
             Player p = Bukkit.getPlayer(uuid);
-            p.sendMessage(Util.c(Manhunt.get().getCfg().playerTwistVoteMessage.replace("%color%", getColor()).replace("%player%", p.getName()).replace("%twist%", twistVoted.getDisplayName())));
+            p.sendMessage(Util.c(Manhunt.get().getCfg().playerTwistVoteMessage.replaceAll("%color%", getColor()).replaceAll("%player%", p.getName()).replaceAll("%twist%", twistVoted.getDisplayName())));
         }
     }
 
@@ -201,10 +202,10 @@ public class GamePlayer {
             Player p = Bukkit.getPlayer(gp.getUuid());
             if (p == null) continue;
             if (playerType == PlayerType.RUNNER) {
-                p.sendMessage(Util.c(Manhunt.get().getCfg().runnerAddedMessage.replace("%player%", pp.getName())));
-                Util.sendTitle(p, Util.c(Manhunt.get().getCfg().runnerAddedTitle.replace("%player%", pp.getName())), 20, 50, 20);
+                p.sendMessage(Util.c(Manhunt.get().getCfg().runnerAddedMessage.replaceAll("%player%", pp.getName())));
+                Util.sendTitle(p, Util.c(Manhunt.get().getCfg().runnerAddedTitle.replaceAll("%player%", pp.getName())), 20, 50, 20);
             } else {
-                p.sendMessage(Util.c(Manhunt.get().getCfg().runnerRemovedMessage.replace("%player%", pp.getName())));
+                p.sendMessage(Util.c(Manhunt.get().getCfg().runnerRemovedMessage.replaceAll("%player%", pp.getName())));
             }
         }
     }
@@ -290,7 +291,7 @@ public class GamePlayer {
             public void run() {
                 Player player = Bukkit.getPlayer(uuid);
                 if (player == null || !player.isOnline()) return;
-                Util.sendTitle(player, Util.c(Manhunt.get().getCfg().respawningSoonTitle.replace("%time%", i + "")), 5, 10, 5);
+                Util.sendTitle(player, Util.c(Manhunt.get().getCfg().respawningSoonTitle.replaceAll("%time%", i + "")), 5, 10, 5);
                 World world = Bukkit.getWorld("manhunt_" + game.getIdentifier());
 
                 if (world == null) {
@@ -450,10 +451,11 @@ public class GamePlayer {
                 } else {
                     lines = Manhunt.get().getCfg().playingUnreleasedHunterScoreboard;
                 }
+                timeLeft = game.getHeadStart().getSeconds() - game.getTimer();
             } else {
                 lines = Manhunt.get().getCfg().playingScoreboard;
+                timeLeft = game.getTimer();
             }
-            timeLeft = game.getHeadStart().getSeconds() - game.getTimer();
         } else if (game.getStatus() == GameStatus.STOPPING) {
             PlayerType won = game.getWinningTeam();
             if (won == null) {
@@ -469,13 +471,13 @@ public class GamePlayer {
         }
 
         List<GamePlayer> gps = game.getOnlinePlayers(PlayerType.HUNTER);
-        int hunters = gps.size();
+        final int hunters = gps.size();
         List<GamePlayer> rrs = game.getOnlinePlayers(PlayerType.RUNNER);
-        int runners = gps.size();
+        final int runners = rrs.size();
         gps.removeIf(p -> p.isDead);
-        int aliveHunters = gps.size();
+        final int aliveHunters = gps.size();
         rrs.removeIf(p -> p.isDead);
-        int aliveRunners = rrs.size();
+        final int aliveRunners = rrs.size();
 
         if (board == null || board.getLinecount() != lines.size()) {
             Player player = Bukkit.getPlayer(uuid);
@@ -485,21 +487,24 @@ public class GamePlayer {
             this.scoreboard = board;
         }
 
+        lines = new ArrayList<>(lines);
+
         for (int i = 0; i < lines.size(); i++) {
             String line = Util.c(lines.get(i));
-            line = line.replace("%host%", game.getIdentifier());
-            line = line.replace("%prefix%", getPrefix(true));
-            line = line.replace("%time%", timeLeft + "");
-            line = line.replace("%time_formatted%", Manhunt.get().getUtil().secondsToTimeString(timeLeft, "simplified"));
-            line = line.replace("%color%", getColor());
-            line = line.replace("%winner%", game.getWinningTeam() == null ? "null" : game.getWinningTeam().name());
-            line = line.replace("%lives%", Math.max(getMaxLives() - getDeaths(), 0) + "");
-            line = line.replace("%hunters%", hunters + "");
-            line = line.replace("%runners%", runners + "");
-            line = line.replace("%alivehunters%", aliveHunters + "");
-            line = line.replace("%aliverunners%", aliveRunners + "");
-            line = line.replace("%twist%", game.getSelectedTwist() == null ? "none" : game.getSelectedTwist().name());
-            line = line.replace("%kills%", getKills() + "");
+            line = line.replaceAll("%host%", game.getIdentifier());
+            line = line.replaceAll("%prefix%", getPrefix(true));
+            line = line.replaceAll("%time%", timeLeft + "");
+            line = line.replaceAll("%time_formatted%", Manhunt.get().getUtil().secondsToTimeString(timeLeft, "simplified"));
+            line = line.replaceAll("%color%", getColor());
+            line = line.replaceAll("%winner%", game.getWinningTeam() == null ? "null" : game.getWinningTeam().name());
+            line = line.replaceAll("%lives%", Math.max(getMaxLives() - getDeaths(), 0) + "");
+            line = line.replaceAll("%hunters%", hunters + "");
+            line = line.replaceAll("%runners%", runners + "");
+            line = line.replaceAll("%alivehunters%", aliveHunters + "");
+            line = line.replaceAll("%aliverunners%", aliveRunners + "");
+            line = line.replaceAll("%twist%", game.getSelectedTwist() == null ? "none" : game.getSelectedTwist().name());
+            line = line.replaceAll("%kills%", getKills() + "");
+            line = line.replaceAll("%maxplayers%", game.getMaxPlayers() + "");
             board.setLine(i, line);
         }
 

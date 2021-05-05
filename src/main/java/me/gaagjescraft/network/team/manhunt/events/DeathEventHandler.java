@@ -47,11 +47,11 @@ public class DeathEventHandler implements Listener {
                     EnderDragon dragon = ((EnderDragon) e.getEntity());
                     if (dragon.getHealth() - e.getFinalDamage() <= 0) {
                         dragon.getBossBar().removeAll();
-                        game.sendMessage(null, Util.c(Manhunt.get().getCfg().dragonDefeatedMessage).replace("%prefix%", dgp.getPrefix()).replace("%player%", damager.getName()));
+                        game.sendMessage(null, Util.c(Manhunt.get().getCfg().dragonDefeatedMessage).replaceAll("%prefix%", dgp.getPrefix()).replaceAll("%player%", damager.getName()));
                         for (GamePlayer gp : game.getPlayers(null)) {
                             Player p = Bukkit.getPlayer(gp.getUuid());
                             if (p == null || !gp.isOnline()) continue;
-                            Util.sendTitle(p, Util.c(Manhunt.get().getCfg().dragonDefeatedTitle).replace("%prefix%", dgp.getPrefix()).replace("%player%", damager.getName()), 20, 50, 20);
+                            Util.sendTitle(p, Util.c(Manhunt.get().getCfg().dragonDefeatedTitle).replaceAll("%prefix%", dgp.getPrefix()).replaceAll("%player%", damager.getName()), 20, 50, 20);
                         }
                         game.setDragonDefeated(true);
                         game.checkForWin(true);
@@ -173,7 +173,7 @@ public class DeathEventHandler implements Listener {
         if (gp.getPlayerType() == PlayerType.RUNNER && gp.getDeaths() == 1) {
             String killMsg = determineDeathMessage(player, cause, killer);
 
-            Util.sendTitle(player, Util.c(Manhunt.get().getCfg().deathTitle).replace("%lives%", "0"), 20, 60, 20);
+            Util.sendTitle(player, Util.c(Manhunt.get().getCfg().deathTitle).replaceAll("%lives%", "0"), 20, 60, 20);
 
             for (GamePlayer gp1 : game.getPlayers()) {
                 Player p = Bukkit.getPlayer(gp1.getUuid());
@@ -189,13 +189,13 @@ public class DeathEventHandler implements Listener {
                 p.sendMessage(Util.c(Manhunt.get().getCfg().runnerDownMessage));
                 p.sendMessage(killMsg);
                 if (!p.equals(player)) {
-                    Util.sendTitle(p, Util.c(Manhunt.get().getCfg().runnerDownTitle).replace("%player%", player.getName()), 20, 60, 20);
+                    Util.sendTitle(p, Util.c(Manhunt.get().getCfg().runnerDownTitle).replaceAll("%player%", player.getName()), 20, 60, 20);
                 }
             }
         } else if (gp.getPlayerType() == PlayerType.HUNTER && gp.getDeaths() <= 3) {
             String killMsg = determineDeathMessage(player, cause, killer);
             int livesLeft = gp.getDeaths() >= 3 ? 0 : (3 - gp.getDeaths());
-            Util.sendTitle(player, Util.c(Manhunt.get().getCfg().deathTitle).replace("%lives%", livesLeft + ""), 20, 60, 20);
+            Util.sendTitle(player, Util.c(Manhunt.get().getCfg().deathTitle).replaceAll("%lives%", livesLeft + ""), 20, 60, 20);
 
             game.sendMessage(null, killMsg);
         }
@@ -218,7 +218,7 @@ public class DeathEventHandler implements Listener {
         if (killer != null && killer.getType() == EntityType.PLAYER) {
             GamePlayer killerGp = game.getPlayer((Player) killer);
             if (killerGp != null) {
-                return gp.getPrefix() + " " + player.getName() + " §cwas murdered by " + killerGp.getPrefix() + " " + killer.getName();
+                return Util.c(gp.getPrefix() + " " + player.getName() + " §cwas murdered by " + killerGp.getPrefix() + " " + killer.getName());
             }
         }
         if (killer != null) {
@@ -324,7 +324,7 @@ public class DeathEventHandler implements Listener {
             prefix += " §6§lFINAL DEATH!";
         }
 
-        return prefix;
+        return Util.c(prefix);
 
     }
 

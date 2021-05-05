@@ -63,17 +63,18 @@ public class ManhuntGamesMenu implements Listener {
             int onlineHunters = g.getOnlinePlayers(PlayerType.HUNTER).size();
             int onlineRunners = g.getOnlinePlayers(PlayerType.RUNNER).size();
 
-            meta.setDisplayName(Util.c(Manhunt.get().getCfg().gamesMenuGameHostDisplayname).replace("%host%", g.getIdentifier()));
+            meta.setDisplayName(Util.c(Manhunt.get().getCfg().gamesMenuGameHostDisplayname).replaceAll("%host%", g.getIdentifier()));
             List<String> lore = (onlineHunters < g.getMaxPlayers() && (g.getStatus() != GameStatus.STOPPING && g.getStatus() != GameStatus.LOADING)) ?
                     Manhunt.get().getCfg().gamesMenuGameHostLore : Manhunt.get().getCfg().gamesMenuGameHostLockedLore;
+            lore = new ArrayList<>(lore);
             for (int i = 0; i < lore.size(); i++) {
                 lore.set(i, Util.c(lore.get(i)
-                        .replace("%host%", g.getIdentifier())
-                        .replace("%hunters%", onlineHunters + "")
-                        .replace("%runners%", onlineRunners + "")
-                        .replace("%maxplayers%", g.getMaxPlayers() + "")
-                        .replace("%online%", (onlineHunters + onlineRunners) + "")
-                        .replace("%status%", status)));
+                        .replaceAll("%host%", g.getIdentifier())
+                        .replaceAll("%hunters%", onlineHunters + "")
+                        .replaceAll("%runners%", onlineRunners + "")
+                        .replaceAll("%maxplayers%", g.getMaxPlayers() + "")
+                        .replaceAll("%online%", (onlineHunters + onlineRunners) + "")
+                        .replaceAll("%status%", status)));
             }
             meta.setLore(lore);
             meta.addItemFlags(ItemFlag.values());
@@ -119,7 +120,7 @@ public class ManhuntGamesMenu implements Listener {
 
         boolean result = g.addPlayer((Player) e.getWhoClicked());
         if (!result)
-            e.getWhoClicked().sendMessage(Util.c(Manhunt.get().getCfg().gameUnavailableMessage.replace("%host%", g.getIdentifier())));
+            e.getWhoClicked().sendMessage(Util.c(Manhunt.get().getCfg().gameUnavailableMessage.replaceAll("%host%", g.getIdentifier())));
 
         e.getWhoClicked().closeInventory();
     }

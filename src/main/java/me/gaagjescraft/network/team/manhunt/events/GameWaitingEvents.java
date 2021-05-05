@@ -83,7 +83,7 @@ public class GameWaitingEvents implements Listener {
             e.setCancelled(true);
             return;
         }
-        Game game = Game.getGame(e.getLocation().getWorld().getName().replace("manhunt_", ""));
+        Game game = Game.getGame(e.getLocation().getWorld().getName().replaceAll("manhunt_", ""));
         if (game == null) return;
 
         if (game.getStatus() == GameStatus.WAITING || game.getStatus() == GameStatus.STARTING || (game.getStatus() == GameStatus.PLAYING && game.getTimer() <= game.getHeadStart().getSeconds())) {
@@ -336,13 +336,13 @@ public class GameWaitingEvents implements Listener {
 
         if (worldName.endsWith("_nether") && !gp.isReachedNether()) {
             gp.setReachedNether(true);
-            Util.sendTitle(e.getPlayer(), Util.c(Manhunt.get().getCfg().playerEnteredNetherTitle.replace("%prefix%", gp.getPrefix()).replace("%player%", e.getPlayer().getName())), 20, 50, 20);
+            Util.sendTitle(e.getPlayer(), Util.c(Manhunt.get().getCfg().playerEnteredNetherTitle.replaceAll("%prefix%", gp.getPrefix()).replaceAll("%player%", e.getPlayer().getName())), 20, 50, 20);
 
             e.getPlayer().sendTitle("§c§lNETHER", "§7You have entered the nether!", 20, 50, 20);
             for (GamePlayer gp2 : game.getOnlinePlayers(null)) {
                 Player p = Bukkit.getPlayer(gp2.getUuid());
                 if (p == null) continue;
-                p.sendMessage(Util.c(Manhunt.get().getCfg().runnerEnteredNetherMessage.replace("%prefix%", gp.getPrefix()).replace("%player%", e.getPlayer().getName())));
+                p.sendMessage(Util.c(Manhunt.get().getCfg().runnerEnteredNetherMessage.replaceAll("%prefix%", gp.getPrefix()).replaceAll("%player%", e.getPlayer().getName())));
                 p.playSound(p.getLocation(), Sound.valueOf(Manhunt.get().getCfg().runnerEnteredNetherSound), 1, 1);
             }
         } else if (worldName.endsWith("_the_end") && !gp.isReachedEnd()) {
@@ -351,7 +351,7 @@ public class GameWaitingEvents implements Listener {
             for (GamePlayer gp2 : game.getOnlinePlayers(null)) {
                 Player p = Bukkit.getPlayer(gp2.getUuid());
                 if (p == null) continue;
-                p.sendMessage(Util.c(Manhunt.get().getCfg().runnerEnteredEndMessage.replace("%prefix%", gp.getPrefix()).replace("%player%", e.getPlayer().getName())));
+                p.sendMessage(Util.c(Manhunt.get().getCfg().runnerEnteredEndMessage.replaceAll("%prefix%", gp.getPrefix()).replaceAll("%player%", e.getPlayer().getName())));
                 p.playSound(p.getLocation(), Sound.valueOf(Manhunt.get().getCfg().runnerEnteredEndSound), 1, 1);
             }
         }

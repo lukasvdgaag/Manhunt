@@ -3,6 +3,7 @@ package me.gaagjescraft.network.team.manhunt.events;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.games.GamePlayer;
+import me.gaagjescraft.network.team.manhunt.games.GameStatus;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -38,15 +39,21 @@ public class GameEventsHandlers implements Listener {
         GamePlayer gp = game.getPlayer(player);
 
         e.setCancelled(true);
+        String prefix = game.getStatus() != GameStatus.PLAYING ? Manhunt.get().getCfg().globalChatPrefix : gp.getPrefix(true);
         String message = Util.c(Manhunt.get().getCfg().chatFormat
-                .replace("%prefix%", gp.getPrefix(true))
-                .replace("%color%", gp.getColor())
-                .replace("%message%", e.getMessage()));
+                .replaceAll("%prefix%", prefix)
+                .replaceAll("%color%", gp.getColor())
+                .replaceAll("%player%", player.getName())
+                .replaceAll("%message%", e.getMessage()));
 
         if (Manhunt.get().getCfg().chatPerTeam) {
             for (GamePlayer gps : game.getOnlinePlayers(null)) {
                 Player p = Bukkit.getPlayer(gps.getUuid());
                 if (p == null) continue;
+                if (game.getStatus() != GameStatus.PLAYING) {
+                    p.sendMessage(message);
+                    continue;
+                }
                 if (Manhunt.get().getCfg().separateDeadChat) {
                     if (gp.isFullyDead()) {
                         if (gps.isFullyDead()) {
@@ -64,6 +71,10 @@ public class GameEventsHandlers implements Listener {
             for (GamePlayer gps : game.getOnlinePlayers(null)) {
                 Player p = Bukkit.getPlayer(gps.getUuid());
                 if (p == null) continue;
+                if (game.getStatus() != GameStatus.PLAYING) {
+                    p.sendMessage(message);
+                    continue;
+                }
                 if (Manhunt.get().getCfg().separateDeadChat) {
                     if (gp.isFullyDead()) {
                         if (gps.isFullyDead()) {

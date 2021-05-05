@@ -18,6 +18,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -78,22 +79,23 @@ public class ManhuntGameSetupMenu implements Listener {
         ItemStack headstart = new ItemStack(Material.valueOf(Manhunt.get().getCfg().hostMenuHeadstartMaterial));
         ItemMeta hmeta = headstart.getItemMeta();
         String headstartTime = Manhunt.get().getUtil().secondsToTimeString(setup.getHeadstart().getSeconds(), "string");
-        hmeta.setDisplayName(Util.c(Manhunt.get().getCfg().hostMenuHeadstartDisplayname).replace("%time%", headstartTime));
+        hmeta.setDisplayName(Util.c(Manhunt.get().getCfg().hostMenuHeadstartDisplayname).replaceAll("%time%", headstartTime));
         List<String> hlore;
         if (setup.getGame() == null || setup.getGame().getStatus() == GameStatus.WAITING) {
             hlore = Manhunt.get().getCfg().hostMenuHeadstartLore;
         } else {
             hlore = Manhunt.get().getCfg().hostMenuHeadstartLockedLore;
         }
+        hlore = new ArrayList<>(hlore);
         for (int i = 0; i < hlore.size(); i++) {
-            hlore.set(i, Util.c(hlore.get(i).replace("%time%", headstartTime)));
+            hlore.set(i, Util.c(hlore.get(i)).replaceAll("%time%", headstartTime));
         }
         hmeta.setLore(hlore);
         headstart.setItemMeta(hmeta);
         inventory.setItem(31, headstart);
 
-        int runnerAmount = setup.getGame() == null ? 0 : game.getOnlinePlayers(PlayerType.RUNNER).size();
-        ItemStack run = Itemizer.createItem(Manhunt.get().getCfg().hostMenuManageRunnersMaterial, runnerAmount, Manhunt.get().getCfg().hostMenuManageRunnersDisplayname.replace("%amount%", runnerAmount + ""),
+        int runnerAmount = setup.getGame() == null ? 0 : setup.getGame().getOnlinePlayers(PlayerType.RUNNER).size();
+        ItemStack run = Itemizer.createItem(Manhunt.get().getCfg().hostMenuManageRunnersMaterial, 1, Manhunt.get().getCfg().hostMenuManageRunnersDisplayname.replaceAll("%amount%", runnerAmount + ""),
                 setup.getGame() != null ? Manhunt.get().getCfg().hostMenuManageRunnersLore : Manhunt.get().getCfg().hostMenuManageRunnersLockedLore);
         inventory.setItem(33, run);
 
@@ -105,17 +107,19 @@ public class ManhuntGameSetupMenu implements Listener {
         }
         inventory.setItem(15, teamfire);
 
+        int players = setup.getGame() == null ? 1 : setup.getGame().getPlayers(PlayerType.RUNNER).size();
         ItemStack playerAmount = new ItemStack(Material.valueOf(Manhunt.get().getCfg().hostMenuPlayerAmountMaterial));
         ItemMeta pameta = playerAmount.getItemMeta();
-        pameta.setDisplayName(Util.c(Manhunt.get().getCfg().hostMenuPlayerAmountDisplayname).replace("%amount%", playerAmount + ""));
+        pameta.setDisplayName(Util.c(Manhunt.get().getCfg().hostMenuPlayerAmountDisplayname).replaceAll("%amount%", players + ""));
         List<String> palore;
         if (setup.getGame() == null) {
-            palore = Manhunt.get().getCfg().hostMenuPlayerAmountLockedLore;
-        } else {
             palore = Manhunt.get().getCfg().hostMenuPlayerAmountLore;
+        } else {
+            palore = Manhunt.get().getCfg().hostMenuPlayerAmountLockedLore;
         }
+        palore = new ArrayList<>(palore);
         for (int i = 0; i < palore.size(); i++) {
-            palore.set(i, Util.c(palore.get(i).replace("%amount%", playerAmount + "")));
+            palore.set(i, Util.c(palore.get(i).replaceAll("%amount%", players + "")));
         }
         pameta.setLore(palore);
         pameta.addItemFlags(ItemFlag.values());

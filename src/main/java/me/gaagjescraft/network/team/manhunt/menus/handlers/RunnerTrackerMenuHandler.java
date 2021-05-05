@@ -60,12 +60,12 @@ public class RunnerTrackerMenuHandler implements Listener {
             player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().trackingPlayerSound), 1, 1);
             if (teleporting) {
                 player.teleport(target.getLocation());
-                player.sendMessage(Util.c(Manhunt.get().getCfg().teleportingPlayerMessage.replace("%prefix%", targetGP.getPrefix())
-                        .replace("%color%", targetGP.getColor()).replace("%player%", target.getName())));
+                player.sendMessage(Util.c(Manhunt.get().getCfg().teleportingPlayerMessage.replaceAll("%prefix%", targetGP.getPrefix())
+                        .replaceAll("%color%", targetGP.getColor()).replaceAll("%player%", target.getName())));
             } else {
                 gp.setTracking(game.getRunnerTeleporterMenu().getRunnersList().get(i));
-                player.sendMessage(Util.c(Manhunt.get().getCfg().trackingPlayerMessage.replace("%prefix%", targetGP.getPrefix())
-                        .replace("%color%", targetGP.getColor()).replace("%player%", target.getName())));
+                player.sendMessage(Util.c(Manhunt.get().getCfg().trackingPlayerMessage.replaceAll("%prefix%", targetGP.getPrefix())
+                        .replaceAll("%color%", targetGP.getColor()).replaceAll("%player%", target.getName())));
             }
         }
 
