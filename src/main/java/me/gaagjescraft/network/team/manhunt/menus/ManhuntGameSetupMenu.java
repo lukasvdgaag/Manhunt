@@ -107,7 +107,7 @@ public class ManhuntGameSetupMenu implements Listener {
         }
         inventory.setItem(15, teamfire);
 
-        int players = setup.getGame() == null ? 1 : setup.getGame().getPlayers(PlayerType.RUNNER).size();
+        int players = setup.getGame() == null ? setup.getMaxPlayers() : setup.getGame().getMaxPlayers();
         ItemStack playerAmount = new ItemStack(Material.valueOf(Manhunt.get().getCfg().hostMenuPlayerAmountMaterial));
         ItemMeta pameta = playerAmount.getItemMeta();
         pameta.setDisplayName(Util.c(Manhunt.get().getCfg().hostMenuPlayerAmountDisplayname).replaceAll("%amount%", players + ""));

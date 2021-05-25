@@ -71,13 +71,13 @@ public class ManhuntCmd implements CommandExecutor {
         }
 
         if (args.length == 0) {
-            p.sendMessage("§7§m---------------&r §6§lManhunt §7§m---------------");
+            p.sendMessage("§7§m---------------§r §6§lManhunt §7§m---------------");
             p.sendMessage("§b/manhunt stop §f> §7Stop your current manhunt game.");
             p.sendMessage("§b/manhunt start §f> §7Start your current manhunt game.");
             p.sendMessage("§b/manhunt addrunner <player> §f> §7Make a player a runner.");
             p.sendMessage("§b/manhunt removerunner <player> §f> §7Demote a runner to a hunter.");
             p.sendMessage("§b/manhunt runners §f> §7Get a list of runners.");
-            p.sendMessage("§b/manhunt forcetwist If> §7Force the twist to start.");
+            p.sendMessage("§b/manhunt forcetwist §f> §7Force the twist to start.");
             p.sendMessage("§7§m---------------------------------------");
             return true;
         } else {

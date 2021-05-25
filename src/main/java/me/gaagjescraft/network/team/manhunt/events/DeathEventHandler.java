@@ -218,6 +218,9 @@ public class DeathEventHandler implements Listener {
         if (killer != null && killer.getType() == EntityType.PLAYER) {
             GamePlayer killerGp = game.getPlayer((Player) killer);
             if (killerGp != null) {
+                if (gp.getPlayerType() != killerGp.getPlayerType()) {
+                    killerGp.addKill();
+                }
                 return Util.c(gp.getPrefix() + " " + player.getName() + " §cwas murdered by " + killerGp.getPrefix() + " " + killer.getName());
             }
         }

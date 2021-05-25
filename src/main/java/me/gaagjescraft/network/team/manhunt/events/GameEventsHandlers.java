@@ -1,5 +1,7 @@
 package me.gaagjescraft.network.team.manhunt.events;
 
+import com.google.common.collect.Lists;
+import me.clip.placeholderapi.PlaceholderAPI;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.games.GamePlayer;
@@ -12,6 +14,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
+
+import java.util.List;
 
 public class GameEventsHandlers implements Listener {
 
@@ -35,12 +39,50 @@ public class GameEventsHandlers implements Listener {
         Player player = e.getPlayer();
 
         Game game = Game.getGame(player);
-        if (game == null) return;
+        if (game == null) {
+            if (!Manhunt.get().getCfg().enableLobbyChat) return;
+            e.setCancelled(true);
+
+            String prefix = Manhunt.get().getCfg().lobbyChatPrefix;
+            String format = Manhunt.get().getCfg().lobbyChatFormat;
+            if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+                format = PlaceholderAPI.setPlaceholders(player, format);
+            }
+            String message = Util.c(format
+                    .replaceAll("%prefix%", prefix)
+                    .replaceAll("%player%", player.getName())
+                    .replaceAll("%message%", e.getMessage()));
+
+            List<Player> send = Lists.newArrayList();
+
+            if (Game.getGames().size() == 0) {
+                send.addAll(Bukkit.getOnlinePlayers());
+            } else {
+                for (Game g : Game.getGames()) {
+                    for (GamePlayer gp : g.getPlayers(null)) {
+                        Player target = Bukkit.getPlayer(gp.getUuid());
+                        if (gp.isOnline() && target != null) {
+                            send.add(target);
+                        }
+                    }
+                }
+            }
+
+            for (Player p : send) {
+                p.sendMessage(message);
+            }
+
+            return;
+        }
         GamePlayer gp = game.getPlayer(player);
 
         e.setCancelled(true);
         String prefix = game.getStatus() != GameStatus.PLAYING ? Manhunt.get().getCfg().globalChatPrefix : gp.getPrefix(true);
-        String message = Util.c(Manhunt.get().getCfg().chatFormat
+        String format = Manhunt.get().getCfg().chatFormat;
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            format = PlaceholderAPI.setPlaceholders(player, format);
+        }
+        String message = Util.c(format
                 .replaceAll("%prefix%", prefix)
                 .replaceAll("%color%", gp.getColor())
                 .replaceAll("%player%", player.getName())

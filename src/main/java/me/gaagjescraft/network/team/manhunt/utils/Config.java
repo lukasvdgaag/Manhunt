@@ -321,7 +321,20 @@ public class Config {
     public String cannotLeaveLobbyMessage;
     public List<String> autoRejoinMessage;
     public boolean autoJoinOnlinePlayersWhenGameCreated;
+    public String runnerNametagPrefix;
+    public String hunterNametagPrefix;
+    public List<String> statsMessage;
+    public boolean enableLobbyChat;
+    public String lobbyChatPrefix;
+    public String lobbyChatFormat;
+    public String spectatorChatColor;
+    public boolean spectatorsHaveGeneralColor;
 
+    public String storageType;
+    public String databaseHostname;
+    public String databaseUsername;
+    public String databasePassword;
+    public String databaseDatabase;
 
     private File file;
     private FileConfiguration conf;
@@ -332,6 +345,11 @@ public class Config {
         if (!file.exists()) {
             Manhunt.get().saveResource("config.yml", false);
         }
+        Manhunt.get().getConfig().options().copyDefaults(true);
+        Manhunt.get().saveDefaultConfig();
+        Manhunt.get().saveConfig();
+        Manhunt.get().reloadConfig();
+
         load();
         save();
     }
@@ -351,9 +369,18 @@ public class Config {
         this.seeds = conf.getLongList("seeds");
         this.lobby = conf.getLocation("lobby");
 
+        this.storageType = conf.getString("storage.type");
+        this.databaseHostname = conf.getString("storage.database.hostname");
+        this.databaseUsername = conf.getString("storage.database.username");
+        this.databasePassword = conf.getString("storage.database.password");
+        this.databaseDatabase = conf.getString("storage.database.database");
+
+        this.enableLobbyChat = conf.getBoolean("chat.enable-lobby-chat");
         this.chatPerTeam = conf.getBoolean("chat.per-team");
         this.separateDeadChat = conf.getBoolean("chat.separate-dead-chat");
         this.chatFormat = conf.getString("chat.format");
+        this.lobbyChatFormat = conf.getString("chat.lobby-format");
+        this.spectatorsHaveGeneralColor = conf.getBoolean("chat.spectators-have-general-color");
 
         this.gameJoinMessage = conf.getString("messages.game-joined");
         this.gameLeftMessage = conf.getString("messages.game-left");
@@ -440,6 +467,7 @@ public class Config {
         this.cannotLeaveWaitingZoneMessage = conf.getString("messages.cannot-leave-waiting-zone");
         this.autoRejoinMessage = conf.getStringList("messages.auto-rejoin");
         this.runnerDownMessage = conf.getString("messages.runner-down");
+        this.statsMessage = conf.getStringList("messages.stats");
 
         this.menuTrackerTitle = conf.getString("menus.tracker-title");
         this.menuTeleporterTitle = conf.getString("menus.teleporter-title");
@@ -451,12 +479,16 @@ public class Config {
         this.menuRunnerManagerTitle = conf.getString("menus.runner-manager-title");
         this.menuTwistVoteTitle = conf.getString("menus.twist-vote-title");
 
+        this.runnerNametagPrefix = conf.getString("prefixes.nametags.runner");
+        this.hunterNametagPrefix = conf.getString("prefixes.nametags.hunter");
+        this.lobbyChatPrefix = conf.getString("prefixes.lobby");
         this.globalChatPrefix = conf.getString("prefixes.global");
         this.runnerChatPrefix = conf.getString("prefixes.runner");
         this.hunterChatPrefix = conf.getString("prefixes.hunter");
         this.deadChatPrefix = conf.getString("prefixes.dead");
         this.runnerColor = conf.getString("prefixes.runner-color");
         this.hunterColor = conf.getString("prefixes.hunter-color");
+        this.spectatorChatColor = conf.getString("prefixes.spectator-color");
         this.loadingStatusPrefix = conf.getString("prefixes.status.loading");
         this.startingStatusPrefix = conf.getString("prefixes.status.starting");
         this.waitingStatusPrefix = conf.getString("prefixes.status.waiting");
@@ -472,8 +504,8 @@ public class Config {
         this.gameEndDrawTitle = conf.getString("titles.game-end.draw");
         this.gameEndWinHunterTitle = conf.getString("titles.game-end.win-hunter");
         this.gameEndWinRunnerTitle = conf.getString("titles.game-end.win-runner");
-        this.gameEndLoseHunterTitle = conf.getString("titles.game-end.win-hunter");
-        this.gameEndLoseRunnerTitle = conf.getString("titles.game-end.win-runner");
+        this.gameEndLoseHunterTitle = conf.getString("titles.game-end.lose-hunter");
+        this.gameEndLoseRunnerTitle = conf.getString("titles.game-end.lose-runner");
         this.gameEndWinRunnerDragonTitle = conf.getString("titles.game-end.win-runner-dragon");
         this.dragonDefeatedTitle = conf.getString("titles.dragon-defeated");
         this.deathTitle = conf.getString("titles.death");
@@ -676,9 +708,18 @@ public class Config {
         conf.set("seeds", seeds);
         conf.set("lobby", lobby);
 
+        conf.set("storage.type", storageType);
+        conf.set("storage.database.hostname", databaseHostname);
+        conf.set("storage.database.username", databaseUsername);
+        conf.set("storage.database.password", databasePassword);
+        conf.set("storage.database.database", databaseDatabase);
+
+        conf.set("chat.enable-lobby-chat", enableLobbyChat);
         conf.set("chat.per-team", chatPerTeam);
         conf.set("chat.separate-dead-chat", separateDeadChat);
         conf.set("chat.format", chatFormat);
+        conf.set("chat.lobby-format", lobbyChatFormat);
+        conf.set("chat.spectators-have-general-color", spectatorsHaveGeneralColor);
 
         conf.set("messages.game-joined", gameJoinMessage);
         conf.set("messages.game-left", gameLeftMessage);
@@ -764,6 +805,7 @@ public class Config {
         conf.set("messages.cannot-leave-waiting-zone", cannotLeaveWaitingZoneMessage);
         conf.set("messages.cannot-leave-lobby", cannotLeaveLobbyMessage);
         conf.set("messages.auto-rejoin", autoRejoinMessage);
+        conf.set("messages.stats", statsMessage);
 
         conf.set("menus.tracker-title", menuTrackerTitle);
         conf.set("menus.teleporter-title", menuTeleporterTitle);
@@ -780,12 +822,16 @@ public class Config {
         conf.set("actionbar.respawned-worldspawn", respawnedWorldspawnActionbar);
         conf.set("actionbar.respawned-bed", respawnedBedActionbar);
 
+        conf.set("prefixes.nametags.runner", runnerNametagPrefix);
+        conf.set("prefixes.nametags.hunter", hunterNametagPrefix);
+        conf.set("prefixes.lobby", lobbyChatPrefix);
         conf.set("prefixes.global", globalChatPrefix);
         conf.set("prefixes.runner", runnerChatPrefix);
         conf.set("prefixes.hunter", hunterChatPrefix);
         conf.set("prefixes.dead", deadChatPrefix);
         conf.set("prefixes.runner-color", runnerColor);
         conf.set("prefixes.hunter-color", hunterColor);
+        conf.set("prefixes.spectator-color", spectatorChatColor);
         conf.set("prefixes.status.loading", loadingStatusPrefix);
         conf.set("prefixes.status.starting", startingStatusPrefix);
         conf.set("prefixes.status.playing", playingStatusPrefix);

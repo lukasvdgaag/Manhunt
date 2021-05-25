@@ -1,9 +1,20 @@
+lobby:
 bungee:
   enabled: false
   is-lobby: false
   server-name: lobby
   game-servers:
     - manhunt-1
+
+storage:
+  # Type could be: FILE, MONGODB, MYSQL
+  type: MONGODB
+  database:
+    hostname: localhost
+    database: manhunt
+    username: 'user'
+    password: 'pass'
+
 join-game-on-server-join: false
 teleport-lobby-on-server-join: true
 announce-twist-vote-to-entire-game: false
@@ -58,9 +69,12 @@ seeds:
   - 8582104943861985407
 
 chat:
+  enable-lobby-chat: true
   per-team: true
   separate-dead-chat: true
+  spectators-have-general-color: true
   format: '&7[%prefix%&7] %color%%player%&f: %message%'
+  lobby-format: '&7[%prefix%&7] %player%&f: %message%'
 
 menus:
   tracker-title: Manhunt Tracker Menu
@@ -453,12 +467,17 @@ items:
     fill-material: BLACK_STAINED_GLASS_PANE
 
 prefixes:
+  nametags:
+    runner: '&7[&e&lR&7] &e'
+    hunter: '&7[&7&lH&7] &7'
+  lobby: '&eMANHUNT'
   global: '&8&lGLOBAL'
   runner: '&e&lRUNNER&e'
   hunter: '&7&lHUNTER&7'
   dead: '&c&lDEAD'
   runner-color: '&e'
   hunter-color: '&7'
+  spectator-color: '&7'
   selected: '&a(Selected)'
   status:
     loading: '&cLoading the game...'
@@ -547,6 +566,14 @@ titles:
     hardcore: '&c&lHARDCORE!\n&7You have 3 hearts and won''t regen for 30s!'
 
 messages:
+  stats-message:
+    - '&7&m-------------&r &6&lManhunt Stats &7&m-------------'
+    - '&8● &7You won &e%hunter_wins% &7games as a hunter and &e%runner_wins% &7as a runner. &9(Total wins: %total_wins%)'
+    - '&8● &7You killed &e%hunter_kills% &7runners and &e%runner_kills% &7runners. &9(Total kills: %total_kills%)'
+    - '&8● &7You played &e%hunter_games_played% &7games as a hunter and &e%runner_games_played%&7 as a runner. &9(Total games: %total_games_played%)'
+    - '&8● &7Your win rate is &e%win_rate%%&7.'
+    - '&8● &7You beat the game as runner in &e%runner_beat_time%&7.'
+    - '&7&m---------------------------------------'
   auto-rejoin:
     - '&5You automatically joined %host%''s Manhunt!'
     - '&7If you wish to leave, please type &e/leave&7.'
@@ -670,7 +697,7 @@ messages:
       - '&8&m--------------------------'
       - '&d&l%winner%S HAVE WON THIS MANHUNT!'
       - ''
-      - '&aOh no, you lose!'
+      - '&cOh no, you lose!'
       - '&7You will get teleported to the lobby shortly.'
       - '&8&m--------------------------'
 

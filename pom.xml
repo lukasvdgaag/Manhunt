@@ -1,46 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE project [
-        <!ELEMENT project (modelVersion|groupId|artifactId|version|packaging|name|description|properties|build|repositories|dependencies)*>
-        <!ATTLIST project
-                xmlns:xsi CDATA #REQUIRED
-                xmlns CDATA #REQUIRED
-                xsi:schemaLocation CDATA #REQUIRED>
-        <!ELEMENT modelVersion (#PCDATA)>
-        <!ELEMENT groupId (#PCDATA)>
-        <!ELEMENT artifactId (#PCDATA)>
-        <!ELEMENT version (#PCDATA)>
-        <!ELEMENT packaging (#PCDATA)>
-        <!ELEMENT name (#PCDATA)>
-        <!ELEMENT description (#PCDATA)>
-        <!ELEMENT properties (java.version|project.build.sourceEncoding)*>
-        <!ELEMENT java.version (#PCDATA)>
-        <!ELEMENT project.build.sourceEncoding (#PCDATA)>
-        <!ELEMENT build (plugins|resources)*>
-        <!ELEMENT plugins (plugin)*>
-        <!ELEMENT plugin (groupId|artifactId|version|configuration|executions)*>
-        <!ELEMENT configuration (updatePomFile|source|target)*>
-        <!ELEMENT updatePomFile (#PCDATA)>
-        <!ELEMENT executions (execution)*>
-        <!ELEMENT execution (id|phase|goals)*>
-        <!ELEMENT id (#PCDATA)>
-        <!ELEMENT phase (#PCDATA)>
-        <!ELEMENT goals (goal)*>
-        <!ELEMENT goal (#PCDATA)>
-        <!ELEMENT source (#PCDATA)>
-        <!ELEMENT target (#PCDATA)>
-        <!ELEMENT resources (resource)*>
-        <!ELEMENT resource (directory|filtering)*>
-        <!ELEMENT directory (#PCDATA)>
-        <!ELEMENT filtering (#PCDATA)>
-        <!ELEMENT repositories (repository)*>
-        <!ELEMENT repository (id|url)*>
-        <!ELEMENT url (#PCDATA)>
-        <!ELEMENT dependencies (dependency)*>
-        <!ELEMENT dependency (groupId|artifactId|version|scope|exclusions)*>
-        <!ELEMENT scope (#PCDATA)>
-        <!ELEMENT exclusions (exclusion)*>
-        <!ELEMENT exclusion (groupId|artifactId)*>
-        ]>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -118,6 +76,11 @@
 
 
     <repositories>
+
+        <repository>
+            <id>upstream</id>
+            <url>https://ci.nametagedit.com/job/NametagEdit</url>
+        </repository>
         <repository>
             <id>gaagjescraft</id>
             <url>http://nexus.gaagjescraft.net/repository/bukkit/</url>
@@ -125,6 +88,14 @@
         <repository>
             <id>enginehub-maven</id>
             <url>https://maven.enginehub.org/repo/</url>
+        </repository>
+        <repository>
+            <id>dmulloy2-repo</id>
+            <url>https://repo.dmulloy2.net/repository/public/</url>
+        </repository>
+        <repository>
+            <id>placeholderapi</id>
+            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
     </repositories>
 
@@ -148,6 +119,24 @@
                     <artifactId>spigot-api</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver</artifactId>
+            <version>3.4.3</version>
+        </dependency>
+        <dependency>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>2.10.9</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.nametagedit</groupId>
+            <artifactId>nametagedit</artifactId>
+            <version>4.4.16</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/gaagj/Downloads/NametagEdit (1).jar</systemPath>
         </dependency>
     </dependencies>
 </project>

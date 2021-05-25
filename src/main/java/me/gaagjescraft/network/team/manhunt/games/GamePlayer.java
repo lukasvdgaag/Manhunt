@@ -2,6 +2,7 @@ package me.gaagjescraft.network.team.manhunt.games;
 
 import com.google.common.collect.Lists;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
+import me.gaagjescraft.network.team.manhunt.inst.PlayerStat;
 import me.gaagjescraft.network.team.manhunt.utils.AdditionsBoard;
 import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
@@ -110,6 +111,8 @@ public class GamePlayer {
     }
 
     public String getColor() {
+        if (isFullyDead() && Manhunt.get().getCfg().spectatorsHaveGeneralColor)
+            return Manhunt.get().getCfg().spectatorChatColor;
         return playerType == PlayerType.HUNTER ? Manhunt.get().getCfg().hunterColor : Manhunt.get().getCfg().runnerColor;
     }
 
@@ -207,6 +210,7 @@ public class GamePlayer {
             } else {
                 p.sendMessage(Util.c(Manhunt.get().getCfg().runnerRemovedMessage.replaceAll("%player%", pp.getName())));
             }
+            if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(p);
         }
     }
 
@@ -224,6 +228,25 @@ public class GamePlayer {
 
     public void addKill() {
         kills++;
+
+        PlayerStat stat = Manhunt.get().getPlayerStorage().getUser(uuid);
+        if (playerType == PlayerType.HUNTER) stat.setHunterKills(stat.getHunterKills() + 1);
+        else stat.setRunnerKills(stat.getRunnerKills() + 1);
+        Manhunt.get().getPlayerStorage().saveUser(uuid);
+    }
+
+    public void addWin() {
+        PlayerStat stat = Manhunt.get().getPlayerStorage().getUser(uuid);
+        if (playerType == PlayerType.HUNTER) stat.setHunterWins(stat.getHunterWins() + 1);
+        else stat.setRunnerWins(stat.getRunnerWins() + 1);
+        Manhunt.get().getPlayerStorage().saveUser(uuid);
+    }
+
+    public void addGame() {
+        PlayerStat stat = Manhunt.get().getPlayerStorage().getUser(uuid);
+        if (playerType == PlayerType.HUNTER) stat.setHunterGamesPlayed(stat.getHunterGamesPlayed() + 1);
+        else stat.setRunnerGamesPlayed(stat.getRunnerGamesPlayed() + 1);
+        Manhunt.get().getPlayerStorage().saveUser(uuid);
     }
 
     public void prepareForSpectate() {
@@ -474,9 +497,9 @@ public class GamePlayer {
         final int hunters = gps.size();
         List<GamePlayer> rrs = game.getOnlinePlayers(PlayerType.RUNNER);
         final int runners = rrs.size();
-        gps.removeIf(p -> p.isDead);
+        gps.removeIf(GamePlayer::isFullyDead);
         final int aliveHunters = gps.size();
-        rrs.removeIf(p -> p.isDead);
+        rrs.removeIf(GamePlayer::isFullyDead);
         final int aliveRunners = rrs.size();
 
         if (board == null || board.getLinecount() != lines.size()) {

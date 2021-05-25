@@ -91,6 +91,7 @@ public class Game {
     }
 
     public static Game getGame(Player player) {
+        if (player == null) return null;
         List<Game> gms = Lists.newArrayList();
         for (Game g : games) {
             for (GamePlayer gp : g.getPlayers())
@@ -207,6 +208,7 @@ public class Game {
 
         this.getRunnerTeleporterMenu().update();
         sendUpdate();
+        if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(player);
         return true;
     }
 
@@ -232,6 +234,8 @@ public class Game {
         }
         //this.players.remove(gamePlayer);
         gamePlayer.setOnline(false);
+
+        if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(player);
 
         if (getStatus() != GameStatus.STOPPING) {
             if (getStatus() == GameStatus.WAITING || getStatus() == GameStatus.STARTING) {
@@ -337,6 +341,7 @@ public class Game {
             gp.updateScoreboard();
             player.closeInventory();
 
+            gp.addGame();
 
             if (winningTeam == null) {
                 for (String s : Manhunt.get().getCfg().gameEndDrawMessage) {
@@ -354,6 +359,7 @@ public class Game {
 
                 if (gp.getPlayerType() == winningTeam) {
                     player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().gameEndWinSound), 1, 1);
+                    gp.addWin();
                     if (isDragonDefeated()) {
                         Util.sendTitle(player, Manhunt.get().getCfg().gameEndWinRunnerDragonTitle, 20, 80, 20);
                     } else {
@@ -410,6 +416,7 @@ public class Game {
                     deleteMsgSent = true;
                     p.sendPluginMessage(Manhunt.get(), "exodus:manhunt", Manhunt.get().getPluginMessageHandler().createDeleteGameMessage(this.identifier));
                 }
+                if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(p);
             }
         }
 
@@ -450,6 +457,7 @@ public class Game {
         creator.environment(World.Environment.NORMAL);
         creator.seed(seed);
         creator.createWorld();
+
         if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + " NORMAL");
 
@@ -500,6 +508,8 @@ public class Game {
                 p.teleport(this.schematic.getSpawnLocation());
                 gp.prepareForGame(getStatus());
                 gp.updateScoreboard();
+
+                if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(p);
             }
             if (Manhunt.get().getCfg().autoJoinOnlinePlayersWhenGameCreated) {
                 for (Player player : Bukkit.getOnlinePlayers()) {

@@ -7,15 +7,17 @@ import me.gaagjescraft.network.team.manhunt.events.GameWaitingEvents;
 import me.gaagjescraft.network.team.manhunt.events.LeaveEventHandler;
 import me.gaagjescraft.network.team.manhunt.events.bungee.PluginMessageHandler;
 import me.gaagjescraft.network.team.manhunt.games.*;
+import me.gaagjescraft.network.team.manhunt.inst.storage.MongoStorage;
+import me.gaagjescraft.network.team.manhunt.inst.storage.PlayerStorage;
 import me.gaagjescraft.network.team.manhunt.menus.*;
 import me.gaagjescraft.network.team.manhunt.menus.handlers.RunnerTrackerMenuHandler;
-import me.gaagjescraft.network.team.manhunt.utils.Config;
-import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
-import me.gaagjescraft.network.team.manhunt.utils.Util;
+import me.gaagjescraft.network.team.manhunt.utils.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
 
 public class Manhunt extends JavaPlugin {
 
@@ -30,6 +32,8 @@ public class Manhunt extends JavaPlugin {
     private PluginMessageHandler pluginMessageHandler;
     private Util util;
     private Config config;
+    private PlayerStorage playerStorage;
+    private TagUtils tagUtils;
 
     public static Manhunt get() {
         return instance;
@@ -56,6 +60,12 @@ public class Manhunt extends JavaPlugin {
         manhuntRunnerManageMenu = new ManhuntRunnerManageMenu();
         pluginMessageHandler = new PluginMessageHandler();
 
+        if (!new File(Manhunt.get().getDataFolder(), "manhunt-lobby.schem").exists()) {
+            Manhunt.get().saveResource("manhunt-lobby.schem", false);
+        }
+
+        loadStorage();
+
         loadCAE();
         loadSchedulers();
 
@@ -74,6 +84,15 @@ public class Manhunt extends JavaPlugin {
         if (Bukkit.getPluginManager().isPluginEnabled("WorldEdit")) {
             getLogger().info("Found WorldEdit! This is used to handle the waiting lobby schematic pasting and removing.");
         }
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            new PAPIHook().register();
+            getLogger().info("Found PlaceholderAPI! You can now use the player placeholders as described on the resource page.");
+        }
+        if (Bukkit.getPluginManager().isPluginEnabled("NametagEdit")) {
+            this.tagUtils = new TagUtils();
+            Bukkit.getPluginManager().registerEvents(this.tagUtils, this);
+            getLogger().info("Found NametagEdit! We will now change the nametags of the players during the games.");
+        }
         getLogger().info("");
         getLogger().info("This plugin was created in collaboration with ExodusMC.");
         getLogger().info("Do not claim this project as yours.");
@@ -85,6 +104,24 @@ public class Manhunt extends JavaPlugin {
         for (Game game : Game.getGames()) {
             game.delete();
         }
+    }
+
+    public void loadStorage() {
+        String storageType = getCfg().storageType;
+        if (storageType.equalsIgnoreCase("mongodb")) {
+            this.playerStorage = new MongoStorage();
+        }
+        // todo add default file/sqlite storage.
+
+        this.playerStorage.setup();
+    }
+
+    public TagUtils getTagUtils() {
+        return tagUtils;
+    }
+
+    public PlayerStorage getPlayerStorage() {
+        return playerStorage;
     }
 
     public EventMenu getEventMenu() {
@@ -129,7 +166,7 @@ public class Manhunt extends JavaPlugin {
 
     private void loadSchedulers() {
         getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
-            if (Manhunt.get().getCfg().teleportPlayersToLobbyInVoid) {
+            if (Manhunt.get().getCfg().teleportPlayersToLobbyInVoid && getCfg().lobby != null) {
                 for (Player p : getCfg().lobby.getWorld().getPlayers()) {
                     if (p.getLocation().getBlockY() < 50) {
                         p.teleport(getCfg().lobby);
@@ -164,6 +201,7 @@ public class Manhunt extends JavaPlugin {
         getCommand("leave").setExecutor(new LeaveCmd());
         getCommand("compass").setExecutor(new CompassCmd());
         getCommand("rejoin").setExecutor(new RejoinCmd());
+        getCommand("manhuntstats").setExecutor(new StatsCmd());
         getServer().getPluginManager().registerEvents(eventMenu, this);
         getServer().getPluginManager().registerEvents(manhuntGamesMenu, this);
         getServer().getPluginManager().registerEvents(manhuntGameSetupMenu, this);

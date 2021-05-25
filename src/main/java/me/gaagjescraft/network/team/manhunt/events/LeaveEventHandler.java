@@ -4,6 +4,7 @@ import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -18,11 +19,22 @@ public class LeaveEventHandler implements Listener {
         if (game == null) return;
 
         game.removePlayer(e.getPlayer());
+
+        Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> {
+            // removing the user after 5 minutes if they haven't rejoined yet.
+            Player p = Bukkit.getPlayer(e.getPlayer().getUniqueId());
+            if (p == null || !p.isOnline()) {
+                Manhunt.get().getPlayerStorage().unloadUser(e.getPlayer().getUniqueId());
+            }
+        }, 20 * 300L);
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         e.setJoinMessage(null);
+
+        Manhunt.get().getPlayerStorage().loadUser(e.getPlayer().getUniqueId());
+
         if (Manhunt.get().getCfg().joinGameOnServerJoin || Manhunt.get().getCfg().teleportLobbyOnServerJoin) {
             Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> {
                 if (Manhunt.get().getCfg().joinGameOnServerJoin) {

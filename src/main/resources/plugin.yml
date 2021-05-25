@@ -1,16 +1,21 @@
 name: Manhunt
 main: me.gaagjescraft.network.team.manhunt.Manhunt
-version: 1.0.0
-description: Manhunt plugin for ExodusMC
+version: 1.0.1
+description: Twisted Manhunt plugin.
 author: GaagjesCraft Network Team (GCNT)
 api-version: 1.16
 depend:
   - WorldEdit
 softdepend:
+  - NametagEdit
   - Multiverse-Core
+  - PlaceholderAPI
 load: POSTWORLD
 
 commands:
+  manhuntstats:
+    aliases:
+      - stats
   manhunt:
     description: Opens the manhunt game menu / managed the game.
   event:

@@ -65,10 +65,10 @@ public class Util {
         }
     }
 
-    public String secondsToTimeString(int seconds, String format) {
+    public String secondsToTimeString(long seconds, String format) {
         if (format == null) format = "simplified";
 
-        int secs;
+        long secs;
         int mins = 0;
         int hours = 0;
 
