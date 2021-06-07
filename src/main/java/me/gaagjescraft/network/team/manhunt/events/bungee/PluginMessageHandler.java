@@ -27,6 +27,7 @@ public class PluginMessageHandler implements PluginMessageListener {
      * @param bytes
      */
 
+
     @Override
     public void onPluginMessageReceived(String channel, Player player, byte[] bytes) {
         if (!Manhunt.get().getCfg().bungeeMode) return;

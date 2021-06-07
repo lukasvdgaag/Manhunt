@@ -40,6 +40,7 @@ public class GamePlayer {
     private BukkitTask leaveTask;
     private Location bedSpawn;
     private boolean online;
+    private boolean joinedBefore;
 
     public GamePlayer(Game game, UUID uuid, PlayerType playerType, boolean isHost) {
         this.game = game;
@@ -58,8 +59,17 @@ public class GamePlayer {
         this.leaveTask = null;
         this.bedSpawn = null;
         this.online = true;
+        this.joinedBefore = !Manhunt.get().getCfg().bungeeMode;
 
-        updateScoreboard();
+        if (!Manhunt.get().getCfg().isLobbyServer) updateScoreboard();
+    }
+
+    public boolean isJoinedBefore() {
+        return joinedBefore;
+    }
+
+    public void setJoinedBefore(boolean joinedBefore) {
+        this.joinedBefore = joinedBefore;
     }
 
     public void leaveGameDelayed(boolean forceStopScheduler) {

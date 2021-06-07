@@ -3,8 +3,12 @@ bungee:
   enabled: false
   is-lobby: false
   server-name: lobby
+  lobby-server-name: lobby
   game-servers:
     - manhunt-1
+  socket:
+    hostname: localhost
+    port: 8005
 
 storage:
   # Type could be: FILE, MONGODB, MYSQL

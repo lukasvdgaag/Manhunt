@@ -115,6 +115,10 @@ public class MongoStorage implements PlayerStorage {
         doc.append("hunter_games_played", ps != null ? ps.getHunterGamesPlayed() : 0);
         doc.append("runner_games_played", ps != null ? ps.getRunnerGamesPlayed() : 0);
 
-        collection.updateOne(filter, new Document("$set", doc), new UpdateOptions().upsert(true));
+        if (collection.count(filter) == 0) {
+            collection.insertOne(new Document("$set", doc));
+        } else {
+            collection.updateOne(filter, new Document("$set", doc), new UpdateOptions().upsert(true));
+        }
     }
 }

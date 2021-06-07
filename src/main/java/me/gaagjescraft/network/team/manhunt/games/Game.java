@@ -1,6 +1,8 @@
 package me.gaagjescraft.network.team.manhunt.games;
 
 import com.google.common.collect.Lists;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.menus.RunnerTrackerMenu;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
@@ -25,7 +27,7 @@ public class Game {
         games = new ArrayList<>();
     }
 
-    private String identifier;
+    private final String identifier;
     private List<GamePlayer> players;
     private boolean twistsAllowed;
     private boolean doDaylightCycle;
@@ -41,13 +43,13 @@ public class Game {
     private int nextEventTime;
     private boolean eventActive;
     private HeadstartType headStart;
-    private String server;
     private boolean dragonDefeated;
 
     private int bungeeHunterCount;
     private int bungeeRunnerCount;
     private String bungeeServer;
     private UUID hostUUID;
+    private boolean ready;
 
     private Game(String id, boolean twistsAllowed, UUID host, int maxPlayers) {
         this.identifier = id;
@@ -68,16 +70,20 @@ public class Game {
         this.dragonDefeated = false;
         this.bungeeServer = null;
         this.hostUUID = host;
+        this.ready = false;
 
         this.bungeeHunterCount = 0;
         this.bungeeRunnerCount = 0;
         determineNextEventTime();
 
-        this.players.add(new GamePlayer(
-                this, host, PlayerType.RUNNER, true
-        ));
+        GamePlayer gameHost = new GamePlayer(this, host, PlayerType.RUNNER, true);
+        if (Manhunt.get().getCfg().bungeeMode) {
+            gameHost.setOnline(false);
+        }
+        this.players.add(gameHost);
         games.add(this);
-        this.scheduler.start();
+
+        if (Manhunt.get().getCfg().bungeeMode && !Manhunt.get().getCfg().isLobbyServer) this.scheduler.start();
     }
 
     public static Game createGame(boolean twistsAllowed, String host, UUID hostUUID, int maxPlayers) {
@@ -135,20 +141,20 @@ public class Game {
         return bungeeServer;
     }
 
+    public void setMaxPlayers(int maxPlayers) {
+        this.maxPlayers = maxPlayers;
+    }
+
+    public void sendUpdate() {
+        Manhunt.get().getUtil().createUpdateGameMessage(this);
+    }
+
     public void setBungeeServer(String bungeeServer) {
         this.bungeeServer = bungeeServer;
     }
 
-    public void sendUpdate() {
-        if (!Manhunt.get().getCfg().bungeeMode) return;
-        for (GamePlayer gp : players) {
-            Player p = Bukkit.getPlayer(gp.getUuid());
-            if (p == null) continue;
-            p.sendPluginMessage(Manhunt.get(), "exodus:manhunt", Manhunt.get().getPluginMessageHandler().createUpdateGameMessage(
-                    identifier, hostUUID, allowFriendlyFire, maxPlayers, headStart.name(), doDaylightCycle, allowFriendlyFire, status.name(), getOnlinePlayers(PlayerType.RUNNER).size(), getOnlinePlayers(PlayerType.HUNTER).size()
-            ));
-            return;
-        }
+    public boolean isReady() {
+        return ready;
     }
 
     public boolean isDragonDefeated() {
@@ -159,22 +165,28 @@ public class Game {
         this.dragonDefeated = dragonDefeated;
     }
 
-    public String getServer() {
-        return server;
-    }
-
-    public void setServer(String server) {
-        this.server = server;
-    }
-
     public void start() {
         this.status = GameStatus.STARTING;
         this.timer = 0;
     }
 
+    public void setReady(boolean ready) {
+        this.ready = ready;
+    }
+
+    public UUID getHostUUID() {
+        return hostUUID;
+    }
+
+    public void setHostUUID(UUID hostUUID) {
+        this.hostUUID = hostUUID;
+    }
+
     public boolean addPlayer(Player player) {
+        if (!ready) return false;
         GamePlayer gplayer = getPlayer(player);
-        if (status == GameStatus.LOADING || status == GameStatus.STOPPING || (getPlayers(PlayerType.HUNTER).size() >= maxPlayers && (gplayer == null || gplayer.isOnline())))
+        int hunterCount = (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) ? bungeeHunterCount : getOnlinePlayers(PlayerType.HUNTER).size();
+        if (status == GameStatus.LOADING || status == GameStatus.STOPPING || (hunterCount >= maxPlayers && (gplayer == null || gplayer.isOnline())))
             return false;
         GamePlayer gamePlayer = gplayer;
         if (gamePlayer == null) {
@@ -183,6 +195,15 @@ public class Game {
         }
 
         gamePlayer.setOnline(true);
+
+        if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) {
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("Connect");
+            out.writeUTF(getBungeeServer());
+            player.sendPluginMessage(Manhunt.get(), "BungeeCord", out.toByteArray());
+            return true;
+        }
+
         gamePlayer.prepareForGame(getStatus());
 
         if (!gamePlayer.isFullyDead()) {
@@ -222,25 +243,36 @@ public class Game {
         }
         if (gamePlayer == null) return;
         Manhunt.get().getManhuntGameSetupMenu().gameSetups.remove(player);
+        gamePlayer.setOnline(false);
 
-        gamePlayer.restoreForLobby();
-        gamePlayer.leaveGameDelayed(true);
-        player.teleport(Manhunt.get().getCfg().lobby);
         if (getStatus() == GameStatus.WAITING || getStatus() == GameStatus.STARTING || getStatus() == GameStatus.STOPPING) {
             player.sendMessage(Util.c(Manhunt.get().getCfg().playerLeftWaitingMessage));
         } else {
             gamePlayer.addDeath();
             player.sendMessage(Util.c(Manhunt.get().getCfg().playerLeftPlayingMessage));
         }
-        //this.players.remove(gamePlayer);
-        gamePlayer.setOnline(false);
 
-        if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(player);
+        if (Manhunt.get().getCfg().bungeeMode && !Manhunt.get().getCfg().isLobbyServer) {
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("Connect");
+            out.writeUTF(Manhunt.get().getCfg().lobbyServerName);
+            player.sendPluginMessage(Manhunt.get(), "BungeeCord", out.toByteArray());
+        }
 
-        if (getStatus() != GameStatus.STOPPING) {
-            if (getStatus() == GameStatus.WAITING || getStatus() == GameStatus.STARTING) {
-                if (gamePlayer.isHost()) {
-                    setStatus(GameStatus.WAITING);
+        if (!Manhunt.get().getCfg().isLobbyServer) {
+            gamePlayer.restoreForLobby();
+            gamePlayer.leaveGameDelayed(true);
+            player.teleport(Manhunt.get().getCfg().lobby);
+
+            if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(player);
+
+            //this.players.remove(gamePlayer);
+
+
+            if (getStatus() != GameStatus.STOPPING) {
+                if (getStatus() == GameStatus.WAITING || getStatus() == GameStatus.STARTING) {
+                    if (gamePlayer.isHost()) {
+                        setStatus(GameStatus.WAITING);
                     /*List<GamePlayer> runners = getPlayers(PlayerType.RUNNER);
                     List<GamePlayer> hunters = getPlayers(PlayerType.HUNTER);
                     if (!runners.isEmpty()) {
@@ -260,52 +292,50 @@ public class Game {
                     } else {
                         stopGame(false);
                     }*/
+                    }
+                    if (getOnlinePlayers(null).isEmpty()) {
+                        stopGame(false);
+                        return;
+                    }
                 }
-                if (getOnlinePlayers(null).isEmpty()) {
-                    stopGame(false);
-                    return;
-                }
-            }
 
-            String hostLeaveMessage = Util.c(Manhunt.get().getCfg().gameHostLeftMessage
-                    .replaceAll("%prefix%", gamePlayer.getPrefix())
-                    .replaceAll("%player%", player.getName())
-                    .replaceAll("%color%", gamePlayer.getColor())
-                    .replaceAll("%players%", getOnlinePlayers(null).size() + "")
-                    .replaceAll("%maxplayers%", (maxPlayers + getOnlinePlayers(PlayerType.RUNNER).size()) + ""));
-            String leaveMessage = Util.c(Manhunt.get().getCfg().gameLeftMessage
-                    .replaceAll("%prefix%", gamePlayer.getPrefix())
-                    .replaceAll("%player%", player.getName())
-                    .replaceAll("%color%", gamePlayer.getColor())
-                    .replaceAll("%players%", getOnlinePlayers(null).size() + "")
-                    .replaceAll("%maxplayers%", (maxPlayers + getOnlinePlayers(PlayerType.RUNNER).size() + "")));
+                String hostLeaveMessage = Util.c(Manhunt.get().getCfg().gameHostLeftMessage
+                        .replaceAll("%prefix%", gamePlayer.getPrefix())
+                        .replaceAll("%player%", player.getName())
+                        .replaceAll("%color%", gamePlayer.getColor())
+                        .replaceAll("%players%", getOnlinePlayers(null).size() + "")
+                        .replaceAll("%maxplayers%", (maxPlayers + getOnlinePlayers(PlayerType.RUNNER).size()) + ""));
+                String leaveMessage = Util.c(Manhunt.get().getCfg().gameLeftMessage
+                        .replaceAll("%prefix%", gamePlayer.getPrefix())
+                        .replaceAll("%player%", player.getName())
+                        .replaceAll("%color%", gamePlayer.getColor())
+                        .replaceAll("%players%", getOnlinePlayers(null).size() + "")
+                        .replaceAll("%maxplayers%", (maxPlayers + getOnlinePlayers(PlayerType.RUNNER).size() + "")));
 
-            for (GamePlayer gp : getOnlinePlayers(null)) {
-                Player p = Bukkit.getPlayer(gp.getUuid());
-                if (p == null) continue;
-                if (getStatus() == GameStatus.WAITING) {
-                    if (gamePlayer.isHost()) {
-                        p.sendMessage(hostLeaveMessage);
+                for (GamePlayer gp : getOnlinePlayers(null)) {
+                    Player p = Bukkit.getPlayer(gp.getUuid());
+                    if (p == null) continue;
+                    if (getStatus() == GameStatus.WAITING) {
+                        if (gamePlayer.isHost()) {
+                            p.sendMessage(hostLeaveMessage);
                         /*if (newHost != null)
                             p.sendMessage("§d" + Bukkit.getPlayer(newHost.getUuid()).getName() + " has been assigned as new host!");
                         if (changedHostPlayerType)
                             p.sendMessage("§e" + Bukkit.getPlayer(newHost.getUuid()).getName() + " is the new speed runner!");*/
+                        }
+                        return;
+                    } else {
+                        p.sendMessage(leaveMessage);
                     }
-                    return;
-                } else {
-                    p.sendMessage(leaveMessage);
                 }
             }
+            this.getRunnerTeleporterMenu().update();
+            checkForWin(false);
         }
-        this.getRunnerTeleporterMenu().update();
         for (GamePlayer gp : players) {
             gp.updateScoreboard();
         }
         sendUpdate();
-        if (getOnlinePlayers(null).isEmpty() && Manhunt.get().getCfg().bungeeMode) {
-            player.sendPluginMessage(Manhunt.get(), "exodus:manhunt", Manhunt.get().getPluginMessageHandler().createDeleteGameMessage(this.identifier));
-        }
-        checkForWin(false);
     }
 
     public void checkForWin(boolean forceWin) {
@@ -385,7 +415,7 @@ public class Game {
 
     public void stopGame(boolean checkForWin) {
         this.status = GameStatus.STOPPING;
-        if (checkForWin) checkForWin(true);
+        if (checkForWin && !Manhunt.get().getCfg().isLobbyServer) checkForWin(true);
 
         if (this.players.size() == 0) {
             delete();
@@ -397,27 +427,36 @@ public class Game {
     public void delete() {
         Location loc = Manhunt.get().getCfg().lobby;
 
-        boolean deleteMsgSent = false;
-
-        for (GamePlayer gp : players) {
-            Player p = Bukkit.getPlayer(gp.getUuid());
-            if (p != null) {
-                p.teleport(loc);
-                p.setInvisible(false);
-                p.setFlying(false);
-                p.setAllowFlight(false);
-                for (GamePlayer gp1 : players) {
-                    Player p1 = Bukkit.getPlayer(gp1.getUuid());
-                    if (p1 == null) continue;
-                    p.showPlayer(Manhunt.get(), p1);
-                    p1.showPlayer(Manhunt.get(), p);
+        if (!Manhunt.get().getCfg().isLobbyServer) {
+            if (Manhunt.get().getCfg().bungeeMode) Manhunt.get().getUtil().createGameEndedMessage(this);
+            for (GamePlayer gp : players) {
+                Player p = Bukkit.getPlayer(gp.getUuid());
+                if (p != null) {
+                    if (!Manhunt.get().getCfg().bungeeMode) p.teleport(loc);
+                    p.setInvisible(false);
+                    p.setFlying(false);
+                    p.setAllowFlight(false);
+                    for (GamePlayer gp1 : players) {
+                        Player p1 = Bukkit.getPlayer(gp1.getUuid());
+                        if (p1 == null) continue;
+                        p.showPlayer(Manhunt.get(), p1);
+                        p1.showPlayer(Manhunt.get(), p);
+                    }
+                    if (Manhunt.get().getCfg().bungeeMode) {
+                        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                        out.writeUTF("Connect");
+                        out.writeUTF(Manhunt.get().getCfg().lobbyServerName);
+                        p.sendPluginMessage(Manhunt.get(), "BungeeCord", out.toByteArray());
+                    }
+                    if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(p);
                 }
-                if (!deleteMsgSent && Manhunt.get().getCfg().bungeeMode) {
-                    deleteMsgSent = true;
-                    p.sendPluginMessage(Manhunt.get(), "exodus:manhunt", Manhunt.get().getPluginMessageHandler().createDeleteGameMessage(this.identifier));
-                }
-                if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(p);
             }
+        } else if (Manhunt.get().getCfg().bungeeMode) {
+            // bungeemode is enabled, and server is lobby server.
+            Manhunt.get().getUtil().createEndGameMessage(this, true);
+            this.players.clear();
+            games.remove(this);
+            return;
         }
 
         try {
@@ -500,7 +539,9 @@ public class Game {
 
             this.schematic.load();
 
-            status = GameStatus.WAITING;
+            ready = true;
+            setStatus(GameStatus.WAITING);
+            Manhunt.get().getUtil().createGameReadyMessage(this);
 
             for (GamePlayer gp : getOnlinePlayers(null)) {
                 Player p = Bukkit.getPlayer(gp.getUuid());
@@ -575,6 +616,7 @@ public class Game {
 
     public void setStatus(GameStatus status) {
         this.status = status;
+        sendUpdate();
     }
 
     public int getTimer() {

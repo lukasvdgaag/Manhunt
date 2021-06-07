@@ -5,6 +5,7 @@ import me.gaagjescraft.network.team.manhunt.events.DeathEventHandler;
 import me.gaagjescraft.network.team.manhunt.events.GameEventsHandlers;
 import me.gaagjescraft.network.team.manhunt.events.GameWaitingEvents;
 import me.gaagjescraft.network.team.manhunt.events.LeaveEventHandler;
+import me.gaagjescraft.network.team.manhunt.events.bungee.BungeeSocketManager;
 import me.gaagjescraft.network.team.manhunt.events.bungee.PluginMessageHandler;
 import me.gaagjescraft.network.team.manhunt.games.*;
 import me.gaagjescraft.network.team.manhunt.inst.storage.MongoStorage;
@@ -18,6 +19,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class Manhunt extends JavaPlugin {
 
@@ -34,6 +37,7 @@ public class Manhunt extends JavaPlugin {
     private Config config;
     private PlayerStorage playerStorage;
     private TagUtils tagUtils;
+    private BungeeSocketManager bungeeSocketManager;
 
     public static Manhunt get() {
         return instance;
@@ -93,7 +97,25 @@ public class Manhunt extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(this.tagUtils, this);
             getLogger().info("Found NametagEdit! We will now change the nametags of the players during the games.");
         }
+        if (getCfg().bungeeMode) {
+            bungeeSocketManager = new BungeeSocketManager();
+            if (getCfg().isLobbyServer) {
+                bungeeSocketManager.connectServer();
+            } else {
+                bungeeSocketManager.connectClient();
+            }
+            Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+            getLogger().info("BungeeCord support was enabled in the config, so we started the socket. Waiting for a connection...");
+        }
         getLogger().info("");
+
+        try {
+            InetAddress ad = InetAddress.getLocalHost();
+            getLogger().info("Info stuffies: " + ad);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+
         getLogger().info("This plugin was created in collaboration with ExodusMC.");
         getLogger().info("Do not claim this project as yours.");
         getLogger().info("----------------------------------");
@@ -104,6 +126,9 @@ public class Manhunt extends JavaPlugin {
         for (Game game : Game.getGames()) {
             game.delete();
         }
+
+        if (bungeeSocketManager != null) bungeeSocketManager.close();
+        Bukkit.getScheduler().cancelTasks(this);
     }
 
     public void loadStorage() {
@@ -154,6 +179,10 @@ public class Manhunt extends JavaPlugin {
 
     public PluginMessageHandler getPluginMessageHandler() {
         return pluginMessageHandler;
+    }
+
+    public BungeeSocketManager getBungeeSocketManager() {
+        return bungeeSocketManager;
     }
 
     public Util getUtil() {

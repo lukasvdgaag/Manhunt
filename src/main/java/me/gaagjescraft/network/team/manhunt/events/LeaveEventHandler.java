@@ -19,6 +19,7 @@ public class LeaveEventHandler implements Listener {
         if (game == null) return;
 
         game.removePlayer(e.getPlayer());
+        e.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
 
         Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> {
             // removing the user after 5 minutes if they haven't rejoined yet.
@@ -37,7 +38,7 @@ public class LeaveEventHandler implements Listener {
 
         if (Manhunt.get().getCfg().joinGameOnServerJoin || Manhunt.get().getCfg().teleportLobbyOnServerJoin) {
             Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> {
-                if (Manhunt.get().getCfg().joinGameOnServerJoin) {
+                if (Manhunt.get().getCfg().joinGameOnServerJoin && !Manhunt.get().getCfg().isLobbyServer) {
                     Game game = Game.getGame(e.getPlayer());
                     if (game == null) {
                         for (Game g : Game.getGames()) {
@@ -50,7 +51,7 @@ public class LeaveEventHandler implements Listener {
                         }
                     } else {
                         if (!game.getPlayer(e.getPlayer()).isOnline()) {
-                            if (game.addPlayer(e.getPlayer())) {
+                            if (game.addPlayer(e.getPlayer()) && game.getPlayer(e.getPlayer()).isJoinedBefore()) {
                                 e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().playerRejoinedMessage));
                                 return;
                             }

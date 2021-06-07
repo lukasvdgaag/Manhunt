@@ -335,6 +335,9 @@ public class Config {
     public String databaseUsername;
     public String databasePassword;
     public String databaseDatabase;
+    public String socketHostname;
+    public int socketPort;
+    public String lobbyServerName;
 
     private File file;
     private FileConfiguration conf;
@@ -360,6 +363,9 @@ public class Config {
         this.isLobbyServer = conf.getBoolean("bungee.is-lobby", false);
         this.serverName = conf.getString("bungee.server-name", "manhunt-1");
         this.gameServers = conf.getStringList("bungee.game-servers");
+        this.socketHostname = conf.getString("bungee.socket.hostname");
+        this.socketPort = conf.getInt("bungee.socket.port");
+        this.lobbyServerName = conf.getString("bungee.lobby-server-name");
         this.teleportLobbyOnServerJoin = conf.getBoolean("teleport-lobby-on-server-join");
         this.joinGameOnServerJoin = conf.getBoolean("join-game-on-server-join");
         this.announceTwistVoteToEntireGame = conf.getBoolean("announce-twist-vote-to-entire-game");
@@ -699,6 +705,9 @@ public class Config {
         conf.set("bungee.is-lobby", isLobbyServer);
         conf.set("bungee.server-name", serverName);
         conf.set("bungee.game-servers", gameServers);
+        conf.set("bungee.socket.hostname", socketHostname);
+        conf.set("bungee.socket.port", socketPort);
+        conf.set("bungee.lobby-server-name", lobbyServerName);
         conf.set("join-game-on-server-join", joinGameOnServerJoin);
         conf.set("teleport-lobby-on-server-join", teleportLobbyOnServerJoin);
         conf.set("announce-twist-vote-to-entire-game", announceTwistVoteToEntireGame);

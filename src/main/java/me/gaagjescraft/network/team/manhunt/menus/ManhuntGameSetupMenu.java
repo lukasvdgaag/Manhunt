@@ -198,19 +198,25 @@ public class ManhuntGameSetupMenu implements Listener {
         } else if (e.getSlot() == 53) {
             // submitting the game.
             if (setup.getGame() == null) {
-                Game game = Game.createGame(setup.isAllowTwists(), player, setup.getMaxPlayers());
-                if (game == null) {
-                    player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHostLockedSound), 1, 1);
-                    player.sendMessage(Util.c(Manhunt.get().getCfg().alreadyOwnGameMessage));
-                    return;
-                }
-                this.gameSetups.remove(player);
+                if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) {
+                    player.closeInventory();
+                    player.sendMessage("§aYou submitted your game host request. We are now checking for available servers to host it on. Please hold on.");
+                    setup.getBungeeSetup().requestNextGameCreation();
+                } else {
+                    Game game = Game.createGame(setup.isAllowTwists(), player, setup.getMaxPlayers());
+                    if (game == null) {
+                        player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHostLockedSound), 1, 1);
+                        player.sendMessage(Util.c(Manhunt.get().getCfg().alreadyOwnGameMessage));
+                        return;
+                    }
+                    this.gameSetups.remove(player);
 
-                player.closeInventory();
-                player.sendMessage(Util.c(Manhunt.get().getCfg().gameCreatedMessage));
-                game.create();
-                game.setAllowFriendlyFire(setup.isAllowFriendlyFire());
-                game.setHeadStart(setup.getHeadstart());
+                    player.closeInventory();
+                    player.sendMessage(Util.c(Manhunt.get().getCfg().gameCreatedMessage));
+                    game.create();
+                    game.setAllowFriendlyFire(setup.isAllowFriendlyFire());
+                    game.setHeadStart(setup.getHeadstart());
+                }
             } else if (setup.getGame().getStatus() == GameStatus.WAITING) {
                 Game game = setup.getGame();
                 if (game == null) {

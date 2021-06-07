@@ -31,9 +31,11 @@ public class GameScheduler {
             @Override
             public void run() {
                 for (GamePlayer gp : game.getOnlinePlayers(null)) {
-                    gp.updateScoreboard();
-                    gp.updateHealthTag();
-                    if (gp.getTracking() != null) gp.setTracking(gp.getTracking());
+                    if ((Bukkit.getPlayer(gp.getUuid()) != null)) {
+                        gp.updateScoreboard();
+                        gp.updateHealthTag();
+                        if (gp.getTracking() != null) gp.setTracking(gp.getTracking());
+                    }
                 }
 
                 // todo add automatic start for minimum amount of players.
@@ -67,35 +69,39 @@ public class GameScheduler {
     public void end() {
         this.game.setTimer(10);
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                List<GamePlayer> online = game.getOnlinePlayers(null);
+        if (Manhunt.get().getCfg().bungeeMode) {
+            Manhunt.get().getUtil().createEndGameMessage(this.game, false);
+        } else {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    List<GamePlayer> online = game.getOnlinePlayers(null);
 
-                Location loc = Manhunt.get().getCfg().lobby;
-                for (GamePlayer gp : online) {
-                    Player player = Bukkit.getPlayer(gp.getUuid());
-                    if (player == null) continue;
-                    gp.updateScoreboard();
-                    player.setLevel(game.getTimer());
-                    player.setExp(game.getTimer() > 10 ? 1.0f : (game.getTimer() / 10f));
+                    Location loc = Manhunt.get().getCfg().lobby;
+                    for (GamePlayer gp : online) {
+                        Player player = Bukkit.getPlayer(gp.getUuid());
+                        if (player == null) continue;
+                        gp.updateScoreboard();
+                        player.setLevel(game.getTimer());
+                        player.setExp(game.getTimer() > 10 ? 1.0f : (game.getTimer() / 10f));
+
+                        if (game.getTimer() == 0) {
+                            player.sendMessage(Util.c(Manhunt.get().getCfg().thanksForPlaying));
+                            player.teleport(loc);
+                            gp.restoreForLobby();
+                        }
+                    }
 
                     if (game.getTimer() == 0) {
-                        player.sendMessage(Util.c(Manhunt.get().getCfg().thanksForPlaying));
-                        player.teleport(loc);
-                        gp.restoreForLobby();
+                        this.cancel();
+                        game.delete();
+                        return;
                     }
-                }
 
-                if (game.getTimer() == 0) {
-                    this.cancel();
-                    game.delete();
-                    return;
+                    game.setTimer(game.getTimer() - 1);
                 }
-
-                game.setTimer(game.getTimer() - 1);
-            }
-        }.runTaskTimer(Manhunt.get(), 0, 20L);
+            }.runTaskTimer(Manhunt.get(), 0, 20L);
+        }
     }
 
     private void doHuntersReleaseCountdown() {

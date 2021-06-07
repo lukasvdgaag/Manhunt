@@ -60,8 +60,8 @@ public class ManhuntGamesMenu implements Listener {
                 status = Util.c(Manhunt.get().getCfg().stoppingStatusPrefix);
             }
 
-            int onlineHunters = g.getOnlinePlayers(PlayerType.HUNTER).size();
-            int onlineRunners = g.getOnlinePlayers(PlayerType.RUNNER).size();
+            int onlineHunters = (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) ? g.getBungeeHunterCount() : g.getOnlinePlayers(PlayerType.HUNTER).size();
+            int onlineRunners = (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) ? g.getBungeeRunnerCount() : g.getOnlinePlayers(PlayerType.RUNNER).size();
 
             meta.setDisplayName(Util.c(Manhunt.get().getCfg().gamesMenuGameHostDisplayname).replaceAll("%host%", g.getIdentifier()));
             List<String> lore = (onlineHunters < g.getMaxPlayers() && (g.getStatus() != GameStatus.STOPPING && g.getStatus() != GameStatus.LOADING)) ?

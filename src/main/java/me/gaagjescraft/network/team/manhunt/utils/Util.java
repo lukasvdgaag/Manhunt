@@ -1,11 +1,12 @@
 package me.gaagjescraft.network.team.manhunt.utils;
 
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
+import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
+import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.games.GameSetup;
+import me.gaagjescraft.network.team.manhunt.games.PlayerType;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -41,14 +42,45 @@ public class Util {
 
     public void createGameServer(GameSetup setup, String targetGameServer) {
         Player host = setup.getHost();
-        String json = "{'server_name': '" + Manhunt.get().getCfg().serverName + "', 'game_server':'" + targetGameServer + "', 'host':'" + host.getUniqueId() + "', 'host_uuid':'" + setup.getHost().getUniqueId().toString() + "', " +
-                "'max_players':" + setup.getMaxPlayers() + ", 'headstart:'" + setup.getHeadstart().name() + "', " +
+        String json = "{'server_name': '" + Manhunt.get().getCfg().serverName + "', 'game_server':'" + targetGameServer + "', 'host':'" + host.getName() + "', 'host_uuid':'" + setup.getHost().getUniqueId().toString() + "', " +
+                "'max_players':" + setup.getMaxPlayers() + ", 'headstart':'" + setup.getHeadstart().name() + "', " +
                 "'allow_twists':" + setup.isAllowTwists() + ", 'daylight_cycle':" + setup.isDoDaylightCycle() + ", 'friendly_fire':" + setup.isAllowFriendlyFire() + "}";
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF("createGame");
-        out.writeUTF(json);
 
-        host.sendPluginMessage(Manhunt.get(), "exodus:manhunt", out.toByteArray());
+        if (!Manhunt.get().getBungeeSocketManager().sendMessage("createGame", json)) {
+            setup.getHost().sendMessage(ChatColor.RED + "We had some trouble connecting to the other servers. Please inform a staff member.");
+        }
+    }
+
+    public void createGameReadyMessage(Game game) {
+        String json = "{'server_name': '" + Manhunt.get().getCfg().serverName + "', 'game':'" + game.getIdentifier() + "', 'host_uuid':'" + game.getHostUUID().toString() + "'}";
+        Manhunt.get().getBungeeSocketManager().sendMessage("gameReady", json);
+    }
+
+    public void createGameEndedMessage(Game game) {
+        String json = "{'game':'" + game.getIdentifier() + "'}";
+        Manhunt.get().getBungeeSocketManager().sendMessage("gameEnded", json);
+    }
+
+    public void createEndGameMessage(Game game, boolean forceStop) {
+        String json = "{'game':'" + game.getIdentifier() + "', 'force_stop':" + forceStop + "}";
+        Manhunt.get().getBungeeSocketManager().sendMessage("endGame", json);
+    }
+
+    public void createUpdateGameMessage(Game game) {
+        JsonObject object = new JsonObject();
+        object.addProperty("server", Manhunt.get().getCfg().serverName);
+        object.addProperty("id", game.getIdentifier());
+        object.addProperty("host_uuid", game.getHostUUID().toString());
+        object.addProperty("allow_twists", game.isTwistsAllowed());
+        object.addProperty("max_players", game.getMaxPlayers());
+        object.addProperty("headstart", game.getHeadStart().name());
+        object.addProperty("daylight_cycle", game.isDoDaylightCycle());
+        object.addProperty("friendly_fire", game.isAllowFriendlyFire());
+        object.addProperty("status", game.getStatus().name());
+        object.addProperty("runner_count", game.getOnlinePlayers(PlayerType.RUNNER).size());
+        object.addProperty("hunter_count", game.getOnlinePlayers(PlayerType.HUNTER).size());
+
+        Manhunt.get().getBungeeSocketManager().sendMessage("updateGame", object.toString());
     }
 
     public void spawnAcidParticles(Location loc, boolean hit) {
@@ -107,19 +139,16 @@ public class Util {
             if (hours > 0) {
                 if (mins == 0 && secs == 0) {
                     return hours + " hour" + (hours > 1 ? "s" : "");
-                }
-                else if (secs == 0) {
-                    return hours + " hour"  + (hours > 1 ? "s" : "") + " and " + mins + " minute" + (mins > 1 ? "s" : "");
+                } else if (secs == 0) {
+                    return hours + " hour" + (hours > 1 ? "s" : "") + " and " + mins + " minute" + (mins > 1 ? "s" : "");
                 }
                 return hours + " hours, " + mins + " minutes, and " + seconds + " seconds";
-            }
-            else if (mins > 0) {
+            } else if (mins > 0) {
                 if (secs == 0) {
                     return mins + " minute" + (mins > 1 ? "s" : "");
                 }
                 return mins + " minute" + (mins > 1 ? "s" : "") + " and " + secs + " second" + (secs > 1 ? "s" : "");
-            }
-            else {
+            } else {
                 return secs + " second" + (secs > 1 ? "s" : "");
             }
         }
