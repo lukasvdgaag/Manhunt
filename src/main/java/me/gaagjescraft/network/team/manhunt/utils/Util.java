@@ -7,10 +7,7 @@ import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.games.GameSetup;
 import me.gaagjescraft.network.team.manhunt.games.PlayerType;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -176,6 +173,13 @@ public class Util {
         }
         head.setItemMeta(meta);
         return head;
+    }
+
+    public int getProtocol(Player player) {
+        if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
+            return com.viaversion.viaversion.api.Via.getAPI().getPlayerVersion(player.getUniqueId());
+        }
+        return -1;
     }
 
 }

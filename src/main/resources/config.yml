@@ -9,7 +9,7 @@ bungee:
   socket:
     hostname: localhost
     port: 8005
-
+minimum_client_protocol_version: 701 # this is 1.16+
 storage:
   # Type could be: FILE, MONGODB, MYSQL
   type: MONGODB
@@ -289,6 +289,17 @@ items:
       - '&7Simply click this item to get started.'
       - ''
       - '&6Click &eto host a new game.'
+    host-game-unsupported-protocol-material: EMERALD
+    host-game-unsupported-protocol-displayname: '&aHost a new game &c(Unavailable)'
+    host-game-unsupported-protocol-lore:
+      - ''
+      - '&bThanks for choosing ExodusMC!'
+      - '&7As a sign of appreciation, we allow'
+      - '&7certain people to host custom events.'
+      - '&7Simply click this item to get started.'
+      - ''
+      - '&cYou must be in 1.16+ to create games!'
+      - '&cPlease switch versions if you wish to proceed.'
   headstart-menu:
     half-minute-headstart-material: LEVER
     half-minute-headstart-displayname: '&730 seconds'

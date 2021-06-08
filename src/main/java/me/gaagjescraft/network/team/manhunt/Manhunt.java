@@ -97,12 +97,15 @@ public class Manhunt extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(this.tagUtils, this);
             getLogger().info("Found NametagEdit! We will now change the nametags of the players during the games.");
         }
+        if (Bukkit.getPluginManager().isPluginEnabled("ViaVersion")) {
+            getLogger().info("Found ViaVersion! You can now use the protocol version checker.");
+        }
         if (getCfg().bungeeMode) {
             bungeeSocketManager = new BungeeSocketManager();
             if (getCfg().isLobbyServer) {
-                bungeeSocketManager.connectServer();
+                bungeeSocketManager.enableServer();
             } else {
-                bungeeSocketManager.connectClient();
+                bungeeSocketManager.connectClientToServer();
             }
             Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
             getLogger().info("BungeeCord support was enabled in the config, so we started the socket. Waiting for a connection...");

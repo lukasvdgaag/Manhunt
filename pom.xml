@@ -97,6 +97,10 @@
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
+        <repository>
+            <id>viaversion-repo</id>
+            <url>https://repo.viaversion.com</url>
+        </repository>
     </repositories>
 
 
@@ -137,6 +141,12 @@
             <version>4.4.16</version>
             <scope>system</scope>
             <systemPath>C:/Users/gaagj/Downloads/NametagEdit (1).jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.viaversion</groupId>
+            <artifactId>viaversion-api</artifactId>
+            <version>4.0.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

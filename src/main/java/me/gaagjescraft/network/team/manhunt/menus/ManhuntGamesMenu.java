@@ -8,6 +8,7 @@ import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -31,7 +32,11 @@ public class ManhuntGamesMenu implements Listener {
         inventory.setItem(22, Itemizer.CLOSE_ITEM);
 
         if (player.hasPermission("manhunt.hostgame")) {
-            inventory.setItem(26, Itemizer.NEW_GAME_ITEM);
+            int protocol = Manhunt.get().getUtil().getProtocol(player);
+
+            if (protocol == -1 || protocol >= Manhunt.get().getCfg().minimumClientProtocolVersion)
+                inventory.setItem(26, Itemizer.NEW_GAME_ITEM);
+            else inventory.setItem(26, Itemizer.NEW_GAME_ITEM_UNSUPPORTED_PROTOCOL);
         }
 
         List<Game> games = Game.getGames();
@@ -108,7 +113,12 @@ public class ManhuntGamesMenu implements Listener {
             e.getWhoClicked().closeInventory();
             return;
         } else if (e.getSlot() == 26 && e.getWhoClicked().hasPermission("manhunt.hostgame")) {
-            Manhunt.get().getManhuntGameSetupMenu().openMenu((Player) e.getWhoClicked(), null);
+            int protocol = Manhunt.get().getUtil().getProtocol((Player) e.getWhoClicked());
+
+            if (protocol == -1 || protocol >= Manhunt.get().getCfg().minimumClientProtocolVersion)
+                Manhunt.get().getManhuntGameSetupMenu().openMenu((Player) e.getWhoClicked(), null);
+            else
+                ((Player) e.getWhoClicked()).playSound(e.getWhoClicked().getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHostLockedSound), 1, 1);
             return;
         }
 

@@ -17,6 +17,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class BungeeSocketManager {
@@ -26,24 +28,43 @@ public class BungeeSocketManager {
     private DataInputStream din = null;
     private DataOutputStream dout = null;
     private Thread thread = null;
+    private int bukkitTaskId = -1;
 
+    private List<Socket> socketsConnected = new ArrayList<>();
+
+    /*
+        This method sends a message to all the connected clients. (Only server side supported).
+     */
     public boolean sendMessage(String... msg) {
-        if (dout == null || s == null || din == null) {
-            if (Manhunt.get().getCfg().isLobbyServer) connectServer();
-            else connectClient();
+        // (Manhunt.get().getCfg().isLobbyServer && (ss == null || ss.isClosed())) ||
+        /*if ((!Manhunt.get().getCfg().isLobbyServer && dout==null||din==null||(s==null||s.isClosed()||!s.isConnected()))) {
+            if (Manhunt.get().getCfg().isLobbyServer) enableServer();
+            else connectClientToServer();
 
             if (dout == null) {
                 // if still null after reconnecting...
                 Bukkit.getLogger().severe("Failed to send a message to another server because the output stream was invalid (null).");
                 return false;
             }
-        }
+        }*/
+
 
         try {
-            for (String s : msg) {
-                dout.writeUTF(s);
+            if (Manhunt.get().getCfg().isLobbyServer) {
+                for (Socket socket : socketsConnected) {
+                    DataOutputStream socketDout = new DataOutputStream(socket.getOutputStream());
+                    for (String s : msg) {
+                        socketDout.writeUTF(s);
+                    }
+                    socketDout.flush();
+                }
+            } else {
+                DataOutputStream socketDout = new DataOutputStream(s.getOutputStream());
+                for (String s : msg) {
+                    socketDout.writeUTF(s);
+                }
+                socketDout.flush();
             }
-            dout.flush();
             return true;
         } catch (Exception e) {
             Bukkit.getLogger().severe("Failed to send a message to another server because the output stream returned an error:");
@@ -52,8 +73,10 @@ public class BungeeSocketManager {
         }
     }
 
-    // for the lobby server.
-    public void connectServer() {
+    /*
+        This method starts the socket server. (Server)
+     */
+    public void enableServer() {
         close();
         thread = new Thread(() -> {
             try {
@@ -65,38 +88,42 @@ public class BungeeSocketManager {
                     s.setKeepAlive(true);
                     Bukkit.getLogger().warning("Manhunt successfully connected to the socket on port 8005 and is now ready to receive and send messages.");
 
-                    din = new DataInputStream(s.getInputStream());
-                    dout = new DataOutputStream(s.getOutputStream());
+                    socketsConnected.add(s);
 
-                    Bukkit.getScheduler().scheduleSyncRepeatingTask(Manhunt.get(), () -> {
+                    if (bukkitTaskId != -1) Bukkit.getScheduler().cancelTask(bukkitTaskId);
+
+                    bukkitTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(Manhunt.get(), () -> {
                         try {
-                            if (din.available() != 0) {
-                                String subChannel = din.readUTF();
-                                String value = "";
-                                if (din.available() > 0) value = din.readUTF();
-                                Bukkit.getLogger().severe("Message from socket: " + subChannel + ", " + value);
+                            for (Socket s : socketsConnected) {
+                                DataInputStream din = new DataInputStream(s.getInputStream());
+                                if (din.available() != 0) {
+                                    String subChannel = din.readUTF();
+                                    String value = "";
+                                    if (din.available() > 0) value = din.readUTF();
+                                    Bukkit.getLogger().severe("Message from socket: " + subChannel + ", " + value);
 
-                                switch (subChannel) {
-                                    case "createGameResponse":
-                                        serverProcessCreateGameResponse(value);
-                                        break;
-                                    case "deleteGame":
-                                        serverProcessDeleteGame(value);
-                                        break;
-                                    case "gameReady":
-                                        serverProcessGameReady(value);
-                                        break;
-                                    case "gameEnded":
-                                        serverProcessGameEnded(value);
-                                        break;
-                                    case "updateGame":
-                                        serverProcessUpdateGame(value);
-                                        break;
-                                    case "endGame":
-                                        serverProcessEndGame(value);
-                                        break;
+                                    switch (subChannel) {
+                                        case "createGameResponse":
+                                            serverProcessCreateGameResponse(value);
+                                            break;
+                                        case "deleteGame":
+                                            serverProcessDeleteGame(value);
+                                            break;
+                                        case "gameReady":
+                                            serverProcessGameReady(value);
+                                            break;
+                                        case "gameEnded":
+                                            serverProcessGameEnded(value);
+                                            break;
+                                        case "updateGame":
+                                            serverProcessUpdateGame(value);
+                                            break;
+                                        case "endGame":
+                                            serverProcessEndGame(value);
+                                            break;
+                                    }
+
                                 }
-
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -113,19 +140,28 @@ public class BungeeSocketManager {
         thread.start();
     }
 
+    /*
+        This method is being used to close the socket server and server?
+     */
+
     public void close() {
         try {
             if (thread != null && thread.isAlive()) thread.interrupt();
+            if (bukkitTaskId != -1) Bukkit.getScheduler().cancelTask(bukkitTaskId);
             if (din != null) din.close();
             if (dout != null) dout.close();
             if (s != null) s.close();
             if (ss != null) ss.close();
         } catch (Exception ignored) {
         }
+
+        socketsConnected.clear();
     }
 
-    // for the game servers.
-    public void connectClient() {
+    /*
+        This method is being used to connect from the client to the socketserver;
+     */
+    public void connectClientToServer() {
         close();
         thread = new Thread(() -> {
             try {
@@ -169,6 +205,11 @@ public class BungeeSocketManager {
         });
         thread.start();
     }
+
+
+    /*
+        Utils methods: (Processing input)
+     */
 
     private void serverProcessGameEnded(String json) {
         JsonObject ob = new JsonParser().parse(json).getAsJsonObject();
@@ -252,14 +293,17 @@ public class BungeeSocketManager {
         boolean friendlyFire = ob.getAsJsonPrimitive("friendly_fire").getAsBoolean();
         UUID hostUid = UUID.fromString(ob.getAsJsonPrimitive("host_uuid").getAsString());
 
-        if (Game.getGames().size() == 0) {
+        Bukkit.getLogger().info("Incoming game creation request for this server...");
+        if (Game.getGames().isEmpty()) {
             // no running games on this server yet. Ready to create the game.
 
             Game game = Game.createGame(allowTwists, host, hostUid, maxPlayers);
             if (game == null) {
+                Bukkit.getLogger().info("Failed to create the manhunt game.");
                 sendMessage("createGameResponse", createGameResponse(host, "failed", hostUid, allowTwists, maxPlayers, headstart, doDaylightCycle, friendlyFire));
                 return;
             }
+            Bukkit.getLogger().info("No errors found, creating the manhunt game now...");
             sendMessage("createGameResponse", createGameResponse(host, "created", hostUid, allowTwists, maxPlayers, headstart, doDaylightCycle, friendlyFire));
 
             game.setHeadStart(HeadstartType.valueOf(headstart));
@@ -268,6 +312,11 @@ public class BungeeSocketManager {
             game.create();
 
         } else {
+            Bukkit.getLogger().info("List of games on this server:");
+            for (Game g : Game.getGames()) {
+                Bukkit.getLogger().info(g.getIdentifier());
+            }
+            Bukkit.getLogger().info("Responding with denied.");
             // no room for this game on this server, letting the lobby know.
             sendMessage("createGameResponse", createGameResponse(host, "denied", hostUid, allowTwists, maxPlayers, headstart, doDaylightCycle, friendlyFire));
         }
@@ -277,7 +326,7 @@ public class BungeeSocketManager {
         JsonObject ob = new JsonParser().parse(json).getAsJsonObject();
         if (!ob.getAsJsonPrimitive("response").getAsString().equals("created")) {
             // failed to create the game.
-            Player p = Bukkit.getPlayer(UUID.fromString(ob.getAsJsonPrimitive("host").getAsString()));
+            Player p = Bukkit.getPlayer(UUID.fromString(ob.getAsJsonPrimitive("host_uuid").getAsString()));
             if (p == null) return;
             GameSetup setup = Manhunt.get().getManhuntGameSetupMenu().gameSetups.get(p);
             if (setup == null) return;

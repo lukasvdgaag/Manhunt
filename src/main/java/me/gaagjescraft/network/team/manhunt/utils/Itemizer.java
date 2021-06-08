@@ -15,6 +15,7 @@ public class Itemizer {
     public static ItemStack CLOSE_ITEM;
     public static ItemStack FILL_NO_GAMES;
     public static ItemStack NEW_GAME_ITEM;
+    public static ItemStack NEW_GAME_ITEM_UNSUPPORTED_PROTOCOL;
     public static ItemStack NEW_GAME_FINISH_ITEM;
     public static ItemStack GAME_START_ITEM;
 
@@ -33,7 +34,10 @@ public class Itemizer {
         FILL_ITEM = createItem(Material.valueOf(Manhunt.get().getCfg().generalFillMaterial), 1, "§r", Lists.newArrayList());
         CLOSE_ITEM = createItem(Manhunt.get().getCfg().generalCloseMaterial, 1, Manhunt.get().getCfg().generalCloseDisplayname, Manhunt.get().getCfg().generalCloseLore);
         FILL_NO_GAMES = createItem(Manhunt.get().getCfg().gamesMenuNoGamesMaterial, 1, Manhunt.get().getCfg().gamesMenuNoGamesDisplayname, Manhunt.get().getCfg().gamesMenuNoGamesLore);
+
         NEW_GAME_ITEM = createItem(Manhunt.get().getCfg().gamesMenuHostGameMaterial, 1, Manhunt.get().getCfg().gamesMenuHostGameDisplayname, Manhunt.get().getCfg().gamesMenuHostGameLore);
+        NEW_GAME_ITEM_UNSUPPORTED_PROTOCOL = createItem(Manhunt.get().getCfg().gamesMenuHostUnsupportedProtocolMaterial, 1, Manhunt.get().getCfg().gamesMenuHostUnsupportedProtocolDisplayname, Manhunt.get().getCfg().gamesMenuHostUnsupportedProtocolLore);
+
         NEW_GAME_FINISH_ITEM = createItem(Manhunt.get().getCfg().hostMenuFinishMaterial, 1, Manhunt.get().getCfg().hostMenuFinishDisplayname, Manhunt.get().getCfg().hostMenuFinishLore);
         GAME_START_ITEM = createItem(Manhunt.get().getCfg().hostMenuStartMaterial, 1, Manhunt.get().getCfg().hostMenuStartDisplayname, Manhunt.get().getCfg().hostMenuStartLore);
         MANHUNT_RUNNER_TRACKER = createItem(Manhunt.get().getCfg().generalTrackerMaterial, 1, Manhunt.get().getCfg().generalTrackerDisplayname, Manhunt.get().getCfg().generalTrackerLore);

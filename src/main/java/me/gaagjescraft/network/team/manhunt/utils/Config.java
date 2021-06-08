@@ -292,6 +292,8 @@ public class Config {
     public String generalCloseMaterial;
     public String gamesMenuNoGamesMaterial;
     public String gamesMenuHostGameMaterial;
+    public String gamesMenuHostUnsupportedProtocolMaterial;
+
     public String hostMenuFinishMaterial;
     public String hostMenuStartMaterial;
     public String generalTrackerMaterial;
@@ -301,6 +303,7 @@ public class Config {
     public String generalCloseDisplayname;
     public String gamesMenuNoGamesDisplayname;
     public String gamesMenuHostGameDisplayname;
+    public String gamesMenuHostUnsupportedProtocolDisplayname;
     public String hostMenuFinishDisplayname;
     public String hostMenuStartDisplayname;
     public String generalTrackerDisplayname;
@@ -310,6 +313,7 @@ public class Config {
     public List<String> generalCloseLore;
     public List<String> gamesMenuNoGamesLore;
     public List<String> gamesMenuHostGameLore;
+    public List<String> gamesMenuHostUnsupportedProtocolLore;
     public List<String> hostMenuFinishLore;
     public List<String> hostMenuStartLore;
     public List<String> generalTrackerLore;
@@ -338,6 +342,7 @@ public class Config {
     public String socketHostname;
     public int socketPort;
     public String lobbyServerName;
+    public int minimumClientProtocolVersion;
 
     private File file;
     private FileConfiguration conf;
@@ -371,6 +376,7 @@ public class Config {
         this.announceTwistVoteToEntireGame = conf.getBoolean("announce-twist-vote-to-entire-game");
         this.teleportPlayersToLobbyInVoid = conf.getBoolean("teleport-players-to-lobby-in-void");
         this.autoJoinOnlinePlayersWhenGameCreated = conf.getBoolean("auto-join-online-players-when-game-created");
+        this.minimumClientProtocolVersion = conf.getInt("minimum_client_protocol_version");
 
         this.seeds = conf.getLongList("seeds");
         this.lobby = conf.getLocation("lobby");
@@ -673,6 +679,8 @@ public class Config {
         generalCloseMaterial = conf.getString("items.general.close-material");
         gamesMenuNoGamesMaterial = conf.getString("items.games-menu.no-games-material");
         gamesMenuHostGameMaterial = conf.getString("items.games-menu.host-game-material");
+        gamesMenuHostUnsupportedProtocolMaterial = conf.getString("items.games-menu.host-game-unsupported-protocol-material");
+
         hostMenuFinishMaterial = conf.getString("items.host-menu.finish-material");
         hostMenuStartMaterial = conf.getString("items.host-menu.start-material");
         generalTrackerMaterial = conf.getString("items.general.tracker-material");
@@ -682,6 +690,8 @@ public class Config {
         generalCloseDisplayname = conf.getString("items.general.close-displayname");
         gamesMenuNoGamesDisplayname = conf.getString("items.games-menu.no-games-displayname");
         gamesMenuHostGameDisplayname = conf.getString("items.games-menu.host-game-displayname");
+        gamesMenuHostUnsupportedProtocolDisplayname = conf.getString("items.games-menu.host-game-unsupported-protocol-displayname");
+
         hostMenuFinishDisplayname = conf.getString("items.host-menu.finish-displayname");
         hostMenuStartDisplayname = conf.getString("items.host-menu.start-displayname");
         generalTrackerDisplayname = conf.getString("items.general.tracker-displayname");
@@ -691,6 +701,8 @@ public class Config {
         generalCloseLore = conf.getStringList("items.general.close-lore");
         gamesMenuNoGamesLore = conf.getStringList("items.games-menu.no-games-lore");
         gamesMenuHostGameLore = conf.getStringList("items.games-menu.host-game-lore");
+        gamesMenuHostUnsupportedProtocolLore = conf.getStringList("items.games-menu.host-game-unsupported-protocol-lore");
+
         hostMenuFinishLore = conf.getStringList("items.host-menu.finish-lore");
         hostMenuStartLore = conf.getStringList("items.host-menu.start-lore");
         generalTrackerLore = conf.getStringList("items.general.tracker-lore");
@@ -713,6 +725,7 @@ public class Config {
         conf.set("announce-twist-vote-to-entire-game", announceTwistVoteToEntireGame);
         conf.set("teleport-players-to-lobby-in-void", teleportPlayersToLobbyInVoid);
         conf.set("auto-join-online-players-when-game-created", autoJoinOnlinePlayersWhenGameCreated);
+        conf.set("minimum_client_protocol_version", minimumClientProtocolVersion);
 
         conf.set("seeds", seeds);
         conf.set("lobby", lobby);
@@ -1013,6 +1026,7 @@ public class Config {
         conf.set("items.general.close-material", generalCloseMaterial);
         conf.set("items.games-menu.no-games-material", gamesMenuNoGamesMaterial);
         conf.set("items.games-menu.host-game-material", gamesMenuHostGameMaterial);
+        conf.set("items.games-menu.host-game-unsupported-protocol-material", gamesMenuHostUnsupportedProtocolMaterial);
         conf.set("items.host-menu.finish-material", hostMenuFinishMaterial);
         conf.set("items.host-menu.start-material", hostMenuStartMaterial);
         conf.set("items.general.tracker-material", generalTrackerMaterial);
@@ -1022,6 +1036,7 @@ public class Config {
         conf.set("items.general.close-displayname", generalCloseDisplayname);
         conf.set("items.games-menu.no-games-displayname", gamesMenuNoGamesDisplayname);
         conf.set("items.games-menu.host-game-displayname", gamesMenuHostGameDisplayname);
+        conf.set("items.games-menu.host-game-unsupported-protocol-displayname", gamesMenuHostUnsupportedProtocolDisplayname);
         conf.set("items.host-menu.finish-displayname", hostMenuFinishDisplayname);
         conf.set("items.host-menu.start-displayname", hostMenuStartDisplayname);
         conf.set("items.general.tracker-displayname", generalTrackerDisplayname);
@@ -1031,6 +1046,7 @@ public class Config {
         conf.set("items.general.close-lore", generalCloseLore);
         conf.set("items.games-menu.no-games-lore", gamesMenuNoGamesLore);
         conf.set("items.games-menu.host-game-lore", gamesMenuHostGameLore);
+        conf.set("items.games-menu.host-game-unsupported-protocol-lore", gamesMenuHostUnsupportedProtocolLore);
         conf.set("items.host-menu.finish-lore", hostMenuFinishLore);
         conf.set("items.host-menu.start-lore", hostMenuStartLore);
         conf.set("items.general.tracker-lore", generalTrackerLore);

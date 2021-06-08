@@ -79,7 +79,7 @@ public class GameSetupBungee {
                     if (currentTick % 10 == 0) {
                         gameSetup.getHost().playSound(gameSetup.getHost().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
                     }
-                    if (currentTick - lastServerTicked >= 40 && !isServerMatched()) {
+                    if (currentTick - lastServerTicked >= 60 && !isServerMatched()) {
                         if (!isLastServer) requestNextGameCreation();
                         else {
                             Bukkit.getScheduler().cancelTask(runnableTaskId);
@@ -97,6 +97,7 @@ public class GameSetupBungee {
         List<String> servers = Manhunt.get().getCfg().gameServers;
         for (String server : servers) {
             if (!serversChecked.contains(server)) {
+                gameSetup.getHost().sendMessage("§7Checking server " + server + "...");
                 Manhunt.get().getUtil().createGameServer(this.gameSetup, server);
                 serversChecked.add(server);
                 currentServerChecking = server;
