@@ -495,7 +495,10 @@ public class Game {
         WorldCreator creator = new WorldCreator("manhunt_" + identifier);
         creator.environment(World.Environment.NORMAL);
         creator.seed(seed);
-        creator.createWorld();
+        World wworld = creator.createWorld();
+
+        wworld.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
+        wworld.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
 
         if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + " NORMAL");

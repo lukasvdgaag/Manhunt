@@ -83,10 +83,15 @@ public class GameSetupBungee {
                         if (!isLastServer) requestNextGameCreation();
                         else {
                             Bukkit.getScheduler().cancelTask(runnableTaskId);
-                            gameSetup.getHost().playSound(gameSetup.getHost().getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
+                            gameSetup.getHost().playSound(gameSetup.getHost().getLocation(), Sound.BLOCK_ANVIL_LAND, 1, 1);
                             gameSetup.getHost().resetTitle();
                             gameSetup.getHost().sendTitle("§cNo Servers Available", "§7There are currently no free servers available!", 10, 50, 10);
                             gameSetup.getHost().sendMessage("§cWe couldn't find a free server to host your Manhunt game in. Please try again later.");
+
+                            if (Manhunt.get().getEconomy().getBalance(gameSetup.getHost()) != -1 && !gameSetup.getHost().hasPermission("manhunt.hostgame")) {
+                                Manhunt.get().getEconomy().addBalance(gameSetup.getHost(), 1);
+                                gameSetup.getHost().sendMessage("§e1 token has been redeposited to your account because no servers were available.");
+                            }
                         }
                         return;
                     }
@@ -97,7 +102,6 @@ public class GameSetupBungee {
         List<String> servers = Manhunt.get().getCfg().gameServers;
         for (String server : servers) {
             if (!serversChecked.contains(server)) {
-                gameSetup.getHost().sendMessage("§7Checking server " + server + "...");
                 Manhunt.get().getUtil().createGameServer(this.gameSetup, server);
                 serversChecked.add(server);
                 currentServerChecking = server;

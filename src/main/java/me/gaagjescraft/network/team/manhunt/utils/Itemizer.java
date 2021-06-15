@@ -18,6 +18,7 @@ public class Itemizer {
     public static ItemStack NEW_GAME_ITEM_UNSUPPORTED_PROTOCOL;
     public static ItemStack NEW_GAME_FINISH_ITEM;
     public static ItemStack GAME_START_ITEM;
+    public static ItemStack GO_BACK_ITEM;
 
     public static ItemStack MANHUNT_LEAVE_ITEM;
     public static ItemStack MANHUNT_RUNNER_TRACKER;
@@ -34,6 +35,8 @@ public class Itemizer {
         FILL_ITEM = createItem(Material.valueOf(Manhunt.get().getCfg().generalFillMaterial), 1, "§r", Lists.newArrayList());
         CLOSE_ITEM = createItem(Manhunt.get().getCfg().generalCloseMaterial, 1, Manhunt.get().getCfg().generalCloseDisplayname, Manhunt.get().getCfg().generalCloseLore);
         FILL_NO_GAMES = createItem(Manhunt.get().getCfg().gamesMenuNoGamesMaterial, 1, Manhunt.get().getCfg().gamesMenuNoGamesDisplayname, Manhunt.get().getCfg().gamesMenuNoGamesLore);
+
+        GO_BACK_ITEM = createItem(Material.ARROW, 1, "§bGo back", Lists.newArrayList("§7Click to go back to", "§7the previous menu.")); // todo make this configurable.
 
         NEW_GAME_ITEM = createItem(Manhunt.get().getCfg().gamesMenuHostGameMaterial, 1, Manhunt.get().getCfg().gamesMenuHostGameDisplayname, Manhunt.get().getCfg().gamesMenuHostGameLore);
         NEW_GAME_ITEM_UNSUPPORTED_PROTOCOL = createItem(Manhunt.get().getCfg().gamesMenuHostUnsupportedProtocolMaterial, 1, Manhunt.get().getCfg().gamesMenuHostUnsupportedProtocolDisplayname, Manhunt.get().getCfg().gamesMenuHostUnsupportedProtocolLore);

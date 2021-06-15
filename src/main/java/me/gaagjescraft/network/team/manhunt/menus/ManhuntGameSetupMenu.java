@@ -58,6 +58,7 @@ public class ManhuntGameSetupMenu implements Listener {
             inventory.setItem(i, Itemizer.FILL_ITEM);
         }
 
+        inventory.setItem(45, Itemizer.GO_BACK_ITEM);
         inventory.setItem(49, Itemizer.CLOSE_ITEM);
 
         ItemStack twistAllows;
@@ -188,6 +189,10 @@ public class ManhuntGameSetupMenu implements Listener {
         } else if (e.getSlot() == 13 && setup.getGame() == null) {
             player.closeInventory();
             Manhunt.get().getManhuntPlayerAmountSetupMenu().openMenu(player, setup);
+        } else if (e.getSlot() == 45) {
+            player.closeInventory();
+            Manhunt.get().getManhuntMainMenu().openMenu(player);
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
         } else if (e.getSlot() == 33) {
             if (setup.getGame() == null) {
                 player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHostLockedSound), 1, 1);
@@ -201,6 +206,20 @@ public class ManhuntGameSetupMenu implements Listener {
                 if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) {
                     player.closeInventory();
                     player.sendMessage("§aYou submitted your game host request. We are now checking for available servers to host it on. Please hold on.");
+
+                    int tokenCount = (int) Manhunt.get().getEconomy().getBalance(player);
+                    if (player.hasPermission("manhunt.hostgame")) {
+                        player.sendMessage("§eNo tokens were taken from your account because you can host games for free!");
+                    } else if (Manhunt.get().getEconomy().hasBalance(player, 1)) {
+                        Manhunt.get().getEconomy().removeBalance(player, 1);
+                        player.sendMessage("§e1 token has been taken from your account for hosting a Manhunt game. It will be redeposited if no available servers were found.");
+                    } else {
+                        player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
+                        player.sendMessage("§cYou don't have enough tokens to host a game.");
+                        // unlikely because we did some checks.
+                        return;
+                    }
+
                     setup.getBungeeSetup().requestNextGameCreation();
                 } else {
                     Game game = Game.createGame(setup.isAllowTwists(), player, setup.getMaxPlayers());

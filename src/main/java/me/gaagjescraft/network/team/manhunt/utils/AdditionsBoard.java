@@ -20,6 +20,10 @@ public class AdditionsBoard {
 
     private HashMap<Integer, String> cache = new HashMap<>();
 
+    public Scoreboard getScoreboard() {
+        return board;
+    }
+
     public AdditionsBoard(Player player, int linecount) {
         this.player = player;
         this.linecount = linecount;

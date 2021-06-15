@@ -53,7 +53,8 @@ public class ManhuntCmd implements CommandExecutor {
 
         Game game = (Game.getGame(p));
         if (game == null || !game.getPlayer(p).isOnline()) {
-            Manhunt.get().getManhuntGamesMenu().openMenu(p);
+            //Manhunt.get().getManhuntGamesMenu().openMenu(p);
+            Manhunt.get().getManhuntMainMenu().openMenu(p);
             return true;
         }
 

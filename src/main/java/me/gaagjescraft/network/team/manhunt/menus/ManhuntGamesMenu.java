@@ -30,6 +30,7 @@ public class ManhuntGamesMenu implements Listener {
         Inventory inventory = Bukkit.createInventory(null, 27, Util.c(Manhunt.get().getCfg().menuGamesTitle));
 
         inventory.setItem(22, Itemizer.CLOSE_ITEM);
+        inventory.setItem(18, Itemizer.GO_BACK_ITEM);
 
         if (player.hasPermission("manhunt.hostgame")) {
             int protocol = Manhunt.get().getUtil().getProtocol(player);
@@ -106,19 +107,25 @@ public class ManhuntGamesMenu implements Listener {
         if (e.getSlot() < 0) return;
 
         e.setCancelled(true);
-
         if (!e.getClickedInventory().equals(e.getView().getTopInventory())) return;
 
+        Player p = (Player) e.getWhoClicked();
+
+        if (e.getSlot() == 18) {
+            Manhunt.get().getManhuntMainMenu().openMenu(p);
+            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
+            return;
+        }
         if (e.getSlot() == 22) {
             e.getWhoClicked().closeInventory();
             return;
         } else if (e.getSlot() == 26 && e.getWhoClicked().hasPermission("manhunt.hostgame")) {
-            int protocol = Manhunt.get().getUtil().getProtocol((Player) e.getWhoClicked());
+            int protocol = Manhunt.get().getUtil().getProtocol(p);
 
             if (protocol == -1 || protocol >= Manhunt.get().getCfg().minimumClientProtocolVersion)
-                Manhunt.get().getManhuntGameSetupMenu().openMenu((Player) e.getWhoClicked(), null);
+                Manhunt.get().getManhuntGameSetupMenu().openMenu(p, null);
             else
-                ((Player) e.getWhoClicked()).playSound(e.getWhoClicked().getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHostLockedSound), 1, 1);
+                p.playSound(p.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHostLockedSound), 1, 1);
             return;
         }
 

@@ -13,10 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.RenderType;
-import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -281,7 +277,7 @@ public class GamePlayer {
         }
     }
 
-    public void updateHealthTag() {
+    /*public void updateHealthTag() {
         boolean go = false;
         if (game.getStatus() == GameStatus.PLAYING) {
             if (isDead) go = false;
@@ -290,27 +286,7 @@ public class GamePlayer {
                 go = false;
             else go = true;
         }
-        showHealth(go);
-    }
-
-    public void showHealth(boolean show) {
-        Player player = Bukkit.getPlayer(uuid);
-        int health = (int) player.getHealth();
-
-        Scoreboard scoreboard = player.getScoreboard();
-        Objective object = scoreboard.getObjective("mh-health");
-        if (show) {
-            if (object == null) {
-                object = scoreboard.registerNewObjective("mh-health", "dummy", "§8(§f" + health + "§8) §6❤");
-            }
-            object.getScore(player.getName()).setScore(health);
-            object.setRenderType(RenderType.HEARTS);
-            object.setDisplaySlot(DisplaySlot.BELOW_NAME);
-            object.setDisplayName("§c❤");
-        } else {
-            if (object != null) object.unregister();
-        }
-    }
+    }*/
 
     public void prepareForRespawn() {
         prepareForSpectate();

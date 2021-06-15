@@ -4,13 +4,14 @@ import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
-import me.gaagjescraft.network.team.manhunt.games.Game;
-import me.gaagjescraft.network.team.manhunt.games.GameSetup;
-import me.gaagjescraft.network.team.manhunt.games.PlayerType;
+import me.gaagjescraft.network.team.manhunt.games.*;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.RenderType;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -46,6 +47,10 @@ public class Util {
         if (!Manhunt.get().getBungeeSocketManager().sendMessage("createGame", json)) {
             setup.getHost().sendMessage(ChatColor.RED + "We had some trouble connecting to the other servers. Please inform a staff member.");
         }
+    }
+
+    public void createDisconnectClientMessage() {
+        Manhunt.get().getBungeeSocketManager().sendMessage("disconnect", "");
     }
 
     public void createGameReadyMessage(Game game) {
@@ -176,10 +181,42 @@ public class Util {
     }
 
     public int getProtocol(Player player) {
-        if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
+        if (Bukkit.getPluginManager().isPluginEnabled("ViaVersion")) {
             return com.viaversion.viaversion.api.Via.getAPI().getPlayerVersion(player.getUniqueId());
         }
         return -1;
+    }
+
+    public void updateHealth(Game game) {
+        for (GamePlayer gp : game.getPlayers()) {
+            if (!gp.isOnline()) continue;
+            Player target = Bukkit.getPlayer(gp.getUuid());
+            if (target == null) continue;
+
+            AdditionsBoard board = gp.getScoreboard();
+            if (board == null) continue;
+
+            if (game.getStatus() != GameStatus.PLAYING && game.getStatus() != GameStatus.STOPPING) {
+                Objective ob = board.getScoreboard().getObjective("mh-health");
+                if (ob != null) ob.unregister();
+                board.getScoreboard().clearSlot(DisplaySlot.BELOW_NAME);
+                return;
+            }
+
+            Objective ob = board.getScoreboard().getObjective("mh-health");
+            if (ob == null) ob = board.getScoreboard().registerNewObjective("mh-health", "dummy", "§c❤");
+            ob.setDisplaySlot(DisplaySlot.BELOW_NAME);
+            ob.setRenderType(RenderType.HEARTS);
+            for (GamePlayer gp1 : game.getPlayers()) {
+                if (!gp1.isOnline()) continue;
+                Player p1 = Bukkit.getPlayer(gp1.getUuid());
+                if (p1 == null) continue;
+                ob.getScore(p1.getName()).setScore((int) p1.getHealth());
+            }
+
+            //target.setScoreboard(board.getScoreboard());
+        }
+
     }
 
 }

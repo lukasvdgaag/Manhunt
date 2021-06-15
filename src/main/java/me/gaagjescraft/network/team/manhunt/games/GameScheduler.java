@@ -33,7 +33,6 @@ public class GameScheduler {
                 for (GamePlayer gp : game.getOnlinePlayers(null)) {
                     if ((Bukkit.getPlayer(gp.getUuid()) != null)) {
                         gp.updateScoreboard();
-                        gp.updateHealthTag();
                         if (gp.getTracking() != null) gp.setTracking(gp.getTracking());
                     }
                 }
@@ -71,7 +70,9 @@ public class GameScheduler {
 
         if (Manhunt.get().getCfg().bungeeMode) {
             Manhunt.get().getUtil().createEndGameMessage(this.game, false);
-        } else {
+        }
+
+        if (!Manhunt.get().getCfg().isLobbyServer) {
             new BukkitRunnable() {
                 @Override
                 public void run() {

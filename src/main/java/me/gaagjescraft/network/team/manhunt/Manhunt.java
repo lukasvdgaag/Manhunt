@@ -6,7 +6,6 @@ import me.gaagjescraft.network.team.manhunt.events.GameEventsHandlers;
 import me.gaagjescraft.network.team.manhunt.events.GameWaitingEvents;
 import me.gaagjescraft.network.team.manhunt.events.LeaveEventHandler;
 import me.gaagjescraft.network.team.manhunt.events.bungee.BungeeSocketManager;
-import me.gaagjescraft.network.team.manhunt.events.bungee.PluginMessageHandler;
 import me.gaagjescraft.network.team.manhunt.games.*;
 import me.gaagjescraft.network.team.manhunt.inst.storage.MongoStorage;
 import me.gaagjescraft.network.team.manhunt.inst.storage.PlayerStorage;
@@ -32,12 +31,13 @@ public class Manhunt extends JavaPlugin {
     private ManhuntTwistVoteMenu manhuntTwistVoteMenu;
     private ManhuntHeadstartSetupMenu manhuntHeadstartSetupMenu;
     private ManhuntRunnerManageMenu manhuntRunnerManageMenu;
-    private PluginMessageHandler pluginMessageHandler;
+    private ManhuntMainMenu manhuntMainMenu;
     private Util util;
     private Config config;
     private PlayerStorage playerStorage;
     private TagUtils tagUtils;
     private BungeeSocketManager bungeeSocketManager;
+    private VaultEcoHook ecoHook;
 
     public static Manhunt get() {
         return instance;
@@ -62,7 +62,8 @@ public class Manhunt extends JavaPlugin {
         manhuntTwistVoteMenu = new ManhuntTwistVoteMenu();
         manhuntHeadstartSetupMenu = new ManhuntHeadstartSetupMenu();
         manhuntRunnerManageMenu = new ManhuntRunnerManageMenu();
-        pluginMessageHandler = new PluginMessageHandler();
+        ecoHook = new VaultEcoHook();
+        manhuntMainMenu = new ManhuntMainMenu();
 
         if (!new File(Manhunt.get().getDataFolder(), "manhunt-lobby.schem").exists()) {
             Manhunt.get().saveResource("manhunt-lobby.schem", false);
@@ -100,6 +101,13 @@ public class Manhunt extends JavaPlugin {
         if (Bukkit.getPluginManager().isPluginEnabled("ViaVersion")) {
             getLogger().info("Found ViaVersion! You can now use the protocol version checker.");
         }
+        if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
+            if (!ecoHook.setupEconomy()) {
+                getLogger().info("Found Vault, but couldn't setup the Economy. Is it set up?");
+            } else {
+                getLogger().info("Found vault! You can now charge money for hosting games.");
+            }
+        }
         if (getCfg().bungeeMode) {
             bungeeSocketManager = new BungeeSocketManager();
             if (getCfg().isLobbyServer) {
@@ -130,6 +138,7 @@ public class Manhunt extends JavaPlugin {
             game.delete();
         }
 
+        if (bungeeSocketManager != null && getCfg().isLobbyServer) getUtil().createDisconnectClientMessage();
         if (bungeeSocketManager != null) bungeeSocketManager.close();
         Bukkit.getScheduler().cancelTasks(this);
     }
@@ -180,12 +189,12 @@ public class Manhunt extends JavaPlugin {
         return manhuntRunnerManageMenu;
     }
 
-    public PluginMessageHandler getPluginMessageHandler() {
-        return pluginMessageHandler;
-    }
-
     public BungeeSocketManager getBungeeSocketManager() {
         return bungeeSocketManager;
+    }
+
+    public ManhuntMainMenu getManhuntMainMenu() {
+        return manhuntMainMenu;
     }
 
     public Util getUtil() {
@@ -194,6 +203,10 @@ public class Manhunt extends JavaPlugin {
 
     public Config getCfg() {
         return config;
+    }
+
+    public VaultEcoHook getEconomy() {
+        return ecoHook;
     }
 
     private void loadSchedulers() {
@@ -225,6 +238,13 @@ public class Manhunt extends JavaPlugin {
             }
         }, 0L, 20L);
 
+        if (!getCfg().isLobbyServer) {
+            getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
+                for (Game game : Game.getGames()) {
+                    getUtil().updateHealth(game);
+                }
+            }, 5, 5);
+        }
     }
 
     private void loadCAE() {
@@ -241,6 +261,7 @@ public class Manhunt extends JavaPlugin {
         getServer().getPluginManager().registerEvents(manhuntTwistVoteMenu, this);
         getServer().getPluginManager().registerEvents(manhuntHeadstartSetupMenu, this);
         getServer().getPluginManager().registerEvents(manhuntRunnerManageMenu, this);
+        getServer().getPluginManager().registerEvents(manhuntMainMenu, this);
         getServer().getPluginManager().registerEvents(new RunnerTrackerMenuHandler(), this);
         //getServer().getMessenger().registerIncomingPluginChannel(this, "exodus:manhunt", pluginMessageHandler);
         //getServer().getMessenger().registerOutgoingPluginChannel(this, "exodus:manhunt");

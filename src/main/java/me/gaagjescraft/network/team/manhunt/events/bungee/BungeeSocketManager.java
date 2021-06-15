@@ -48,29 +48,43 @@ public class BungeeSocketManager {
             }
         }*/
 
+        int count = 0;
 
-        try {
-            if (Manhunt.get().getCfg().isLobbyServer) {
-                for (Socket socket : socketsConnected) {
-                    DataOutputStream socketDout = new DataOutputStream(socket.getOutputStream());
-                    for (String s : msg) {
-                        socketDout.writeUTF(s);
-                    }
-                    socketDout.flush();
+        if (Manhunt.get().getCfg().isLobbyServer) {
+            socketsConnected.removeIf((socket -> socket.isClosed() || !socket.isConnected() || socket.isOutputShutdown()));
+            for (Socket socket : socketsConnected) {
+                if (!socket.isClosed() && socket.isConnected() && !socket.isOutputShutdown()) {
+                    try {
+                        DataOutputStream socketDout = new DataOutputStream(socket.getOutputStream());
+                        for (String s : msg) {
+                            socketDout.writeUTF(s);
+                        }
+                        socketDout.flush();
+                        count++;
+                    } catch (Exception ignored) {
+                    } // todo maybe make something to remove the closed socket from the arraylist, but for now this is fine.
                 }
-            } else {
+            }
+
+            if (count == 0 && !socketsConnected.isEmpty()) {
+                Bukkit.getLogger().severe("Failed to send a message to another server because the output stream returned an error:");
+                return false;
+            }
+
+        } else {
+            try {
                 DataOutputStream socketDout = new DataOutputStream(s.getOutputStream());
                 for (String s : msg) {
                     socketDout.writeUTF(s);
                 }
                 socketDout.flush();
+            } catch (Exception e) {
+                Bukkit.getLogger().severe("Failed to send a message to another server because the output stream returned an error:");
+                e.printStackTrace();
+                return false;
             }
-            return true;
-        } catch (Exception e) {
-            Bukkit.getLogger().severe("Failed to send a message to another server because the output stream returned an error:");
-            e.printStackTrace();
-            return false;
         }
+        return true;
     }
 
     /*
@@ -94,6 +108,7 @@ public class BungeeSocketManager {
 
                     bukkitTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(Manhunt.get(), () -> {
                         try {
+                            socketsConnected.removeIf((socket -> socket.isClosed() || !socket.isConnected() || socket.isOutputShutdown() || socket.isInputShutdown()));
                             for (Socket s : socketsConnected) {
                                 DataInputStream din = new DataInputStream(s.getInputStream());
                                 if (din.available() != 0) {
@@ -133,6 +148,7 @@ public class BungeeSocketManager {
 
 
             } catch (Exception e) {
+                Manhunt.get().getLogger().severe("Manhunt found an error while doing socket stuff:");
                 e.printStackTrace();
                 close();
             }
@@ -172,7 +188,8 @@ public class BungeeSocketManager {
 
                 Bukkit.getScheduler().scheduleSyncRepeatingTask(Manhunt.get(), () -> {
                     try {
-                        if (din == null || dout == null) {
+                        if (s == null || din == null || dout == null || s.isInputShutdown() || s.isOutputShutdown() || s.isClosed() || !s.isConnected()) {
+                            close();
                             s = new Socket(Manhunt.get().getCfg().socketHostname, Manhunt.get().getCfg().socketPort);
                             din = new DataInputStream(s.getInputStream());
                             dout = new DataOutputStream(s.getOutputStream());
@@ -192,10 +209,12 @@ public class BungeeSocketManager {
                                 case "endGame":
                                     clientProcessEndGame(value);
                                     break;
+                                case "disconnect":
+                                    clientProcessDisconnect();
                             }
                         }
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } catch (IOException ignored) {
+                        Bukkit.getLogger().severe("Manhunt failed to connect to the socket. Trying again in 1/2 second.");
                     }
                 }, 0, 5);
             } catch (Exception e) {
@@ -210,6 +229,15 @@ public class BungeeSocketManager {
     /*
         Utils methods: (Processing input)
      */
+
+    private void clientProcessDisconnect() {
+        try {
+            if (s != null && !s.isClosed()) s.close();
+            if (din != null) din.close();
+            if (dout != null) dout.close();
+        } catch (Exception ignored) {
+        }
+    }
 
     private void serverProcessGameEnded(String json) {
         JsonObject ob = new JsonParser().parse(json).getAsJsonObject();
@@ -260,7 +288,7 @@ public class BungeeSocketManager {
         Game game = Game.getGame(gameName);
         if (game == null) return;
 
-        game.delete();
+        game.setStatus(GameStatus.STOPPING);
     }
 
     private void clientProcessEndGame(String json) {
@@ -293,17 +321,14 @@ public class BungeeSocketManager {
         boolean friendlyFire = ob.getAsJsonPrimitive("friendly_fire").getAsBoolean();
         UUID hostUid = UUID.fromString(ob.getAsJsonPrimitive("host_uuid").getAsString());
 
-        Bukkit.getLogger().info("Incoming game creation request for this server...");
         if (Game.getGames().isEmpty()) {
             // no running games on this server yet. Ready to create the game.
 
             Game game = Game.createGame(allowTwists, host, hostUid, maxPlayers);
             if (game == null) {
-                Bukkit.getLogger().info("Failed to create the manhunt game.");
                 sendMessage("createGameResponse", createGameResponse(host, "failed", hostUid, allowTwists, maxPlayers, headstart, doDaylightCycle, friendlyFire));
                 return;
             }
-            Bukkit.getLogger().info("No errors found, creating the manhunt game now...");
             sendMessage("createGameResponse", createGameResponse(host, "created", hostUid, allowTwists, maxPlayers, headstart, doDaylightCycle, friendlyFire));
 
             game.setHeadStart(HeadstartType.valueOf(headstart));
@@ -312,11 +337,6 @@ public class BungeeSocketManager {
             game.create();
 
         } else {
-            Bukkit.getLogger().info("List of games on this server:");
-            for (Game g : Game.getGames()) {
-                Bukkit.getLogger().info(g.getIdentifier());
-            }
-            Bukkit.getLogger().info("Responding with denied.");
             // no room for this game on this server, letting the lobby know.
             sendMessage("createGameResponse", createGameResponse(host, "denied", hostUid, allowTwists, maxPlayers, headstart, doDaylightCycle, friendlyFire));
         }
@@ -364,7 +384,7 @@ public class BungeeSocketManager {
                     p.sendMessage(" ");
                     p.sendMessage("§a§lManhunt host server found!");
                     p.sendMessage("§7We matched a server with your Manhunt game.");
-                    p.sendMessage("§7You will automatically get moved once it's ready.");
+                    p.sendMessage("§7You will automatically get moved once it's ready."); // todo send message here with matched server name.
                     p.sendMessage(" ");
                 }
             } else {

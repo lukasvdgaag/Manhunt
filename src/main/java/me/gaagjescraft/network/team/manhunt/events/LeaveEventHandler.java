@@ -61,7 +61,7 @@ public class LeaveEventHandler implements Listener {
                 if (Manhunt.get().getCfg().teleportLobbyOnServerJoin && Manhunt.get().getCfg().lobby != null) {
                     e.getPlayer().teleport(Manhunt.get().getCfg().lobby);
                 }
-            }, 10L);
+            }, 1L);
         }
 
     }

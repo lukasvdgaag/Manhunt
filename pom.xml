@@ -101,6 +101,10 @@
             <id>viaversion-repo</id>
             <url>https://repo.viaversion.com</url>
         </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
 
@@ -146,6 +150,12 @@
             <groupId>com.viaversion</groupId>
             <artifactId>viaversion-api</artifactId>
             <version>4.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
