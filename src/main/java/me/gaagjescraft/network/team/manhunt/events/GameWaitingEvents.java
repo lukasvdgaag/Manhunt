@@ -8,14 +8,13 @@ import me.gaagjescraft.network.team.manhunt.games.PlayerType;
 import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
+import org.bukkit.event.*;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -28,6 +27,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.event.vehicle.*;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,10 +79,10 @@ public class GameWaitingEvents implements Listener {
         }
         if (Manhunt.get().getCfg().lobby == null) return;
 
-        if (e.getLocation().getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+        /*if (e.getLocation().getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
             e.setCancelled(true);
             return;
-        }
+        }*/
         Game game = Game.getGame(e.getLocation().getWorld().getName().replaceAll("manhunt_", ""));
         if (game == null) return;
 
@@ -133,7 +133,7 @@ public class GameWaitingEvents implements Listener {
 
         if (game.getStatus() == GameStatus.PLAYING) {
             if (e.getItem() == null) return;
-            if (e.getItem().equals(Itemizer.MANHUNT_RUNNER_TRACKER)) {
+            if (e.getItem().getType() == Material.COMPASS && e.getItem().getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname))) {
                 game.getRunnerTeleporterMenu().open(e.getPlayer(), gp.isDead());
                 return;
             }
@@ -151,6 +151,8 @@ public class GameWaitingEvents implements Listener {
                 (game.getStatus() == GameStatus.PLAYING && gp.getPlayerType() == PlayerType.HUNTER && game.getTimer() <= game.getHeadStart().getSeconds())) {
             if (e.getItem() == null) return;
             e.setCancelled(true);
+            e.setUseItemInHand(Event.Result.DENY);
+            e.setUseInteractedBlock(Event.Result.DENY);
             if (e.getItem().equals(Itemizer.MANHUNT_LEAVE_ITEM) && !leaveDelays.contains(e.getPlayer())) {
                 gp.leaveGameDelayed(false);
                 leaveDelays.add(e.getPlayer());
@@ -259,7 +261,9 @@ public class GameWaitingEvents implements Listener {
         if (game == null) return;
         GamePlayer gp = game.getPlayer(player);
 
-        if (e.getItemDrop().getItemStack().isSimilar(Itemizer.MANHUNT_RUNNER_TRACKER) || gp.isDead()) {
+        ItemStack item = e.getItemDrop().getItemStack();
+
+        if ((item.getType() == Material.COMPASS && item.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname))) || gp.isDead()) {
             e.setCancelled(true);
             return;
         }
@@ -284,7 +288,7 @@ public class GameWaitingEvents implements Listener {
                 gp.leaveGameDelayed(false);
                 leaveDelays.add(player);
                 Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> leaveDelays.remove(player), 20L);
-            } else if (e.getCurrentItem() != null && e.getCurrentItem().equals(Itemizer.MANHUNT_RUNNER_TRACKER)) {
+            } else if (e.getCurrentItem() != null && e.getCurrentItem().getType() == Material.COMPASS && e.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname))) {
                 game.getRunnerTeleporterMenu().open(player, true);
             }
             return;
@@ -332,6 +336,14 @@ public class GameWaitingEvents implements Listener {
 
         if (gp.isDead()) {
             return;
+        }
+
+        if (worldName.endsWith("_nether")) {
+            gp.setNetherPortal(e.getFrom());
+        } else if (e.getFrom().getWorld().getName().endsWith("_nether")) {
+            gp.setOverworldPortal(e.getFrom());
+        } else if (worldName.endsWith("_the_end")) {
+            gp.setEndPortal(e.getFrom());
         }
 
         if (worldName.endsWith("_nether") && !gp.isReachedNether()) {

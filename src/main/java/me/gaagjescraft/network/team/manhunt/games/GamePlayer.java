@@ -10,6 +10,8 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.CompassMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -38,6 +40,10 @@ public class GamePlayer {
     private boolean online;
     private boolean joinedBefore;
 
+    private Location netherPortal; // portal from overworld -> nether
+    private Location overworldPortal; // portal from nether -> overworld
+    private Location endPortal; // portal from overworld -> end
+
     public GamePlayer(Game game, UUID uuid, PlayerType playerType, boolean isHost) {
         this.game = game;
         this.uuid = uuid;
@@ -57,6 +63,10 @@ public class GamePlayer {
         this.online = true;
         this.joinedBefore = !Manhunt.get().getCfg().bungeeMode;
 
+        this.netherPortal = null;
+        this.overworldPortal = null;
+        this.endPortal = null;
+
         if (!Manhunt.get().getCfg().isLobbyServer) updateScoreboard();
     }
 
@@ -66,6 +76,30 @@ public class GamePlayer {
 
     public void setJoinedBefore(boolean joinedBefore) {
         this.joinedBefore = joinedBefore;
+    }
+
+    public Location getOverworldPortal() {
+        return overworldPortal;
+    }
+
+    public void setOverworldPortal(Location overworldPortal) {
+        this.overworldPortal = overworldPortal;
+    }
+
+    public Location getEndPortal() {
+        return endPortal;
+    }
+
+    public void setEndPortal(Location endPortal) {
+        this.endPortal = endPortal;
+    }
+
+    public Location getNetherPortal() {
+        return netherPortal;
+    }
+
+    public void setNetherPortal(Location netherPortal) {
+        this.netherPortal = netherPortal;
     }
 
     public void leaveGameDelayed(boolean forceStopScheduler) {
@@ -87,14 +121,16 @@ public class GamePlayer {
         leaveTask = new BukkitRunnable() {
             @Override
             public void run() {
-                Player player = Bukkit.getPlayer(uuid);
-                setLeavingGame(false);
-                if (game == null || player == null) {
-                    this.cancel();
-                    return;
+                if (!this.isCancelled()) {
+                    Player player = Bukkit.getPlayer(uuid);
+                    setLeavingGame(false);
+                    if (game == null || player == null) {
+                        this.cancel();
+                        return;
+                    }
+                    game.removePlayer(player);
+                    player.sendMessage(Util.c(Manhunt.get().getCfg().playerLeftGameMessage));
                 }
-                game.removePlayer(player);
-                player.sendMessage(Util.c(Manhunt.get().getCfg().playerLeftGameMessage));
             }
         }.runTaskLater(Manhunt.get(), 60L);
     }
@@ -150,10 +186,43 @@ public class GamePlayer {
         Player track = Bukkit.getPlayer(tracking.getUuid());
         if (track == null || player == null) return;
         if (!track.getWorld().getName().equals(player.getWorld().getName())) {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingOtherDimensionActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", tracking.getColor()))));
+            if (track.getWorld().getEnvironment() == World.Environment.NETHER && player.getWorld().getEnvironment() == World.Environment.NORMAL && tracking.getNetherPortal() != null) {
+                // player is in overworld, tracked player is in the nether.
+                player.setCompassTarget(tracking.getNetherPortal());
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingPortalActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", tracking.getColor()))));
+            } else if (player.getWorld().getEnvironment() == World.Environment.NETHER && track.getWorld().getEnvironment() == World.Environment.NORMAL && tracking.getOverworldPortal() != null) {
+                // player is in nether, tracked player is in the overworld.
+                player.setCompassTarget(tracking.getOverworldPortal());
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingPortalActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", tracking.getColor()))));
+            } else if (track.getWorld().getEnvironment() == World.Environment.THE_END && player.getWorld().getEnvironment() == World.Environment.NORMAL && tracking.getEndPortal() != null) {
+                // player is in overworld, tracked player is in the end.
+                player.setCompassTarget(tracking.getEndPortal());
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingPortalActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", tracking.getColor()))));
+            } else {
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingOtherDimensionActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", tracking.getColor()))));
+            }
             return;
         }
-        player.setCompassTarget(track.getLocation());
+
+        for (int i = 0; i < player.getInventory().getSize(); i++) {
+            ItemStack item = player.getInventory().getItem(i);
+            if (item == null || item.getType() == Material.AIR) continue;
+            if (item.getType() == Material.COMPASS && item.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname))) {
+                CompassMeta meta = (CompassMeta) item.getItemMeta();
+                if (player.getWorld().getEnvironment() != World.Environment.NORMAL) {
+                    meta.setLodestone(track.getLocation());
+                    meta.setLodestoneTracked(false);
+                } else {
+                    meta.setLodestoneTracked(true);
+                    meta.setLodestone(null);
+                    player.setCompassTarget(track.getLocation());
+                }
+                item.setItemMeta(meta);
+                // player.getInventory().setItem(i, compass);
+                break;
+            }
+        }
+
         int distance = (int) player.getLocation().distance(track.getLocation());
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", tracking.getColor()).replaceAll("%distance%", distance + ""))));
     }
@@ -206,15 +275,17 @@ public class GamePlayer {
 
     public void setPlayerType(PlayerType playerType) {
         this.playerType = playerType;
-        Player pp = Bukkit.getPlayer(getUuid());
+        OfflinePlayer pp = Bukkit.getPlayer(getUuid());
+        if (pp == null) return;
+        String name = pp.getName() == null ? "N/A" : pp.getName();
         for (GamePlayer gp : game.getOnlinePlayers(null)) {
             Player p = Bukkit.getPlayer(gp.getUuid());
             if (p == null) continue;
             if (playerType == PlayerType.RUNNER) {
-                p.sendMessage(Util.c(Manhunt.get().getCfg().runnerAddedMessage.replaceAll("%player%", pp.getName())));
-                Util.sendTitle(p, Util.c(Manhunt.get().getCfg().runnerAddedTitle.replaceAll("%player%", pp.getName())), 20, 50, 20);
+                p.sendMessage(Util.c(Manhunt.get().getCfg().runnerAddedMessage.replaceAll("%player%", name)));
+                Util.sendTitle(p, Util.c(Manhunt.get().getCfg().runnerAddedTitle.replaceAll("%player%", name)), 20, 50, 20);
             } else {
-                p.sendMessage(Util.c(Manhunt.get().getCfg().runnerRemovedMessage.replaceAll("%player%", pp.getName())));
+                p.sendMessage(Util.c(Manhunt.get().getCfg().runnerRemovedMessage.replaceAll("%player%", name)));
             }
             if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(p);
         }
@@ -263,6 +334,7 @@ public class GamePlayer {
         player.setAllowFlight(true);
         player.setFlying(true);
         player.getInventory().setItem(4, Itemizer.MANHUNT_RUNNER_TRACKER);
+
         player.teleport(game.getWorld().getSpawnLocation().add(0, 20, 0));
 
         if (isFullyDead()) {
@@ -390,6 +462,10 @@ public class GamePlayer {
 
     }
 
+    public void setScoreboard(AdditionsBoard scoreboard) {
+        this.scoreboard = scoreboard;
+    }
+
     public void prepareForGame(GameStatus stat) {
         Player player = Bukkit.getPlayer(uuid);
         if (player == null) return;
@@ -406,7 +482,7 @@ public class GamePlayer {
             }
         } else if (stat == GameStatus.PLAYING) {
             player.setGameMode(GameMode.SURVIVAL);
-            if (getPlayerType() == PlayerType.HUNTER) {
+            if (getPlayerType() == PlayerType.HUNTER || game.getPlayers(PlayerType.RUNNER).size() > 1) {
                 player.getInventory().setItem(8, Itemizer.MANHUNT_RUNNER_TRACKER);
             }
         }
@@ -418,6 +494,7 @@ public class GamePlayer {
 
     public void setHost(boolean host) {
         isHost = host;
+        if (host) game.setHostUUID(this.uuid);
     }
 
     public void restoreForLobby() {

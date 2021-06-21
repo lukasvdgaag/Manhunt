@@ -23,6 +23,22 @@ public class ManhuntCmd implements CommandExecutor {
         }
         Player p = (Player) sender;
 
+        if (args.length >= 1 && args[0].equalsIgnoreCase("join") && Manhunt.get().getCfg().isLobbyServer) {
+            if (args.length == 1)
+                p.sendMessage(ChatColor.RED + "Correct usage: /manhunt join <game-id>");
+            else {
+                Game target = Game.getGame(args[1]);
+                if (target == null)
+                    p.sendMessage(ChatColor.RED + "We couldn't find a game on our network with that name."); // todo make this configurable.
+                else {
+                    if (!target.addPlayer(p)) {
+                        p.sendMessage(ChatColor.RED + "We failed to put you in " + target.getIdentifier() + "'s game."); // todo make this configurable.
+                    }
+                }
+            }
+            return true;
+        }
+
         if (args.length >= 2 && args[0].equalsIgnoreCase("stop") && p.hasPermission("manhunt.admin")) {
             // have the ability to stop others' games.
             Game game = Game.getGame(args[1]);
@@ -72,14 +88,14 @@ public class ManhuntCmd implements CommandExecutor {
         }
 
         if (args.length == 0) {
-            p.sendMessage("§7§m---------------§r §6§lManhunt §7§m---------------");
+            p.sendMessage("§7§m------§r §6§lManhunt Host Commands §7§m------");
             p.sendMessage("§b/manhunt stop §f> §7Stop your current manhunt game.");
             p.sendMessage("§b/manhunt start §f> §7Start your current manhunt game.");
             p.sendMessage("§b/manhunt addrunner <player> §f> §7Make a player a runner.");
             p.sendMessage("§b/manhunt removerunner <player> §f> §7Demote a runner to a hunter.");
             p.sendMessage("§b/manhunt runners §f> §7Get a list of runners.");
             p.sendMessage("§b/manhunt forcetwist §f> §7Force the twist to start.");
-            p.sendMessage("§7§m---------------------------------------");
+            p.sendMessage("§7§m-------------------------------------");
             return true;
         } else {
             if (args[0].equalsIgnoreCase("stop")) {

@@ -3,6 +3,7 @@ package me.gaagjescraft.network.team.manhunt.utils;
 import com.google.common.collect.Lists;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -43,11 +44,18 @@ public class Itemizer {
 
         NEW_GAME_FINISH_ITEM = createItem(Manhunt.get().getCfg().hostMenuFinishMaterial, 1, Manhunt.get().getCfg().hostMenuFinishDisplayname, Manhunt.get().getCfg().hostMenuFinishLore);
         GAME_START_ITEM = createItem(Manhunt.get().getCfg().hostMenuStartMaterial, 1, Manhunt.get().getCfg().hostMenuStartDisplayname, Manhunt.get().getCfg().hostMenuStartLore);
-        MANHUNT_RUNNER_TRACKER = createItem(Manhunt.get().getCfg().generalTrackerMaterial, 1, Manhunt.get().getCfg().generalTrackerDisplayname, Manhunt.get().getCfg().generalTrackerLore);
+        MANHUNT_RUNNER_TRACKER = addEnchantment(createItem(Manhunt.get().getCfg().generalTrackerMaterial, 1, Manhunt.get().getCfg().generalTrackerDisplayname, Manhunt.get().getCfg().generalTrackerLore), Enchantment.DURABILITY, 1);
 
         MANHUNT_LEAVE_ITEM = createItem(Manhunt.get().getCfg().generalLeaveMaterial, 1, Manhunt.get().getCfg().generalLeaveDisplayname, Manhunt.get().getCfg().generalLeaveLore);
         MANHUNT_VOTE_ITEM = createItem(Manhunt.get().getCfg().generalTwistVoteMaterial, 1, Manhunt.get().getCfg().generalTwistVoteDisplayname, Manhunt.get().getCfg().generalTwistVoteLore);
         MANHUNT_HOST_SETTINGS_ITEM = createItem(Manhunt.get().getCfg().generalSettingsMaterial, 1, Manhunt.get().getCfg().generalSettingsDisplayname, Manhunt.get().getCfg().generalSettingsLore);
+    }
+
+    public static ItemStack addEnchantment(ItemStack i, Enchantment ench, int level) {
+        ItemMeta m = i.getItemMeta();
+        m.addEnchant(ench, level, true);
+        i.setItemMeta(m);
+        return i;
     }
 
     public static ItemStack createItem(String material, int amount, String displayName, List<String> lore) {

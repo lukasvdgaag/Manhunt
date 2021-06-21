@@ -333,6 +333,7 @@ public class Config {
     public String lobbyChatFormat;
     public String spectatorChatColor;
     public boolean spectatorsHaveGeneralColor;
+    public String trackingPortalActionbar;
 
     public String storageType;
     public String databaseHostname;
@@ -508,6 +509,7 @@ public class Config {
         this.playingStatusPrefix = conf.getString("prefixes.status.playing");
         this.selectedPrefix = conf.getString("prefixes.selected");
 
+        this.trackingPortalActionbar = conf.getString("actionbar.tracking-portal");
         this.trackingActionbar = conf.getString("actionbar.tracking");
         this.trackingOtherDimensionActionbar = conf.getString("actionbar.tracking-other-dimension");
         this.respawnedWorldspawnActionbar = conf.getString("actionbar.respawned-worldspawn");
@@ -839,6 +841,7 @@ public class Config {
         conf.set("menus.runner-manager-title", menuRunnerManagerTitle);
         conf.set("menus.twist-vote-title", menuTwistVoteTitle);
 
+        conf.set("actionbar.tracking-portal", trackingPortalActionbar);
         conf.set("actionbar.tracking-other-dimension", trackingOtherDimensionActionbar);
         conf.set("actionbar.tracking", trackingActionbar);
         conf.set("actionbar.respawned-worldspawn", respawnedWorldspawnActionbar);

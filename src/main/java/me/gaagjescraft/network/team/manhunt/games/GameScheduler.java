@@ -105,6 +105,69 @@ public class GameScheduler {
         }
     }
 
+    public void doHostTransferCountdown() {
+        new BukkitRunnable() {
+            int current = 0;
+
+            @Override
+            public void run() {
+                Player host = Bukkit.getPlayer(game.getHostUUID());
+                GamePlayer hostGP = game.getPlayer(game.getHostUUID());
+                if (host != null && host.isOnline() && hostGP != null && hostGP.isOnline()) {
+                    this.cancel();
+                    return;
+                }
+
+                if (game.getOnlinePlayers(null).size() == 0) {
+                    game.delete();
+                    this.cancel();
+                    return;
+                }
+
+                if (current == 30) { // transferring host after 30 seconds.
+                    this.cancel();
+
+                    if (hostGP != null) {
+                        hostGP.setHost(false);
+                        hostGP.setPlayerType(PlayerType.HUNTER);
+                    }
+
+                    GamePlayer newHost;
+
+                    List<GamePlayer> runners = game.getOnlinePlayers(PlayerType.RUNNER);
+                    if (!runners.isEmpty()) { // first checking if there are any runners to make one of them the host
+                        ThreadLocalRandom random = ThreadLocalRandom.current();
+                        int chosen = random.nextInt(runners.size());
+
+                        newHost = runners.get(chosen);
+                    } else { // there are no runners, moving on to the hunters.
+                        List<GamePlayer> hunters = game.getOnlinePlayers(PlayerType.HUNTER);
+                        ThreadLocalRandom random = ThreadLocalRandom.current();
+                        int chosen = random.nextInt(hunters.size());
+
+                        newHost = hunters.get(chosen);
+                        newHost.setPlayerType(PlayerType.RUNNER);
+                    }
+
+                    newHost.setHost(true);
+                    newHost.prepareForGame(game.getStatus());
+                    // todo make these messages configurable.
+                    for (GamePlayer gp : game.getOnlinePlayers(null)) {
+                        Player p = Bukkit.getPlayer(gp.getUuid());
+                        if (p == null) continue;
+                        p.sendMessage("§d" + Bukkit.getPlayer(newHost.getUuid()).getName() + " §ehas been assigned as the new host!");
+                        p.sendTitle("§d§lNEW HOST!", "§b" + Bukkit.getPlayer(newHost.getUuid()).getName() + " §eis the new host!", 20, 60, 20);
+                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
+                    }
+
+                }
+
+                current++;
+            }
+        }.runTaskTimer(Manhunt.get(), 0, 20L);
+
+    }
+
     private void doHuntersReleaseCountdown() {
         int timer = game.getTimer();
         List<GamePlayer> online = game.getOnlinePlayers(null);

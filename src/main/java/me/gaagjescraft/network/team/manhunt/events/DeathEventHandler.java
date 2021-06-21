@@ -2,9 +2,9 @@ package me.gaagjescraft.network.team.manhunt.events;
 
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.*;
-import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.entity.*;
@@ -116,7 +116,6 @@ public class DeathEventHandler implements Listener {
         Player player = (Player) e.getEntity();
         Game game = Game.getGame(player);
         if (game == null) return;
-        GamePlayer gp = game.getPlayer(player);
         if (game.isTwistsAllowed() && game.isEventActive() && game.getSelectedTwist() == TwistVote.HARDCORE) {
             e.setCancelled(true);
             e.setAmount(0);
@@ -135,31 +134,35 @@ public class DeathEventHandler implements Listener {
         if (game.getStatus() == GameStatus.WAITING || game.getStatus() == GameStatus.STARTING || (game.getStatus() == GameStatus.PLAYING && gp.getPlayerType() == PlayerType.HUNTER && game.getTimer() <= game.getHeadStart().getSeconds() + 15) ||
                 (game.getStatus() == GameStatus.PLAYING && gp.getPlayerType() == PlayerType.RUNNER && game.getTimer() <= 20)) {
             e.setCancelled(true);
-            player.setHealth(player.getMaxHealth());
+            player.setHealth(20);
+            player.setMaxHealth(20);
             player.setFoodLevel(20);
             e.setDamage(0);
             return;
         }
 
         if (player.getHealth() - e.getFinalDamage() > 0) {
-            player.getWorld().spawnParticle(Particle.BLOCK_CRACK, player.getLocation().add(0, 1, 0), 2, Material.REDSTONE_WIRE.createBlockData());
+            player.getWorld().spawnParticle(Particle.BLOCK_CRACK, player.getLocation().add(0, 1, 0), 4, Material.REDSTONE_BLOCK.createBlockData());
         }
         // dropping inventory items before clearing inventory.
         //doCheckThingForDeath(player, game, gp, e.getCause(), player.getLastDamageCause() == null ? null : player.getLastDamageCause().getEntity());
     }
 
     private void doCheckThingForDeath(Player player, Game game, GamePlayer gp, EntityDamageEvent.DamageCause cause, Entity killer) {
-        player.getWorld().spawnParticle(Particle.BLOCK_CRACK, player.getLocation().add(0, 1, 0), 1, Material.REDSTONE_BLOCK.createBlockData());
-        player.getWorld().spawnParticle(Particle.BLOCK_CRACK, player.getLocation(), 1, Material.REDSTONE_BLOCK.createBlockData());
+        player.getWorld().spawnParticle(Particle.BLOCK_CRACK, player.getLocation().add(0, 1, 0), 6, Material.REDSTONE_BLOCK.createBlockData());
+        player.getWorld().spawnParticle(Particle.BLOCK_CRACK, player.getLocation(), 6, Material.REDSTONE_BLOCK.createBlockData());
 
         for (int i = 0; i < player.getInventory().getSize(); i++) {
             ItemStack item = player.getInventory().getItem(i);
             if (item == null || item.getType() == Material.AIR) continue;
-            if (item.isSimilar(Itemizer.MANHUNT_RUNNER_TRACKER)) continue;
+            if (item.getType() == Material.COMPASS && item.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname)))
+                continue;
             player.getWorld().dropItemNaturally(player.getLocation(), item);
         }
 
-        player.setHealth(player.getMaxHealth());
+        player.setHealth(20);
+        player.setMaxHealth(20);
+        player.setFireTicks(0);
         player.setFoodLevel(20);
 
         gp.addDeath();

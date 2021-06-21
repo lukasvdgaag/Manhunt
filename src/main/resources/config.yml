@@ -547,6 +547,7 @@ sounds:
 
 
 actionbar:
+  tracking-portal: '&a&lTRACKING: %color%%player% &f- &cDifferent dimension, tracking portal!'
   tracking-other-dimension: '&a&lTRACKING: %color%%player% &f- &cDifferent dimension!'
   tracking: '&a&lTRACKING: %color%%player% &f- &c%distance%m away!'
   respawned-worldspawn: '&aYou respawned at the spawn because you had no bed spawn.'
@@ -690,7 +691,7 @@ messages:
   compass-given: '&aThe player tracker has been added to your inventory!'
   game-joined: '%prefix% %player% &ajoined the game! &b[%players%/%maxplayers%]'
   game-left: '%prefix% %player% &cleft the game! &b[%players%/%maxplayers%]'
-  game-host-left: '&dGame host %player% &cleft the game! &b[%players%/%maxplayers%]'
+  game-host-left: '&dGame host %player% &cleft the game! They have &e30 seconds &cto join back before we will transfer the host. &b[%players%/%maxplayers%]'
   player-left-waiting: '&cYou left your current game. If you want to join back, type &e/rejoin&c or join through the &e/event&c menu!'
   player-left-playing: '&cYou left your current game. We did take one of your lives. If you want to join back, type &e/rejoin&c or join through the &e/event&c menu!'
   game-end:

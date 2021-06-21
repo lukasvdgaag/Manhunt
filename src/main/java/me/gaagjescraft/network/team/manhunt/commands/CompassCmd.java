@@ -38,7 +38,7 @@ public class CompassCmd implements CommandExecutor {
         for (int i = 0; i < player.getInventory().getSize(); i++) {
             ItemStack item = player.getInventory().getItem(i);
             if (item == null || item.getType() == Material.AIR) continue;
-            if (item.isSimilar(Itemizer.MANHUNT_RUNNER_TRACKER)) {
+            if (item.getType() == Material.COMPASS && item.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname))) {
                 player.sendMessage(Util.c(Manhunt.get().getCfg().compassAlreadyAddedMessage));
                 return true;
             }

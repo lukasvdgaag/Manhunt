@@ -6,6 +6,11 @@ import com.google.common.io.ByteStreams;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.menus.RunnerTrackerMenu;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
 import org.bukkit.entity.Player;
@@ -204,6 +209,7 @@ public class Game {
             return true;
         }
 
+        gamePlayer.setScoreboard(null);
         gamePlayer.prepareForGame(getStatus());
 
         if (!gamePlayer.isFullyDead()) {
@@ -262,7 +268,7 @@ public class Game {
         if (!Manhunt.get().getCfg().isLobbyServer) {
             gamePlayer.restoreForLobby();
             gamePlayer.leaveGameDelayed(true);
-            player.teleport(Manhunt.get().getCfg().lobby);
+            if (!Manhunt.get().getCfg().bungeeMode) player.teleport(Manhunt.get().getCfg().lobby);
 
             if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(player);
 
@@ -312,6 +318,10 @@ public class Game {
                         .replaceAll("%players%", getOnlinePlayers(null).size() + "")
                         .replaceAll("%maxplayers%", (maxPlayers + getOnlinePlayers(PlayerType.RUNNER).size() + "")));
 
+                if (gamePlayer.isHost()) {
+                    getScheduler().doHostTransferCountdown();
+                }
+
                 for (GamePlayer gp : getOnlinePlayers(null)) {
                     Player p = Bukkit.getPlayer(gp.getUuid());
                     if (p == null) continue;
@@ -323,7 +333,7 @@ public class Game {
                         if (changedHostPlayerType)
                             p.sendMessage("§e" + Bukkit.getPlayer(newHost.getUuid()).getName() + " is the new speed runner!");*/
                         }
-                        return;
+                        //return;
                     } else {
                         p.sendMessage(leaveMessage);
                     }
@@ -499,6 +509,7 @@ public class Game {
 
         wworld.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
         wworld.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
+        wworld.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
 
         if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + " NORMAL");
@@ -515,6 +526,7 @@ public class Game {
             World w = creatorNether.createWorld();
             w.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
             w.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
+            w.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
             if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + "_nether NETHER");
         }, 60L);
@@ -522,6 +534,7 @@ public class Game {
             World w = creatorEnd.createWorld();
             w.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
             w.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
+            w.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
             if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + "_the_end THE_END");
         }, 120L);
@@ -538,6 +551,7 @@ public class Game {
             world.setGameRule(GameRule.SPAWN_RADIUS, 0);
             world.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
             world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+            world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
             world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, isDoDaylightCycle());
 
             this.schematic.load();
@@ -584,6 +598,13 @@ public class Game {
             if (gp.getPlayerType() == type) prs.add(gp);
         }
         return prs;
+    }
+
+    public GamePlayer getPlayer(UUID uuid) {
+        for (GamePlayer gp : players) {
+            if (gp.getUuid().equals(uuid)) return gp;
+        }
+        return null;
     }
 
     public GamePlayer getPlayer(Player p) {
@@ -749,4 +770,54 @@ public class Game {
     public int getNextEventTime() {
         return nextEventTime;
     }
+
+    public void sendGameAnnouncement() {
+        // todo make this configurable.
+        // todo add option fr disabling this announcement message.
+        if (Manhunt.get().getCfg().isLobbyServer) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                p.playSound(p.getLocation(), Sound.BLOCK_END_PORTAL_FRAME_FILL, 3, 1);
+                p.sendMessage("§7§m----------------------------");
+                p.spigot().sendMessage(new ComponentBuilder("A new")
+                        .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manhunt join " + getIdentifier()))
+                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aClick here to join " + getIdentifier() + "'s game!")))
+                        .color(ChatColor.YELLOW)
+
+                        .append(" Custom Manhunt ").color(ChatColor.GOLD)
+                        .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manhunt join " + getIdentifier()))
+                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aClick here to join " + getIdentifier() + "'s game!")))
+
+                        .append("game is being").color(ChatColor.YELLOW)
+                        .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manhunt join " + getIdentifier()))
+                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aClick here to join " + getIdentifier() + "'s game!")))
+
+                        .append(" hosted ").color(ChatColor.GREEN)
+                        .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manhunt join " + getIdentifier()))
+                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aClick here to join " + getIdentifier() + "'s game!")))
+
+                        .append("by ").color(ChatColor.YELLOW)
+                        .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manhunt join " + getIdentifier()))
+                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aClick here to join " + getIdentifier() + "'s game!")))
+
+                        .append(getIdentifier()).color(ChatColor.AQUA)
+                        .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manhunt join " + getIdentifier()))
+                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aClick here to join " + getIdentifier() + "'s game!")))
+
+                        .append(". ").color(ChatColor.YELLOW)
+
+                        .append("Click here ").color(ChatColor.LIGHT_PURPLE).bold(true).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manhunt join " + getIdentifier()))
+                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aClick here to join " + getIdentifier() + "'s game!")))
+
+                        .append("to join!").color(ChatColor.YELLOW).bold(false)
+                        .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manhunt join " + getIdentifier()))
+                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aClick here to join " + getIdentifier() + "'s game!")))
+
+                        .create());
+
+
+                p.sendMessage("§7§m----------------------------");
+            }
+        }
+    }
+
 }

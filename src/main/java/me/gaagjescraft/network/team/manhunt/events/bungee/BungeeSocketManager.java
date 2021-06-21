@@ -424,6 +424,8 @@ public class BungeeSocketManager {
             out.writeUTF("Connect");
             out.writeUTF(serverName);
             p.sendPluginMessage(Manhunt.get(), "BungeeCord", out.toByteArray());
+
+            Bukkit.getScheduler().scheduleSyncDelayedTask(Manhunt.get(), game::sendGameAnnouncement, 20L);
         }
 
 

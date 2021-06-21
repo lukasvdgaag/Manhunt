@@ -2,6 +2,7 @@ package me.gaagjescraft.network.team.manhunt.events;
 
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.Game;
+import me.gaagjescraft.network.team.manhunt.games.GamePlayer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -17,6 +18,9 @@ public class LeaveEventHandler implements Listener {
         e.setQuitMessage(null);
         Game game = Game.getGame(e.getPlayer());
         if (game == null) return;
+
+        GamePlayer gp = game.getPlayer(e.getPlayer());
+        if (!gp.isOnline()) return; // already removed the player (or they're just not in the game).
 
         game.removePlayer(e.getPlayer());
         e.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
@@ -38,6 +42,9 @@ public class LeaveEventHandler implements Listener {
 
         if (Manhunt.get().getCfg().joinGameOnServerJoin || Manhunt.get().getCfg().teleportLobbyOnServerJoin) {
             Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> {
+                if (Manhunt.get().getCfg().teleportLobbyOnServerJoin && Manhunt.get().getCfg().lobby != null) {
+                    e.getPlayer().teleport(Manhunt.get().getCfg().lobby);
+                }
                 if (Manhunt.get().getCfg().joinGameOnServerJoin && !Manhunt.get().getCfg().isLobbyServer) {
                     Game game = Game.getGame(e.getPlayer());
                     if (game == null) {
@@ -57,9 +64,6 @@ public class LeaveEventHandler implements Listener {
                             }
                         }
                     }
-                }
-                if (Manhunt.get().getCfg().teleportLobbyOnServerJoin && Manhunt.get().getCfg().lobby != null) {
-                    e.getPlayer().teleport(Manhunt.get().getCfg().lobby);
                 }
             }, 1L);
         }

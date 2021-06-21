@@ -58,7 +58,7 @@ public class ManhuntGameSetupMenu implements Listener {
             inventory.setItem(i, Itemizer.FILL_ITEM);
         }
 
-        inventory.setItem(45, Itemizer.GO_BACK_ITEM);
+        if (setup.getGame() != null) inventory.setItem(45, Itemizer.GO_BACK_ITEM);
         inventory.setItem(49, Itemizer.CLOSE_ITEM);
 
         ItemStack twistAllows;
@@ -189,7 +189,7 @@ public class ManhuntGameSetupMenu implements Listener {
         } else if (e.getSlot() == 13 && setup.getGame() == null) {
             player.closeInventory();
             Manhunt.get().getManhuntPlayerAmountSetupMenu().openMenu(player, setup);
-        } else if (e.getSlot() == 45) {
+        } else if (e.getSlot() == 45 && setup.getGame() != null) {
             player.closeInventory();
             Manhunt.get().getManhuntMainMenu().openMenu(player);
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
