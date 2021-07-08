@@ -10,6 +10,7 @@ bungee:
     hostname: localhost
     port: 8005
 minimum_client_protocol_version: 701 # this is 1.16+
+disable_setting_changing: false
 storage:
   # Type could be: FILE, MONGODB, MYSQL
   type: MONGODB
@@ -18,6 +19,13 @@ storage:
     database: manhunt
     username: 'user'
     password: 'pass'
+
+default_settings:
+  allow_twists: true
+  max_players: 50
+  allow_friendly_fire: false
+  do_daylight_cycle: true
+  headstart: HALF_MINUTE
 
 join-game-on-server-join: false
 teleport-lobby-on-server-join: true
@@ -697,23 +705,37 @@ messages:
   game-end:
     draw:
       - '&8&m--------------------------'
-      - '&e&lTHIS GAME ENDED IN A DRAW!'
+      - '&e&lDraw!'
       - ''
       - '&cNo one won this game!'
       - '&7You will get teleported to the lobby shortly.'
       - '&8&m--------------------------'
     win:
       - '&8&m--------------------------'
-      - '&d&l%winner%S HAVE WON THIS MANHUNT!'
+      - '&a&lYou Win!'
       - ''
-      - '&aCongratulations, you won!'
+      - '&6The winning team is: &e&l%winner%S'
+      - ''
+      - '&a&l1st &7- %first_killer% &7- &f%first_killer_number%'
+      - '&e&l2nd &7- %second_killer% &7- &f%second_killer_number%'
+      - '&c&l3rd &7- %third_killer% &7- &f%third_killer_number%'
+      - ''
+      - '&eYou got &b%kills% &ekills.'
+      - ''
       - '&7You will get teleported to the lobby shortly.'
       - '&8&m--------------------------'
     lose:
       - '&8&m--------------------------'
-      - '&d&l%winner%S HAVE WON THIS MANHUNT!'
+      - '&c&lYou Lose!'
       - ''
-      - '&cOh no, you lose!'
+      - '&6The winning team is: &e&l%winner%S'
+      - ''
+      - '&a&l1st &7- %first_killer% &7- &f%first_killer_number%'
+      - '&e&l2nd &7- %second_killer% &7- &f%second_killer_number%'
+      - '&c&l3rd &7- %third_killer% &7- &f%third_killer_number%'
+      - ''
+      - '&eYou got &b%kills% &ekills.'
+      - ''
       - '&7You will get teleported to the lobby shortly.'
       - '&8&m--------------------------'
 
@@ -814,7 +836,7 @@ scoreboards:
     - ''
     - '&6exodusmc.world'
   stopping-draw:
-    - '&e&lTHIS GAME ENDED IN A DRAW!'
+    - '&e&lDRAW!'
     - '&cNo one won this game!'
     - ''
     - '&fHost: &a%host%'
@@ -826,7 +848,7 @@ scoreboards:
     - '&6exodusmc.world'
   stopping-win:
     - '&d&l%winner%S WON THE GAME!'
-    - '&aYou won this game!'
+    - '&aYou won!'
     - ''
     - '&fHost: &a%host%'
     - ''
@@ -837,7 +859,7 @@ scoreboards:
     - '&6exodusmc.world'
   stopping-lose:
     - '&d&l%winner%S WON THE GAME!'
-    - '&cYou lost this game!'
+    - '&cYou lost!'
     - ''
     - '&fHost: &a%host%'
     - ''

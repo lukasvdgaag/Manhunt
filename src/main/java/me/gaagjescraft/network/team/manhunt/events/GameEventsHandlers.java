@@ -123,9 +123,9 @@ public class GameEventsHandlers implements Listener {
                             p.sendMessage(message);
                         }
                     } else {
-                        if (!gps.isFullyDead()) {
+                       // if (!gps.isFullyDead()) {
                             p.sendMessage(message);
-                        }
+                        // }
                     }
                 } else {
                     p.sendMessage(message);

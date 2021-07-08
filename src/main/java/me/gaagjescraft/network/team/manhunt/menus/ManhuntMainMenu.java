@@ -148,7 +148,7 @@ public class ManhuntMainMenu implements Listener {
             int protocol = Manhunt.get().getUtil().getProtocol(player);
 
             if (protocol == -1 || protocol >= Manhunt.get().getCfg().minimumClientProtocolVersion) {
-                if (Manhunt.get().getEconomy().hasBalance(player, 1) || player.hasPermission("manhunt.hostgame")) {
+                if (player.hasPermission("manhunt.hostgame") || Manhunt.get().getEconomy().hasBalance(player, 1)) {
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
                     Manhunt.get().getManhuntGameSetupMenu().openMenu(player, null);
                 } else {

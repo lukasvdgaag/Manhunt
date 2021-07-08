@@ -39,12 +39,14 @@ public class GamePlayer {
     private Location bedSpawn;
     private boolean online;
     private boolean joinedBefore;
+    private String username;
+    private boolean spectating;
 
     private Location netherPortal; // portal from overworld -> nether
     private Location overworldPortal; // portal from nether -> overworld
     private Location endPortal; // portal from overworld -> end
 
-    public GamePlayer(Game game, UUID uuid, PlayerType playerType, boolean isHost) {
+    public GamePlayer(Game game, UUID uuid, PlayerType playerType, boolean isHost, String username) {
         this.game = game;
         this.uuid = uuid;
         this.twistVoted = null;
@@ -61,13 +63,31 @@ public class GamePlayer {
         this.leaveTask = null;
         this.bedSpawn = null;
         this.online = true;
+        this.username = username;
         this.joinedBefore = !Manhunt.get().getCfg().bungeeMode;
+        this.spectating = false;
 
         this.netherPortal = null;
         this.overworldPortal = null;
         this.endPortal = null;
 
         if (!Manhunt.get().getCfg().isLobbyServer) updateScoreboard();
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public boolean isSpectating() {
+        return spectating;
+    }
+
+    public void setSpectating(boolean spectating) {
+        this.spectating = spectating;
     }
 
     public boolean isJoinedBefore() {
@@ -168,7 +188,7 @@ public class GamePlayer {
     }
 
     public boolean isDead() {
-        return isDead;
+        return isDead || isSpectating();
     }
 
     public void setDead(boolean dead) {
@@ -247,6 +267,10 @@ public class GamePlayer {
         return scoreboard;
     }
 
+    public void setScoreboard(AdditionsBoard scoreboard) {
+        this.scoreboard = scoreboard;
+    }
+
     public UUID getUuid() {
         return uuid;
     }
@@ -306,13 +330,87 @@ public class GamePlayer {
     public void addKill() {
         kills++;
 
+        int exp = playerType == PlayerType.HUNTER ? 8 : 5;
+        int credits = playerType == PlayerType.HUNTER ? 15 : 10;
+
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null && player.isOnline()) {
+            player.playSound(player.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 1, 1.5f);
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§d⚔ §e§lKILL: §b+" + credits + " credits §d⚔"));
+            //player.sendMessage("§d+" + credits + " credits §6[kill]");
+            player.sendMessage("§b+" + exp + " experience §6[kill]");
+            // todo make this configurable.
+        }
+        if (Manhunt.get().getExodusCociteSupport() != null) {
+            Bukkit.getScheduler().runTaskAsynchronously(Manhunt.get(), () -> {
+                Manhunt.get().getExodusCociteSupport().addCredits(uuid, credits);
+                Manhunt.get().getExodusCociteSupport().addExp(uuid, exp);
+            });
+        }
+
         PlayerStat stat = Manhunt.get().getPlayerStorage().getUser(uuid);
         if (playerType == PlayerType.HUNTER) stat.setHunterKills(stat.getHunterKills() + 1);
         else stat.setRunnerKills(stat.getRunnerKills() + 1);
         Manhunt.get().getPlayerStorage().saveUser(uuid);
     }
 
+    public void addLose() {
+        int exp = playerType == PlayerType.HUNTER ? 10 : 15;
+        int credits = playerType == PlayerType.HUNTER ? 10 : 15;
+
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null && player.isOnline()) {
+            player.sendMessage("§d+" + credits + " credits §6[participation reward]");
+            player.sendMessage("§b+" + exp + " experience §6[participation reward]");
+            // todo make this configurable.
+        }
+        if (Manhunt.get().getExodusCociteSupport() != null) {
+            Bukkit.getScheduler().runTaskAsynchronously(Manhunt.get(), () -> {
+                Manhunt.get().getExodusCociteSupport().addCredits(uuid, credits);
+                Manhunt.get().getExodusCociteSupport().addExp(uuid, exp);
+            });
+        }
+    }
+
+    public void doTopBonus() {
+        for (int i = 0; i < Math.min(3, game.getPlayers().size()); i++) {
+            if (game.getPlayers().get(i).getUuid().equals(this.uuid)) {
+                // player is on the top 3 of the kills.
+                int exp = 5;
+                int credits = 3;
+                Player player = Bukkit.getPlayer(uuid);
+                if (player != null && player.isOnline()) {
+                    player.sendMessage("§b+" + exp + " experience §d+" + credits + " credits §6[top 3 bonus]");
+                    // todo make this configurable.
+                }
+                if (Manhunt.get().getExodusCociteSupport() != null) {
+                    Bukkit.getScheduler().runTaskAsynchronously(Manhunt.get(), () -> {
+                        Manhunt.get().getExodusCociteSupport().addExp(uuid, exp);
+                        Manhunt.get().getExodusCociteSupport().addCredits(uuid, credits);
+                    });
+                }
+                break;
+            }
+        }
+    }
+
     public void addWin() {
+        int exp = playerType == PlayerType.HUNTER ? 30 : 75;
+        int credits = playerType == PlayerType.HUNTER ? 150 : 250;
+
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null && player.isOnline()) {
+            player.sendMessage("§d+" + credits + " credits §6[win]");
+            player.sendMessage("§b+" + exp + " experience §6[win]");
+            // todo make this configurable.
+        }
+        if (Manhunt.get().getExodusCociteSupport() != null) {
+            Bukkit.getScheduler().runTaskAsynchronously(Manhunt.get(), () -> {
+                Manhunt.get().getExodusCociteSupport().addCredits(uuid, credits);
+                Manhunt.get().getExodusCociteSupport().addExp(uuid, exp);
+            });
+        }
+
         PlayerStat stat = Manhunt.get().getPlayerStorage().getUser(uuid);
         if (playerType == PlayerType.HUNTER) stat.setHunterWins(stat.getHunterWins() + 1);
         else stat.setRunnerWins(stat.getRunnerWins() + 1);
@@ -325,6 +423,17 @@ public class GamePlayer {
         else stat.setRunnerGamesPlayed(stat.getRunnerGamesPlayed() + 1);
         Manhunt.get().getPlayerStorage().saveUser(uuid);
     }
+
+    /*public void updateHealthTag() {
+        boolean go = false;
+        if (game.getStatus() == GameStatus.PLAYING) {
+            if (isDead) go = false;
+            else if (getPlayerType() == PlayerType.RUNNER) go = true;
+            else if (getPlayerType() == PlayerType.HUNTER && game.getTimer() < game.getHeadStart().getSeconds())
+                go = false;
+            else go = true;
+        }
+    }*/
 
     public void prepareForSpectate() {
         Player player = Bukkit.getPlayer(uuid);
@@ -348,17 +457,6 @@ public class GamePlayer {
             }
         }
     }
-
-    /*public void updateHealthTag() {
-        boolean go = false;
-        if (game.getStatus() == GameStatus.PLAYING) {
-            if (isDead) go = false;
-            else if (getPlayerType() == PlayerType.RUNNER) go = true;
-            else if (getPlayerType() == PlayerType.HUNTER && game.getTimer() < game.getHeadStart().getSeconds())
-                go = false;
-            else go = true;
-        }
-    }*/
 
     public void prepareForRespawn() {
         prepareForSpectate();
@@ -462,15 +560,16 @@ public class GamePlayer {
 
     }
 
-    public void setScoreboard(AdditionsBoard scoreboard) {
-        this.scoreboard = scoreboard;
-    }
-
     public void prepareForGame(GameStatus stat) {
         Player player = Bukkit.getPlayer(uuid);
         if (player == null) return;
         reset(player, false);
         updateScoreboard();
+
+        if (isSpectating() || isFullyDead()) {
+            prepareForSpectate();
+            return;
+        }
 
         if (stat == GameStatus.WAITING || stat == GameStatus.LOADING || stat == GameStatus.STARTING) {
             player.setGameMode(GameMode.ADVENTURE);
@@ -610,7 +709,7 @@ public class GamePlayer {
     }
 
     public boolean isFullyDead() {
-        return ((playerType == PlayerType.HUNTER && deaths >= 3) || (playerType == PlayerType.RUNNER && deaths > 0));
+        return ((spectating) || (playerType == PlayerType.HUNTER && deaths >= 3) || (playerType == PlayerType.RUNNER && deaths > 0));
     }
 
 }

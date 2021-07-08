@@ -135,6 +135,7 @@ public class GameScheduler {
                     GamePlayer newHost;
 
                     List<GamePlayer> runners = game.getOnlinePlayers(PlayerType.RUNNER);
+                    runners.removeIf(GamePlayer::isFullyDead);
                     if (!runners.isEmpty()) { // first checking if there are any runners to make one of them the host
                         ThreadLocalRandom random = ThreadLocalRandom.current();
                         int chosen = random.nextInt(runners.size());

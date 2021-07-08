@@ -5,6 +5,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.*;
+import me.gaagjescraft.network.team.manhunt.utils.centerText.DefaultFontInfo;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -19,6 +20,43 @@ import java.util.List;
 import java.util.UUID;
 
 public class Util {
+
+    public static int CENTER_PX = 120;
+
+    public static void sendCenteredMessage(Player player, String message) {
+        if (message == null || message.equals("")) player.sendMessage("");
+        message = c(message);
+
+        int messagePxSize = 0;
+        boolean previousCode = false;
+        boolean isBold = false;
+
+        String strippedMsg = ChatColor.stripColor(message);
+
+        for (char c : strippedMsg.toCharArray()) {
+            if (c == '&') {
+                previousCode = true;
+            } else if (previousCode) {
+                previousCode = false;
+                isBold = c == 'l' || c == 'L';
+            } else {
+                DefaultFontInfo dFI = DefaultFontInfo.getDefaultFontInfo(c);
+                messagePxSize += isBold ? dFI.getBoldLength() : dFI.getLength();
+                messagePxSize++;
+            }
+        }
+
+        int halvedMessageSize = messagePxSize / 2;
+        int toCompensate = CENTER_PX - halvedMessageSize;
+        int spaceLength = DefaultFontInfo.SPACE.getLength() + 1;
+        int compensated = 0;
+        StringBuilder sb = new StringBuilder();
+        while (compensated < toCompensate) {
+            sb.append(" ");
+            compensated += spaceLength;
+        }
+        player.sendMessage(sb.toString() + message);
+    }
 
     public static List<String> r(List<String> items, String search, String replaceAll) {
         items = new ArrayList<>(items);
@@ -47,6 +85,10 @@ public class Util {
         if (!Manhunt.get().getBungeeSocketManager().sendMessage("createGame", json)) {
             setup.getHost().sendMessage(ChatColor.RED + "We had some trouble connecting to the other servers. Please inform a staff member.");
         }
+    }
+
+    public void createAddSpectatorMessage(Game game, UUID player) {
+        Manhunt.get().getBungeeSocketManager().sendMessage("addSpectator", "{'game':'" + game.getIdentifier() + "', 'player':'" + player.toString() + "'}");
     }
 
     public void createDisconnectClientMessage() {
@@ -189,6 +231,7 @@ public class Util {
 
     public void updateHealth(Game game) {
         for (GamePlayer gp : game.getPlayers()) {
+
             if (!gp.isOnline()) continue;
             Player target = Bukkit.getPlayer(gp.getUuid());
             if (target == null) continue;
@@ -196,7 +239,7 @@ public class Util {
             AdditionsBoard board = gp.getScoreboard();
             if (board == null) continue;
 
-            if (game.getStatus() != GameStatus.PLAYING && game.getStatus() != GameStatus.STOPPING) {
+            if ((game.getStatus() != GameStatus.PLAYING && game.getStatus() != GameStatus.STOPPING) || (game.getStatus() == GameStatus.PLAYING && gp.getPlayerType() == PlayerType.HUNTER)) {
                 Objective ob = board.getScoreboard().getObjective("mh-health");
                 if (ob != null) ob.unregister();
                 board.getScoreboard().clearSlot(DisplaySlot.BELOW_NAME);

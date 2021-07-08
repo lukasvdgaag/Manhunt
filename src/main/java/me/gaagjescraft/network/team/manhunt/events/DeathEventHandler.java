@@ -40,7 +40,7 @@ public class DeathEventHandler implements Listener {
                 Game game = Game.getGame(damager);
                 if (game == null) return;
                 GamePlayer dgp = game.getPlayer(damager);
-                if (dgp.isDead() || dgp.getPlayerType() == PlayerType.HUNTER) {
+                if (dgp.isDead() || dgp.isFullyDead() || dgp.getPlayerType() == PlayerType.HUNTER) {
                     e.setCancelled(true);
                     e.setDamage(0);
                 } else if (dgp.getPlayerType() == PlayerType.RUNNER) {
@@ -66,7 +66,7 @@ public class DeathEventHandler implements Listener {
             Game game = Game.getGame(player);
             if (game == null) return;
             GamePlayer gp = game.getPlayer(player);
-            if (gp == null || gp.isDead()) {
+            if (gp == null || gp.isDead() || gp.isFullyDead()) {
                 e.setDamage(0);
                 e.setCancelled(true);
                 return;
@@ -87,7 +87,7 @@ public class DeathEventHandler implements Listener {
         if (game == null) return;
         GamePlayer dgp = game.getPlayer(damager);
 
-        if (dgp.isDead()) {
+        if (dgp.isDead() || dgp.isFullyDead()) {
             e.setCancelled(true);
             e.setDamage(0);
             return;
@@ -98,7 +98,7 @@ public class DeathEventHandler implements Listener {
         Player player = (Player) e.getEntity();
         GamePlayer gp = game.getPlayer(player);
 
-        if (gp == null || gp.isDead()) {
+        if (gp == null || gp.isDead() || gp.isFullyDead()) {
             e.setCancelled(true);
             e.setDamage(0);
             return;
@@ -132,7 +132,7 @@ public class DeathEventHandler implements Listener {
         GamePlayer gp = game.getPlayer(player);
 
         if (game.getStatus() == GameStatus.WAITING || game.getStatus() == GameStatus.STARTING || (game.getStatus() == GameStatus.PLAYING && gp.getPlayerType() == PlayerType.HUNTER && game.getTimer() <= game.getHeadStart().getSeconds() + 15) ||
-                (game.getStatus() == GameStatus.PLAYING && gp.getPlayerType() == PlayerType.RUNNER && game.getTimer() <= 20)) {
+                (game.getStatus() == GameStatus.PLAYING && gp.getPlayerType() == PlayerType.RUNNER && game.getTimer() <= 20) || gp.isFullyDead()) {
             e.setCancelled(true);
             player.setHealth(20);
             player.setMaxHealth(20);
@@ -200,6 +200,13 @@ public class DeathEventHandler implements Listener {
             game.sendMessage(null, killMsg);
         }
 
+        if (killer != null && killer.getType() == EntityType.PLAYER) {
+            GamePlayer killerGp = game.getPlayer((Player) killer);
+            if (killerGp != null && gp.getPlayerType() != killerGp.getPlayerType()) {
+                killerGp.addKill();
+            }
+        }
+
         game.checkForWin(false);
     }
 
@@ -218,9 +225,6 @@ public class DeathEventHandler implements Listener {
         if (killer != null && killer.getType() == EntityType.PLAYER) {
             GamePlayer killerGp = game.getPlayer((Player) killer);
             if (killerGp != null) {
-                if (gp.getPlayerType() != killerGp.getPlayerType()) {
-                    killerGp.addKill();
-                }
                 return Util.c(gp.getPrefix() + " " + player.getName() + " §cwas murdered by " + killerGp.getPrefix() + " " + killer.getName());
             }
         }

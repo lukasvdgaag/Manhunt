@@ -12,6 +12,7 @@ import me.gaagjescraft.network.team.manhunt.inst.storage.PlayerStorage;
 import me.gaagjescraft.network.team.manhunt.menus.*;
 import me.gaagjescraft.network.team.manhunt.menus.handlers.RunnerTrackerMenuHandler;
 import me.gaagjescraft.network.team.manhunt.utils.*;
+import me.gaagjescraft.network.team.manhunt.utils.exodus.ExodusCociteSupport;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -38,6 +39,7 @@ public class Manhunt extends JavaPlugin {
     private TagUtils tagUtils;
     private BungeeSocketManager bungeeSocketManager;
     private VaultEcoHook ecoHook;
+    private ExodusCociteSupport exodusCociteSupport;
 
     public static Manhunt get() {
         return instance;
@@ -117,6 +119,9 @@ public class Manhunt extends JavaPlugin {
             }
             Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
             getLogger().info("BungeeCord support was enabled in the config, so we started the socket. Waiting for a connection...");
+        }
+        if (Bukkit.getPluginManager().isPluginEnabled("CociteSupport")) {
+            exodusCociteSupport = new ExodusCociteSupport();
         }
         getLogger().info("");
 
@@ -209,6 +214,10 @@ public class Manhunt extends JavaPlugin {
         return ecoHook;
     }
 
+    public ExodusCociteSupport getExodusCociteSupport() {
+        return exodusCociteSupport;
+    }
+
     private void loadSchedulers() {
         getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
             if (Manhunt.get().getCfg().teleportPlayersToLobbyInVoid && getCfg().lobby != null) {
@@ -221,16 +230,18 @@ public class Manhunt extends JavaPlugin {
                 }
             }
 
-            for (Game game : Game.getGames()) {
-                if (game.getStatus() == GameStatus.WAITING || game.getStatus() == GameStatus.STARTING || game.getStatus() == GameStatus.PLAYING && game.getTimer() <= game.getHeadStart().getSeconds()) {
-                    for (GamePlayer gp : game.getOnlinePlayers(null)) {
-                        Player p = Bukkit.getPlayer(gp.getUuid());
-                        if (p == null) continue;
-                        if (p.getLocation().getBlockY() <= 150) {
-                            if (game.getStatus() != GameStatus.PLAYING || (game.getStatus() == GameStatus.PLAYING && game.getTimer() <= game.getHeadStart().getSeconds() && gp.getPlayerType() == PlayerType.HUNTER)) {
-                                p.sendMessage(Util.c(Manhunt.get().getCfg().cannotLeaveWaitingZoneMessage));
-                                p.teleport(game.getSchematic().getSpawnLocation());
-                                p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
+            if (!getCfg().isLobbyServer) {
+                for (Game game : Game.getGames()) {
+                    if (game.getStatus() == GameStatus.WAITING || game.getStatus() == GameStatus.STARTING || game.getStatus() == GameStatus.PLAYING && game.getTimer() <= game.getHeadStart().getSeconds()) {
+                        for (GamePlayer gp : game.getOnlinePlayers(null)) {
+                            Player p = Bukkit.getPlayer(gp.getUuid());
+                            if (p == null) continue;
+                            if (p.getLocation().getBlockY() <= 150) {
+                                if (!gp.isSpectating() && (game.getStatus() != GameStatus.PLAYING || (game.getStatus() == GameStatus.PLAYING && game.getTimer() <= game.getHeadStart().getSeconds() && gp.getPlayerType() == PlayerType.HUNTER))) {
+                                    p.sendMessage(Util.c(Manhunt.get().getCfg().cannotLeaveWaitingZoneMessage));
+                                    p.teleport(game.getSchematic().getSpawnLocation());
+                                    p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
+                                }
                             }
                         }
                     }
@@ -248,7 +259,6 @@ public class Manhunt extends JavaPlugin {
     }
 
     private void loadCAE() {
-        getCommand("event").setExecutor(new EventCmd());
         getCommand("manhunt").setExecutor(new ManhuntCmd());
         getCommand("leave").setExecutor(new LeaveCmd());
         getCommand("compass").setExecutor(new CompassCmd());

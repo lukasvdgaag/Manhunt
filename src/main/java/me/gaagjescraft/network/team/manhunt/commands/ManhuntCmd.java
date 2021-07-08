@@ -23,6 +23,13 @@ public class ManhuntCmd implements CommandExecutor {
         }
         Player p = (Player) sender;
 
+        if (args.length >= 1 && args[0].equalsIgnoreCase("setspawn") && p.hasPermission("manhunt.setspawn")) {
+            Manhunt.get().getCfg().lobby = p.getLocation();
+            Manhunt.get().getCfg().save();
+            p.sendMessage(Util.c(Manhunt.get().getCfg().lobbySetMessage));
+            return true;
+        }
+
         if (args.length >= 1 && args[0].equalsIgnoreCase("join") && Manhunt.get().getCfg().isLobbyServer) {
             if (args.length == 1)
                 p.sendMessage(ChatColor.RED + "Correct usage: /manhunt join <game-id>");
@@ -50,7 +57,7 @@ public class ManhuntCmd implements CommandExecutor {
                 p.sendMessage(Util.c(Manhunt.get().getCfg().gameAlreadyStoppingMessage));
                 return true;
             }
-            game.stopGame(true);
+            game.stopGame(true, true);
             return true;
         } else if (args.length >= 2 && args[0].equalsIgnoreCase("start") && p.hasPermission("manhunt.admin")) {
             // have the ability to stop others' games.
@@ -100,7 +107,7 @@ public class ManhuntCmd implements CommandExecutor {
         } else {
             if (args[0].equalsIgnoreCase("stop")) {
                 p.sendMessage(Util.c(Manhunt.get().getCfg().stoppingGameMessage));
-                game.stopGame(true);
+                game.stopGame(true, true);
                 return true;
             } else if (args[0].equalsIgnoreCase("start")) {
                 p.sendMessage(Util.c(Manhunt.get().getCfg().startingGameMessage));

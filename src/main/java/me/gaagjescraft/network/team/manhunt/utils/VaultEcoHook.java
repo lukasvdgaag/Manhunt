@@ -1,6 +1,7 @@
 package me.gaagjescraft.network.team.manhunt.utils;
 
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
@@ -29,7 +30,10 @@ public class VaultEcoHook {
     }
 
     public boolean hasBalance(Player p, double amount) {
-        if (eco == null) return false;
+        if (eco == null) {
+            Bukkit.getLogger().warning("Trying to get balance of player while economy is null.");
+            return false;
+        }
         return eco.has(p, amount);
     }
 

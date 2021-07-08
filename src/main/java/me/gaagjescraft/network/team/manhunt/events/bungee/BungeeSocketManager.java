@@ -5,10 +5,7 @@ import com.google.common.io.ByteStreams;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
-import me.gaagjescraft.network.team.manhunt.games.Game;
-import me.gaagjescraft.network.team.manhunt.games.GameSetup;
-import me.gaagjescraft.network.team.manhunt.games.GameStatus;
-import me.gaagjescraft.network.team.manhunt.games.HeadstartType;
+import me.gaagjescraft.network.team.manhunt.games.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -211,6 +208,10 @@ public class BungeeSocketManager {
                                     break;
                                 case "disconnect":
                                     clientProcessDisconnect();
+                                    break;
+                                case "addSpectator":
+                                    clientProcessAddSpectator(value);
+                                    break;
                             }
                         }
                     } catch (IOException ignored) {
@@ -289,6 +290,26 @@ public class BungeeSocketManager {
         if (game == null) return;
 
         game.setStatus(GameStatus.STOPPING);
+    }
+
+    private void clientProcessAddSpectator(String json) {
+        JsonObject ob = new JsonParser().parse(json).getAsJsonObject();
+        String gameName = ob.getAsJsonPrimitive("game").getAsString();
+
+        Game game = Game.getGame(gameName);
+        if (game == null) return;
+
+        UUID player = UUID.fromString(ob.getAsJsonPrimitive("player").getAsString());
+        if (!game.getSpectators().contains(player)) {
+            game.addSpectator(player);
+        }
+        GamePlayer gp = game.getPlayer(player);
+        if (gp.isOnline() && !gp.isSpectating()) {
+            Player p = Bukkit.getPlayer(player);
+            if (p == null) return;
+            gp.setSpectating(true);
+            gp.prepareForSpectate();
+        }
     }
 
     private void clientProcessEndGame(String json) {

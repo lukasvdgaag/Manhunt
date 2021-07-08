@@ -12,6 +12,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
@@ -134,6 +135,18 @@ public class ManhuntGamesMenu implements Listener {
 
         Game g = games.get(e.getSlot());
         if (g == null) return;
+
+        int playercount = Manhunt.get().getCfg().bungeeMode ? g.getBungeeHunterCount() : g.getOnlinePlayers(PlayerType.HUNTER).size();
+        if (playercount >= g.getMaxPlayers() || e.getClick() == ClickType.RIGHT) {
+            if (!g.getSpectators().contains(e.getWhoClicked().getUniqueId()))
+                g.addSpectator(e.getWhoClicked().getUniqueId());
+
+            if (e.getClick() == ClickType.RIGHT) {
+                e.getWhoClicked().sendMessage("§eThis game currently not accepting any more players, so will try to add you as a spectator");
+            } else {
+                e.getWhoClicked().sendMessage("§eAttempting to add you to this game as a spectator...");
+            }
+        }
 
         boolean result = g.addPlayer((Player) e.getWhoClicked());
         if (!result)

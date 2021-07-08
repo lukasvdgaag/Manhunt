@@ -25,6 +25,7 @@ public class Itemizer {
     public static ItemStack MANHUNT_RUNNER_TRACKER;
     public static ItemStack MANHUNT_VOTE_ITEM;
     public static ItemStack MANHUNT_HOST_SETTINGS_ITEM;
+    public static ItemStack MANHUNT_SETTING_DISABLED;
 
     public static ItemStack HEAD_PLUS;
     public static ItemStack HEAD_MINUS;
@@ -49,6 +50,8 @@ public class Itemizer {
         MANHUNT_LEAVE_ITEM = createItem(Manhunt.get().getCfg().generalLeaveMaterial, 1, Manhunt.get().getCfg().generalLeaveDisplayname, Manhunt.get().getCfg().generalLeaveLore);
         MANHUNT_VOTE_ITEM = createItem(Manhunt.get().getCfg().generalTwistVoteMaterial, 1, Manhunt.get().getCfg().generalTwistVoteDisplayname, Manhunt.get().getCfg().generalTwistVoteLore);
         MANHUNT_HOST_SETTINGS_ITEM = createItem(Manhunt.get().getCfg().generalSettingsMaterial, 1, Manhunt.get().getCfg().generalSettingsDisplayname, Manhunt.get().getCfg().generalSettingsLore);
+        MANHUNT_SETTING_DISABLED = createItem(Material.BARRIER, 1, "§c§lOption disabled", Lists.newArrayList("§7We currently disabled this option", "§7so you can't change it."));
+
     }
 
     public static ItemStack addEnchantment(ItemStack i, Enchantment ench, int level) {

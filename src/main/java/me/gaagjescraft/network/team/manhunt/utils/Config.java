@@ -1,6 +1,7 @@
 package me.gaagjescraft.network.team.manhunt.utils;
 
 import me.gaagjescraft.network.team.manhunt.Manhunt;
+import me.gaagjescraft.network.team.manhunt.games.HeadstartType;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -11,6 +12,7 @@ import java.util.List;
 
 public class Config {
 
+    public boolean disableSettingsChanging;
     public boolean bungeeMode;
     public boolean isLobbyServer;
     public String serverName;
@@ -345,6 +347,12 @@ public class Config {
     public String lobbyServerName;
     public int minimumClientProtocolVersion;
 
+    public boolean defaultOptionAllowTwists;
+    public int defaultOptionMaxPlayers;
+    public boolean defaultOptionAllowFriendlyFire;
+    public boolean defaultOptionDoDaylightCycle;
+    public HeadstartType defaultOptionHeadstart;
+
     private File file;
     private FileConfiguration conf;
 
@@ -365,6 +373,7 @@ public class Config {
 
     public void load() {
         conf = YamlConfiguration.loadConfiguration(file);
+        this.disableSettingsChanging = conf.getBoolean("disable_setting_changing", false);
         this.bungeeMode = conf.getBoolean("bungee.enabled", false);
         this.isLobbyServer = conf.getBoolean("bungee.is-lobby", false);
         this.serverName = conf.getString("bungee.server-name", "manhunt-1");
@@ -378,6 +387,12 @@ public class Config {
         this.teleportPlayersToLobbyInVoid = conf.getBoolean("teleport-players-to-lobby-in-void");
         this.autoJoinOnlinePlayersWhenGameCreated = conf.getBoolean("auto-join-online-players-when-game-created");
         this.minimumClientProtocolVersion = conf.getInt("minimum_client_protocol_version");
+
+        this.defaultOptionAllowTwists = conf.getBoolean("default_settings.allow_twists");
+        this.defaultOptionMaxPlayers = conf.getInt("default_settings.max_players");
+        this.defaultOptionAllowFriendlyFire = conf.getBoolean("default_settings.allow_friendly_fire");
+        this.defaultOptionDoDaylightCycle = conf.getBoolean("default_settings.do_daylight_cycle");
+        this.defaultOptionHeadstart = HeadstartType.valueOf(conf.getString("default_settings.headstart", "HALF_MINUTE"));
 
         this.seeds = conf.getLongList("seeds");
         this.lobby = conf.getLocation("lobby");
@@ -715,6 +730,7 @@ public class Config {
     }
 
     public void save() {
+        conf.set("disable_setting_changing", disableSettingsChanging);
         conf.set("bungee.enabled", bungeeMode);
         conf.set("bungee.is-lobby", isLobbyServer);
         conf.set("bungee.server-name", serverName);
@@ -728,6 +744,12 @@ public class Config {
         conf.set("teleport-players-to-lobby-in-void", teleportPlayersToLobbyInVoid);
         conf.set("auto-join-online-players-when-game-created", autoJoinOnlinePlayersWhenGameCreated);
         conf.set("minimum_client_protocol_version", minimumClientProtocolVersion);
+
+        conf.set("default_settings.allow_twists", defaultOptionAllowTwists);
+        conf.set("default_settings.max_players", defaultOptionMaxPlayers);
+        conf.set("default_settings.allow_friendly_fire", defaultOptionAllowFriendlyFire);
+        conf.set("default_settings.do_daylight_cycle", defaultOptionDoDaylightCycle);
+        conf.set("default_settings.headstart", defaultOptionHeadstart.name());
 
         conf.set("seeds", seeds);
         conf.set("lobby", lobby);
