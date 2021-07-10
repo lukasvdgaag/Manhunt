@@ -12,10 +12,11 @@ bungee:
 minimum_client_protocol_version: 701 # this is 1.16+
 disable_setting_changing: false
 storage:
-  # Type could be: FILE, MONGODB, MYSQL
-  type: MONGODB
+  # Type could be: YAML, MONGODB, MYSQL
+  type: YAML
   database:
     hostname: localhost
+    port:
     database: manhunt
     username: 'user'
     password: 'pass'

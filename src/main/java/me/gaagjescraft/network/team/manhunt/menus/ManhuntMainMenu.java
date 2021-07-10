@@ -80,7 +80,7 @@ public class ManhuntMainMenu implements Listener {
 
         } else if (slot == 33) {
 
-            ItemStack tokens = new ItemStack(Material.DIAMOND_SWORD, 1);
+            ItemStack tokens = new ItemStack(Material.COMPASS, 1);
             ItemMeta tokensMeta = tokens.getItemMeta();
             tokensMeta.addItemFlags(ItemFlag.values());
             int protocol = Manhunt.get().getUtil().getProtocol(player);

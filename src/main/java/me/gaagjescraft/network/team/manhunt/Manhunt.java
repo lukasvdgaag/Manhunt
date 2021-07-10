@@ -8,7 +8,9 @@ import me.gaagjescraft.network.team.manhunt.events.LeaveEventHandler;
 import me.gaagjescraft.network.team.manhunt.events.bungee.BungeeSocketManager;
 import me.gaagjescraft.network.team.manhunt.games.*;
 import me.gaagjescraft.network.team.manhunt.inst.storage.MongoStorage;
+import me.gaagjescraft.network.team.manhunt.inst.storage.MySQLStorage;
 import me.gaagjescraft.network.team.manhunt.inst.storage.PlayerStorage;
+import me.gaagjescraft.network.team.manhunt.inst.storage.YamlStorage;
 import me.gaagjescraft.network.team.manhunt.menus.*;
 import me.gaagjescraft.network.team.manhunt.menus.handlers.RunnerTrackerMenuHandler;
 import me.gaagjescraft.network.team.manhunt.utils.*;
@@ -152,8 +154,11 @@ public class Manhunt extends JavaPlugin {
         String storageType = getCfg().storageType;
         if (storageType.equalsIgnoreCase("mongodb")) {
             this.playerStorage = new MongoStorage();
+        } else if (storageType.equalsIgnoreCase("yaml")) {
+            this.playerStorage = new YamlStorage();
+        } else if (storageType.equalsIgnoreCase("mysql")) {
+            this.playerStorage = new MySQLStorage();
         }
-        // todo add default file/sqlite storage.
 
         this.playerStorage.setup();
     }
