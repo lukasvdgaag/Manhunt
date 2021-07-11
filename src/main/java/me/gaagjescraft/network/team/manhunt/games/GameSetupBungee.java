@@ -1,6 +1,7 @@
 package me.gaagjescraft.network.team.manhunt.games;
 
 import me.gaagjescraft.network.team.manhunt.Manhunt;
+import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 
@@ -59,7 +60,7 @@ public class GameSetupBungee {
     public void requestNextGameCreation() {
         if (!isStartedSearching()) {
             this.startedSearching = true;
-            gameSetup.getHost().sendTitle("§eSearching Servers...", "§7Hold on while we find you a host server!", 0, 1000, 0);
+            Util.sendTitle(gameSetup.getHost(), Util.c(Manhunt.get().getCfg().searchingServerTitle), 0, 1000, 0);
             runnableTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(Manhunt.get(), new Runnable() {
                 int currentTick = 0;
                 int lastServerTicked = 0;
@@ -77,20 +78,20 @@ public class GameSetupBungee {
                     }
 
                     if (currentTick % 10 == 0) {
-                        gameSetup.getHost().playSound(gameSetup.getHost().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+                        gameSetup.getHost().playSound(gameSetup.getHost().getLocation(), Sound.valueOf(Manhunt.get().getCfg().searchingServerTickingSound), 1, 1);
                     }
                     if (currentTick - lastServerTicked >= 60 && !isServerMatched()) {
                         if (!isLastServer) requestNextGameCreation();
                         else {
                             Bukkit.getScheduler().cancelTask(runnableTaskId);
-                            gameSetup.getHost().playSound(gameSetup.getHost().getLocation(), Sound.BLOCK_ANVIL_LAND, 1, 1);
+                            gameSetup.getHost().playSound(gameSetup.getHost().getLocation(), Sound.valueOf(Manhunt.get().getCfg().noServersAvailableSound), 1, 1);
                             gameSetup.getHost().resetTitle();
-                            gameSetup.getHost().sendTitle("§cNo Servers Available", "§7There are currently no free servers available!", 10, 50, 10);
-                            gameSetup.getHost().sendMessage("§cWe couldn't find a free server to host your Manhunt game in. Please try again later.");
+                            Util.sendTitle(gameSetup.getHost(), Util.c(Manhunt.get().getCfg().noServersAvailableTitle), 10, 50, 10);
+                            gameSetup.getHost().sendMessage(Util.c(Manhunt.get().getCfg().noServersAvailableMessage));
 
                             if (Manhunt.get().getEconomy().getBalance(gameSetup.getHost()) != -1 && !gameSetup.getHost().hasPermission("manhunt.hostgame")) {
-                                Manhunt.get().getEconomy().addBalance(gameSetup.getHost(), 1);
-                                gameSetup.getHost().sendMessage("§e1 token has been redeposited to your account because no servers were available.");
+                                Manhunt.get().getEconomy().addBalance(gameSetup.getHost(), Manhunt.get().getCfg().pricePerGame);
+                                gameSetup.getHost().sendMessage(Util.c(Manhunt.get().getCfg().moneyRefundedNoServersMessage).replace("%money%", Manhunt.get().getCfg().pricePerGame + ""));
                             }
                         }
                         return;

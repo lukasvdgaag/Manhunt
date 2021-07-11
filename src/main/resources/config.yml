@@ -1,4 +1,5 @@
 lobby:
+debug: false
 bungee:
   enabled: false
   is-lobby: false
@@ -11,6 +12,8 @@ bungee:
     port: 8005
 minimum_client_protocol_version: 701 # this is 1.16+
 disable_setting_changing: false
+send-game-host-announcement: true
+price-per-game: 1
 storage:
   # Type could be: YAML, MONGODB, MYSQL
   type: YAML
@@ -19,6 +22,12 @@ storage:
     database: manhunt
     username: 'user'
     password: 'pass'
+
+rewards:
+  kill: [ ]
+  win: [ ]
+  lose: [ ]
+  top-three: [ ]
 
 default_settings:
   allow_twists: true
@@ -89,6 +98,7 @@ chat:
   lobby-format: '&7[%prefix%&7] %player%&f: %message%'
 
 menus:
+  main-title: Manhunt
   tracker-title: Manhunt Tracker Menu
   teleporter-title: Manhunt Teleporter Menu
   events-title: Events
@@ -100,6 +110,78 @@ menus:
   twist-vote-title: Manhunt Twist Vote
 
 items:
+  main-menu:
+    host-game-can-host-material: EMERALD
+    host-game-can-host-displayname: '&aHost a game'
+    host-game-can-host-lore:
+      - '&7Host your own Manhunt game'
+      - '&7by spending %price% token.'
+      - '&dYou get to be the runner!'
+      - ''
+      - '&bYou have &e%balance% &btokens available.'
+      - ''
+      - '&e► Click to host a game. ◄'
+    host-game-cannot-host-material: EMERALD
+    host-game-cannot-host-displayname: '&aHost a game &c(Unavailable)'
+    host-game-cannot-host-lore:
+      - '&7Host your own Manhunt game'
+      - '&7by spending %price% token.'
+      - '&dYou get to be the runner!'
+      - ''
+      - '&bYou have &e%balance% &btokens available.'
+      - ''
+      - '&c► You don''t have enough tokens. ◄'
+    host-game-invalid-version-material: EMERALD
+    host-game-invalid-version-displayname: '&aHost a game &c(Unavailable)'
+    host-game-invalid-version-lore:
+      - '&7Host your own Manhunt game'
+      - '&7by spending %price% token.'
+      - '&dYou get to be the runner!'
+      - ''
+      - '&bYou have &e%balance% &btokens available.'
+      - ''
+      - '&cYou must be on 1.16+ to create games!'
+      - '&cPlease switch versions if you wish to proceed.'
+    join-game-material: COMPASS
+    join-game-displayname: '&bJoin a game'
+    join-game-lore:
+      - '&7Play along with existing'
+      - '&7Manhunt games across the server.'
+      - ''
+      - '§e► Click to open the join menu. ◄'
+    join-game-invalid-version-material: COMPASS
+    join-game-invalid-version-displayname: '&bJoin a game &c(Unavailable)'
+    join-game-invalid-version-lore:
+      - '&7Play along with existing'
+      - '&7Manhunt games across the server.'
+      - ''
+      - '&cYou must be on 1.16+ to join games!'
+      - '&cPlease switch versions if you wish to proceed.'
+    store-material: BOOK
+    store-displayname: '&dStore'
+    store-lore:
+      - '&7Out of tokens?'
+      - '&7Click here to get a link to'
+      - '&7our &bstore &7to upgrade your'
+      - '&brank &7and get free tokens.'
+      - ''
+      - '&e► Click to get our store link. ◄'
+    balance-info-enough-material: EMERALD_BLOCK
+    balance-info-enough-displayname: '&aYour Tokens'
+    balance-info-enough-lore:
+      - '&7Use your tokens to host'
+      - '&7your own Manhunt games.'
+      - ''
+      - '&bYou have &d%balance% &btokens.'
+      - '&aYou can host a game!'
+    balance-info-not-enough-material: REDSTONE_BLOCK
+    balance-info-not-enough-displayname: '&aYour Tokens'
+    balance-info-not-enough-lore:
+      - '&7Use your tokens to host'
+      - '&7your own Manhunt games.'
+      - ''
+      - '&bYou have &d%balance% &btokens.'
+      - '&cYou cannot host a game!'
   event-menu:
     manhunt-material: COMPASS
     manhunt-displayname: '&bManhunt Event'
@@ -391,6 +473,11 @@ items:
       - ''
       - '&6Click &eto go back.'
   twist-vote-menu:
+    option-disabled-material: BARRIER
+    option-disabled-displayname: '&c&lOption Disabled!'
+    option-disabled-lore:
+      - '&7Changing this option has been'
+      - '&cdisabled&7 so you can''t change it.'
     hardcore-material: REDSTONE
     hardcore-displayname: '&bHardcore'
     hardcore-lore:
@@ -466,6 +553,11 @@ items:
       - ''
       - '&6Click &eto track.'
   general:
+    go-back-material: ARROW
+    go-back-displayname: '&bGo back'
+    go-back-lore:
+      - '&7Click to go back to'
+      - '&7the previous menu.'
     close-material: BARRIER
     close-displayname: '&cClose'
     close-lore:
@@ -518,6 +610,12 @@ prefixes:
     hardcore: hardcore
 
 sounds:
+  main-menu-click-store-item: BLOCK_NOTE_BLOCK_PLING
+  cant-host-game: ENTITY_VILLAGER_NO
+  new-host-assigned: BLOCK_NOTE_BLOCK_BASS
+  game-host-announcement: BLOCK_END_PORTAL_FRAME_FILL
+  searching-server-ticking: BLOCK_NOTE_BLOCK_PLING
+  no-servers-available: BLOCK_ANVIL_LAND
   game-end:
     draw: BLOCK_NOTE_BLOCK_BASS
     win: UI_TOAST_CHALLENGE_COMPLETE
@@ -562,6 +660,8 @@ actionbar:
   respawned-bed: '&aYou respawned at your bed location because you set your spawnpoint!'
 
 titles:
+  no-servers-available: '&cNo Servers Available\n&7There are currently no free servers available!'
+  new-host-assigned: '&d&lNEW HOST!\n&b%player% &eis the new host!'
   game-end:
     draw: '&e&lDRAW!\n&7No one won this game!'
     win-runner-dragon: '&a&lYOU WIN!\n&7Your team managed to defeat the dragon!'
@@ -590,6 +690,20 @@ titles:
     hardcore: '&c&lHARDCORE!\n&7You have 3 hearts and won''t regen for 30s!'
 
 messages:
+  cannot-host-game-invalid-version: '&cYou are playing on an outdated version of Minecraft. If you wish to host games, please join with 1.16+.'
+  cannot-join-game-invalid-verison: '&cYou are playing on an outdated version of Minecraft. If you wish to join games, please join with 1.16+.'
+  main-menu-click-store-item: '["",{"text":"Click here to get ","color":"yellow","clickEvent":{"action":"open_url","value":"https://store.exodusmc.world/"},"hoverEvent":{"action":"show_text","contents":[{"text":"Upgrade your rank here!","color":"gray"}]}},{"text":"tokens ","color":"light_purple","clickEvent":{"action":"open_url","value":"https://store.exodusmc.world/"},"hoverEvent":{"action":"show_text","contents":[{"text":"Upgrade your rank here!","color":"gray"}]}},{"text":"by upgrading your rank! ","color":"yellow","clickEvent":{"action":"open_url","value":"https://store.exodusmc.world/"},"hoverEvent":{"action":"show_text","contents":[{"text":"Upgrade your rank here!","color":"gray"}]}},{"text":"https://store.exodusmc.world/","color":"aqua"}]'
+  game-submitted: '&aYou submitted your game host request. We are now checking for available servers to host it on. Please hold on.'
+  free-game-hosted: '&eNo tokens were taken from your account because you can host games for free!'
+  money-paid-hosting-game: '&e%money% token has been taken from your account for hosting a Manhunt game. It will be redeposited if no servers are available.'
+  not-enough-money-hosting-game: '&cYou don''t have enough tokens to host a game.'
+  no-permission-hosting-game: '&cYou are not allowed to host a game.'
+
+  money-refunded-no-servers: '§e%money% token has been redeposited to your account because no servers were available.'
+  no-servers-available: '&cWe couldn''t find a free server to host your Manhunt game in. Please try again later.'
+  new-host-assigned: '&d%player% &ehas been assigned as the new host!'
+  game-host-announcement: '["",{"text":"----------------------------","strikethrough":true,"color":"gray"},"\n",{"text":"A new ","color":"yellow","clickEvent":{"action":"run_command","value":"/manhunt join %game%"},"hoverEvent":{"action":"show_text","contents":[{"text":"Click here to join %game%''s game!","color":"green"}]}},{"text":"Custom Manhunt ","color":"gold","clickEvent":{"action":"run_command","value":"/manhunt join %game%"},"hoverEvent":{"action":"show_text","contents":[{"text":"Click here to join %game%''s game!","color":"green"}]}},{"text":"game is being ","color":"yellow","clickEvent":{"action":"run_command","value":"/manhunt join %game%"},"hoverEvent":{"action":"show_text","contents":[{"text":"Click here to join %game%''s game!","color":"green"}]}},{"text":"hosted ","color":"green","clickEvent":{"action":"run_command","value":"/manhunt join %game%"},"hoverEvent":{"action":"show_text","contents":[{"text":"Click here to join %game%''s game!","color":"green"}]}},{"text":"by ","color":"yellow","clickEvent":{"action":"run_command","value":"/manhunt join %game%"},"hoverEvent":{"action":"show_text","contents":[{"text":"Click here to join %game%''s game!","color":"green"}]}},{"text":"%game%","color":"aqua","clickEvent":{"action":"run_command","value":"/manhunt join %game%"},"hoverEvent":{"action":"show_text","contents":[{"text":"Click here to join %game%''s game!","color":"green"}]}},{"text":". ","color":"yellow","clickEvent":{"action":"run_command","value":"/manhunt join %game%"},"hoverEvent":{"action":"show_text","contents":[{"text":"Click here to join %game%''s game!","color":"green"}]}},{"text":"Click here ","bold":true,"color":"light_purple","clickEvent":{"action":"run_command","value":"/manhunt join %game%"},"hoverEvent":{"action":"show_text","contents":[{"text":"Click here to join %game%''s game!","color":"green"}]}},{"text":"to join!","color":"yellow","clickEvent":{"action":"run_command","value":"/manhunt join %game%"},"hoverEvent":{"action":"show_text","contents":[{"text":"Click here to join %game%''s game!","color":"green"}]}},"\n",{"text":"----------------------------","strikethrough":true,"color":"gray"}]'
+  money-refunded: '&eWe have refunded the %price% token that you spent on hosting this game because you stopped it before it started.'
   stats-message:
     - '&7&m-------------&r &6&lManhunt Stats &7&m-------------'
     - '&8● &7You won &e%hunter_wins% &7games as a hunter and &e%runner_wins% &7as a runner. &9(Total wins: %total_wins%)'
@@ -672,6 +786,7 @@ messages:
   no-game-to-rejoin: '&cYou have no game to join back in.'
   already-in-game-rejoin: '&cYou are already in this game.'
   rejoin-fail: '&cWe failed to put you back into your previous game!'
+  join-fail: '&cWe failed to put you in %game%''s game.'
   player-rejoined: '&5You have been put into your old game!'
   invalid-game-id: '&cThere''s no game with that id.'
   game-already-stopping: '&cThat game is already stopping'

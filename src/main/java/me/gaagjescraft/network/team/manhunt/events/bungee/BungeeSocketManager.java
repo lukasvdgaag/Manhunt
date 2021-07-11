@@ -112,7 +112,8 @@ public class BungeeSocketManager {
                                     String subChannel = din.readUTF();
                                     String value = "";
                                     if (din.available() > 0) value = din.readUTF();
-                                    Bukkit.getLogger().severe("Message from socket: " + subChannel + ", " + value);
+                                    if (Manhunt.get().getCfg().debug)
+                                        Bukkit.getLogger().severe("Message from socket: " + subChannel + ", " + value);
 
                                     switch (subChannel) {
                                         case "createGameResponse":
@@ -197,7 +198,8 @@ public class BungeeSocketManager {
                             String subChannel = din.readUTF();
                             String value = "";
                             if (din.available() > 0) value = din.readUTF();
-                            Bukkit.getLogger().severe("Message from socket: " + subChannel + ", " + value);
+                            if (Manhunt.get().getCfg().debug)
+                                Bukkit.getLogger().severe("Message from socket: " + subChannel + ", " + value);
 
                             switch (subChannel) {
                                 case "createGame":

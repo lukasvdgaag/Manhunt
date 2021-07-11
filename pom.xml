@@ -169,5 +169,12 @@
             <artifactId>HikariCP</artifactId>
             <version>4.0.3</version>
         </dependency>
+        <dependency>
+            <groupId>net.gaagjescraft</groupId>
+            <artifactId>AdditionsPlus</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/gaagj/OneDrive/Documents/plugins/AdditionsPlus.jar</systemPath>
+        </dependency>
     </dependencies>
 </project>

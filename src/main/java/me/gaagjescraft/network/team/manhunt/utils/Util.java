@@ -6,6 +6,8 @@ import com.mojang.authlib.properties.Property;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.*;
 import me.gaagjescraft.network.team.manhunt.utils.centerText.DefaultFontInfo;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -260,6 +262,44 @@ public class Util {
             //target.setScoreboard(board.getScoreboard());
         }
 
+    }
+
+    public List<String> replace(List<String> a, String search, String replace) {
+        List<String> b = new ArrayList<>(a);
+        b.replaceAll(s -> s.replaceAll(search, replace));
+        return b;
+    }
+
+    public void performRewardActions(Player p, Game game, List<String> actions) {
+        if (Bukkit.getPluginManager().isPluginEnabled("Additions")) {
+            List<String> wn = new ArrayList<>();
+            for (World w : Bukkit.getWorlds()) {
+                wn.add(w.getName());
+            }
+            List<me.gaagjescraft.network.team.advancedevents.main.ActionSender> everyone = new ArrayList<>();
+            for (Player ply : Bukkit.getOnlinePlayers()) {
+                everyone.add(new me.gaagjescraft.network.team.advancedevents.main.ActionSender(ply));
+            }
+            me.gaagjescraft.network.team.advancedevents.main.Main.getEventActionsHandler().addToEventQueue(p, actions, Bukkit.getWorlds(), wn, everyone);
+        } else {
+            for (String s : actions) {
+                if (s.startsWith("[message]")) {
+                    p.sendMessage(c(s.replace("[message]", "")).replaceAll("%game%", game.getIdentifier()).replaceAll("%player%", p.getName()));
+                } else if (s.startsWith("[actionbar]")) {
+                    p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(c(s.replace("[actionbar]", "").replaceAll("%game%", game.getIdentifier()).replaceAll("%player%", p.getName()))));
+                } else if (s.startsWith("[broadcast]")) {
+                    Bukkit.broadcastMessage(c(s.replace("[broadcast]", "")).replaceAll("%game%", game.getIdentifier()).replaceAll("%player%", p.getName()));
+                } else if (s.startsWith("[command]") || s.startsWith("[player]")) {
+                    Bukkit.dispatchCommand(p, s.replace("[command]", "").replace("[player]", "").replaceAll("%game%", game.getIdentifier()).replaceAll("%player%", p.getName()));
+                } else if (s.startsWith("[server]") || s.startsWith("[console]")) {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s.replace("[server]", "").replace("[console]", "").replaceAll("%game%", game.getIdentifier()).replaceAll("%player%", p.getName()));
+                } else if (s.startsWith("[sound]")) {
+                    p.playSound(p.getLocation(), Sound.valueOf(s.replace("[sound]", "").toUpperCase()), 1, 1);
+                } else if (s.startsWith("[title]")) {
+                    sendTitle(p, c(s.replace("[title]", "").replaceAll("%game%", game.getIdentifier()).replaceAll("%player%", p.getName())), 20, 40, 20);
+                }
+            }
+        }
     }
 
 }

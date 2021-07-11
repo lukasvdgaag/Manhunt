@@ -153,12 +153,17 @@ public class GameScheduler {
                     newHost.setHost(true);
                     newHost.prepareForGame(game.getStatus());
                     // todo make these messages configurable.
+
+                    Player target = Bukkit.getPlayer(newHost.getUuid());
+                    String name = target != null ? target.getName() : "N/A";
+
                     for (GamePlayer gp : game.getOnlinePlayers(null)) {
                         Player p = Bukkit.getPlayer(gp.getUuid());
                         if (p == null) continue;
-                        p.sendMessage("§d" + Bukkit.getPlayer(newHost.getUuid()).getName() + " §ehas been assigned as the new host!");
-                        p.sendTitle("§d§lNEW HOST!", "§b" + Bukkit.getPlayer(newHost.getUuid()).getName() + " §eis the new host!", 20, 60, 20);
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
+                        p.sendMessage(Util.c(Manhunt.get().getCfg().newHostAssignedMessage).replace("%player%", name));
+                        Util.sendTitle(p, Util.c(Manhunt.get().getCfg().newHostAssignedTitle).replace("%player%", name), 20, 60, 20);
+
+                        p.playSound(p.getLocation(), Sound.valueOf(Manhunt.get().getCfg().newHostAssignedSound), 1, 1);
                     }
 
                 }

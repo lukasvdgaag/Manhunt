@@ -7,12 +7,7 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.menus.RunnerTrackerMenu;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.hover.content.Text;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
 import org.bukkit.entity.Player;
@@ -446,7 +441,6 @@ public class Game {
 
                 for (String s : msgs) {
 
-                    // todo add placeholders.
                     if (s.contains("%first_killer%") && firstKillerName == null) continue;
                     else if (s.contains("%second_killer%") && secondKillerName == null) continue;
                     else if (s.contains("%third_killer%") && thirdKillerName == null) continue;
@@ -494,13 +488,19 @@ public class Game {
     }
 
     public void stopGame(boolean checkForWin, boolean refundToken) {
-        if (refundToken && Manhunt.get().getExodusCociteSupport() != null && (!Manhunt.get().getCfg().bungeeMode || Manhunt.get().getCfg().isLobbyServer)
+        if (refundToken && (!Manhunt.get().getCfg().bungeeMode || Manhunt.get().getCfg().isLobbyServer)
                 && (this.status == GameStatus.WAITING || this.status == GameStatus.STARTING)) {
             OfflinePlayer p = Bukkit.getPlayer(hostUUID);
-            if (p != null && p.isOnline() && p.getPlayer() != null && p.getName() != null && p.getName().equalsIgnoreCase(this.identifier))
-                p.getPlayer().sendMessage("§eWe have refunded the token that you spent on hosting this game because you stopped the game before it started.");
             if (p != null && p.getName() != null && p.getName().equalsIgnoreCase(this.identifier)) {
-                Bukkit.getScheduler().runTaskAsynchronously(Manhunt.get(), () -> Manhunt.get().getExodusCociteSupport().addToken(hostUUID, 1));
+                if (p.isOnline() && p.getPlayer() != null) {
+                    p.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().moneyRefundedMessage.replaceAll("%price%", Manhunt.get().getCfg().pricePerGame + "")));
+                }
+
+                if (Manhunt.get().getExodusCociteSupport() != null) {
+                    Bukkit.getScheduler().runTaskAsynchronously(Manhunt.get(), () -> Manhunt.get().getExodusCociteSupport().addToken(hostUUID, 1));
+                } else if (Manhunt.get().getEconomy() != null) {
+                    Manhunt.get().getEconomy().addBalance(p.getPlayer(), 1);
+                }
             }
         }
         stopGame(checkForWin);
@@ -862,54 +862,10 @@ public class Game {
     }
 
     public void sendGameAnnouncement() {
-        // todo make this configurable.
-        // todo add option fr disabling this announcement message.
-        if (Manhunt.get().getCfg().isLobbyServer) {
+        if (Manhunt.get().getCfg().isLobbyServer && Manhunt.get().getCfg().sendGameHostAnnouncement) {
             for (Player p : Bukkit.getOnlinePlayers()) {
-                p.playSound(p.getLocation(), Sound.BLOCK_END_PORTAL_FRAME_FILL, 3, 1);
-                p.sendMessage("§7§m----------------------------");
-                BaseComponent[] bcs = new ComponentBuilder("A new")
-                        .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manhunt join " + getIdentifier()))
-                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aClick here to join " + getIdentifier() + "'s game!")))
-                        .color(ChatColor.YELLOW)
-
-                        .append(" Custom Manhunt ").color(ChatColor.GOLD)
-                        .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manhunt join " + getIdentifier()))
-                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aClick here to join " + getIdentifier() + "'s game!")))
-
-                        .append("game is being").color(ChatColor.YELLOW)
-                        .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manhunt join " + getIdentifier()))
-                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aClick here to join " + getIdentifier() + "'s game!")))
-
-                        .append(" hosted ").color(ChatColor.GREEN)
-                        .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manhunt join " + getIdentifier()))
-                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aClick here to join " + getIdentifier() + "'s game!")))
-
-                        .append("by ").color(ChatColor.YELLOW)
-                        .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manhunt join " + getIdentifier()))
-                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aClick here to join " + getIdentifier() + "'s game!")))
-
-                        .append(getIdentifier()).color(ChatColor.AQUA)
-                        .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manhunt join " + getIdentifier()))
-                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aClick here to join " + getIdentifier() + "'s game!")))
-
-                        .append(". ").color(ChatColor.YELLOW)
-
-                        .append("Click here ").color(ChatColor.LIGHT_PURPLE).bold(true).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manhunt join " + getIdentifier()))
-                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aClick here to join " + getIdentifier() + "'s game!")))
-
-                        .append("to join!").color(ChatColor.YELLOW).bold(false)
-                        .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manhunt join " + getIdentifier()))
-                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aClick here to join " + getIdentifier() + "'s game!")))
-
-                        .create();
-                p.spigot().sendMessage(bcs);
-                for (BaseComponent bc : bcs) {
-                    Bukkit.getLogger().warning(bc.toString());
-                }
-
-
-                p.sendMessage("§7§m----------------------------");
+                p.playSound(p.getLocation(), Sound.valueOf(Manhunt.get().getCfg().gameHostAnnouncementSound), 3, 1);
+                p.spigot().sendMessage(TextComponent.fromLegacyText(Manhunt.get().getCfg().gameHostAnnouncementMessage.replaceAll("%game%", getIdentifier())));
             }
         }
     }

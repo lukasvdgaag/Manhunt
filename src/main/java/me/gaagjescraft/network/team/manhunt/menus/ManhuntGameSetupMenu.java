@@ -203,22 +203,28 @@ public class ManhuntGameSetupMenu implements Listener {
         } else if (e.getSlot() == 53) {
             // submitting the game.
             if (setup.getGame() == null) {
-                if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) {
-                    player.closeInventory();
-                    player.sendMessage("§aYou submitted your game host request. We are now checking for available servers to host it on. Please hold on.");
-
-                    int tokenCount = (int) Manhunt.get().getEconomy().getBalance(player);
-                    if (player.hasPermission("manhunt.hostgame")) {
-                        player.sendMessage("§eNo tokens were taken from your account because you can host games for free!");
-                    } else if (Manhunt.get().getEconomy().hasBalance(player, 1)) {
-                        Manhunt.get().getEconomy().removeBalance(player, 1);
-                        player.sendMessage("§e1 token has been taken from your account for hosting a Manhunt game. It will be redeposited if no available servers were found.");
+                if (player.hasPermission("manhunt.hostgame")) {
+                    if (Manhunt.get().getCfg().pricePerGame > 0 && Manhunt.get().getEconomy() != null)
+                        player.sendMessage(Util.c(Manhunt.get().getCfg().freeGameHostedMessage));
+                } else if (Manhunt.get().getCfg().pricePerGame > 0 && Manhunt.get().getEconomy() != null) {
+                    if (Manhunt.get().getEconomy().hasBalance(player, Manhunt.get().getCfg().pricePerGame)) {
+                        Manhunt.get().getEconomy().removeBalance(player, Manhunt.get().getCfg().pricePerGame);
+                        player.sendMessage(Util.c(Manhunt.get().getCfg().moneyPaidHostingGameMessage));
                     } else {
-                        player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
-                        player.sendMessage("§cYou don't have enough tokens to host a game.");
-                        // unlikely because we did some checks.
+                        player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().cantHostGameSound), 1, 1);
+                        player.sendMessage(Util.c(Manhunt.get().getCfg().notEnoughMoneyHostingGameMessage));
                         return;
                     }
+                } else {
+                    // no permission
+                    player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().cantHostGameSound), 1, 1);
+                    player.sendMessage(Util.c(Manhunt.get().getCfg().noPermissionHostingGameMessage));
+                    return;
+                }
+
+                if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) {
+                    player.closeInventory();
+                    player.sendMessage(Util.c(Manhunt.get().getCfg().gameSubmittedMessage));
 
                     setup.getBungeeSetup().requestNextGameCreation();
                 } else {

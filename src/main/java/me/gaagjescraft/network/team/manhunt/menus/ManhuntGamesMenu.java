@@ -33,13 +33,13 @@ public class ManhuntGamesMenu implements Listener {
         inventory.setItem(22, Itemizer.CLOSE_ITEM);
         inventory.setItem(18, Itemizer.GO_BACK_ITEM);
 
-        if (player.hasPermission("manhunt.hostgame")) {
+        /*if (player.hasPermission("manhunt.hostgame") || Manhunt.get().getCfg().pricePerGame <= 0 || (Manhunt.get().getEconomy() != null && Manhunt.get().getEconomy().hasBalance(player, 1))) {
             int protocol = Manhunt.get().getUtil().getProtocol(player);
 
             if (protocol == -1 || protocol >= Manhunt.get().getCfg().minimumClientProtocolVersion)
                 inventory.setItem(26, Itemizer.NEW_GAME_ITEM);
             else inventory.setItem(26, Itemizer.NEW_GAME_ITEM_UNSUPPORTED_PROTOCOL);
-        }
+        }*/
 
         List<Game> games = Game.getGames();
         if (games.isEmpty()) {
@@ -116,11 +116,10 @@ public class ManhuntGamesMenu implements Listener {
             Manhunt.get().getManhuntMainMenu().openMenu(p);
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
             return;
-        }
-        if (e.getSlot() == 22) {
+        } else if (e.getSlot() == 22) {
             e.getWhoClicked().closeInventory();
             return;
-        } else if (e.getSlot() == 26 && e.getWhoClicked().hasPermission("manhunt.hostgame")) {
+        } /*else if (e.getSlot() == 26 && e.getWhoClicked().hasPermission("manhunt.hostgame")) {
             int protocol = Manhunt.get().getUtil().getProtocol(p);
 
             if (protocol == -1 || protocol >= Manhunt.get().getCfg().minimumClientProtocolVersion)
@@ -128,7 +127,7 @@ public class ManhuntGamesMenu implements Listener {
             else
                 p.playSound(p.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHostLockedSound), 1, 1);
             return;
-        }
+        }*/
 
         List<Game> games = Game.getGames();
         if (e.getSlot() >= games.size()) return;

@@ -353,7 +353,6 @@ public class GameWaitingEvents implements Listener {
             gp.setReachedNether(true);
             Util.sendTitle(e.getPlayer(), Util.c(Manhunt.get().getCfg().playerEnteredNetherTitle.replaceAll("%prefix%", gp.getPrefix()).replaceAll("%player%", e.getPlayer().getName())), 20, 50, 20);
 
-            e.getPlayer().sendTitle("§c§lNETHER", "§7You have entered the nether!", 20, 50, 20);
             for (GamePlayer gp2 : game.getOnlinePlayers(null)) {
                 Player p = Bukkit.getPlayer(gp2.getUuid());
                 if (p == null) continue;
@@ -362,7 +361,8 @@ public class GameWaitingEvents implements Listener {
             }
         } else if (worldName.endsWith("_the_end") && !gp.isReachedEnd()) {
             gp.setReachedEnd(true);
-            e.getPlayer().sendTitle("§5§lTHE END", "§7You have entered the end!", 20, 50, 20);
+            Util.sendTitle(e.getPlayer(), Util.c(Manhunt.get().getCfg().playerEnteredEndTitle.replaceAll("%prefix%", gp.getPrefix()).replaceAll("%player%", e.getPlayer().getName())), 20, 50, 20);
+
             for (GamePlayer gp2 : game.getOnlinePlayers(null)) {
                 Player p = Bukkit.getPlayer(gp2.getUuid());
                 if (p == null) continue;

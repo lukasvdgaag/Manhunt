@@ -352,8 +352,68 @@ public class Config {
     public boolean defaultOptionAllowFriendlyFire;
     public boolean defaultOptionDoDaylightCycle;
     public HeadstartType defaultOptionHeadstart;
-
-    private File file;
+    private final File file;
+    public String joinFailMessage;
+    public boolean debug;
+    public String moneyRefundedMessage;
+    public int pricePerGame;
+    public boolean sendGameHostAnnouncement;
+    public String gameHostAnnouncementSound;
+    public String gameHostAnnouncementMessage;
+    public List<String> killRewards;
+    public List<String> winRewards;
+    public List<String> loseRewards;
+    public List<String> topThreeRewards;
+    public String newHostAssignedMessage;
+    public String newHostAssignedTitle;
+    public String newHostAssignedSound;
+    public String searchingServerTitle;
+    public String noServersAvailableTitle;
+    public String noServersAvailableMessage;
+    public String moneyRefundedNoServersMessage;
+    public String noServersAvailableSound;
+    public String searchingServerTickingSound;
+    public String gameSubmittedMessage;
+    public String freeGameHostedMessage;
+    public String moneyPaidHostingGameMessage;
+    public String notEnoughMoneyHostingGameMessage;
+    public String noPermissionHostingGameMessage;
+    public String cantHostGameSound;
+    public String mainMenuTitle;
+    public String mainMenuBalanceInfoEnoughMaterial;
+    public String mainMenuBalanceInfoEnoughDisplayname;
+    public List<String> mainMenuBalanceInfoEnoughLore;
+    public String mainMenuBalanceInfoNotEnoughMaterial;
+    public String mainMenuBalanceInfoNotEnoughDisplayname;
+    public List<String> mainMenuBalanceInfoNotEnoughLore;
+    public String mainMenuHostGameCanHostMaterial;
+    public String mainMenuHostGameCanHostDisplayname;
+    public List<String> mainMenuHostGameCanHostLore;
+    public String mainMenuHostGameCannotHostMaterial;
+    public String mainMenuHostGameCannotHostDisplayname;
+    public List<String> mainMenuHostGameCannotHostLore;
+    public String mainMenuHostGameInvalidVersionMaterial;
+    public String mainMenuHostGameInvalidVersionDisplayname;
+    public List<String> mainMenuHostGameInvalidVersionLore;
+    public String mainMenuJoinGameMaterial;
+    public String mainMenuJoinGameDisplayname;
+    public List<String> mainMenuJoinGameLore;
+    public String mainMenuJoinGameInvalidVersionMaterial;
+    public String mainMenuJoinGameInvalidVersionDisplayname;
+    public List<String> mainMenuJoinGameInvalidVersionLore;
+    public String mainMenuStoreMaterial;
+    public String mainMenuStoreDisplayname;
+    public List<String> mainMenuStoreLore;
+    public String mainMenuClickStoreItemSound;
+    public String mainMenuClickStoreItemMessage;
+    public String cannotHostGameInvalidVersionMessage;
+    public String cannotJoinGameInvalidVersionMessage;
+    public String twistVoteMenuOptionDisabledMaterial;
+    public String twistVoteMenuOptionDisabledDisplayname;
+    public List<String> twistVoteMenuOptionDisabledLore;
+    public String generalGoBackMaterial;
+    public String generalGoBackDisplayname;
+    public List<String> generalGoBackLore;
     private FileConfiguration conf;
 
 
@@ -387,6 +447,13 @@ public class Config {
         this.teleportPlayersToLobbyInVoid = conf.getBoolean("teleport-players-to-lobby-in-void");
         this.autoJoinOnlinePlayersWhenGameCreated = conf.getBoolean("auto-join-online-players-when-game-created");
         this.minimumClientProtocolVersion = conf.getInt("minimum_client_protocol_version");
+        this.debug = conf.getBoolean("debug");
+        this.pricePerGame = conf.getInt("price-per-game");
+        this.sendGameHostAnnouncement = conf.getBoolean("send-game-host-announcement");
+        this.killRewards = conf.getStringList("rewards.kill");
+        this.winRewards = conf.getStringList("rewards.win");
+        this.loseRewards = conf.getStringList("rewards.lose");
+        this.topThreeRewards = conf.getStringList("rewards.top-three");
 
         this.defaultOptionAllowTwists = conf.getBoolean("default_settings.allow_twists");
         this.defaultOptionMaxPlayers = conf.getInt("default_settings.max_players");
@@ -410,6 +477,19 @@ public class Config {
         this.lobbyChatFormat = conf.getString("chat.lobby-format");
         this.spectatorsHaveGeneralColor = conf.getBoolean("chat.spectators-have-general-color");
 
+        this.cannotHostGameInvalidVersionMessage = conf.getString("messages.cannot-host-game-invalid-version");
+        this.cannotJoinGameInvalidVersionMessage = conf.getString("messages.cannot-join-game-invalid-version");
+        this.mainMenuClickStoreItemMessage = conf.getString("messages.main-menu-click-store-item");
+        this.gameSubmittedMessage = conf.getString("messages.game-submitted");
+        this.freeGameHostedMessage = conf.getString("messages.free-game-hosted");
+        this.moneyPaidHostingGameMessage = conf.getString("messages.money-paid-hosting-game");
+        this.notEnoughMoneyHostingGameMessage = conf.getString("messages.not-enough-money-hosting-game");
+        this.noPermissionHostingGameMessage = conf.getString("messages.no-permission-hosting-game");
+        this.moneyRefundedNoServersMessage = conf.getString("messages.money-refunded-no-servers");
+        this.noServersAvailableMessage = conf.getString("messages.no-servers-available");
+        this.newHostAssignedMessage = conf.getString("messages.new-host-assigned");
+        this.gameHostAnnouncementMessage = conf.getString("messages.game-host-announcement");
+        this.joinFailMessage = conf.getString("messages.join-fail");
         this.gameJoinMessage = conf.getString("messages.game-joined");
         this.gameLeftMessage = conf.getString("messages.game-left");
         this.gameHostLeftMessage = conf.getString("messages.game-host-left");
@@ -496,6 +576,7 @@ public class Config {
         this.autoRejoinMessage = conf.getStringList("messages.auto-rejoin");
         this.runnerDownMessage = conf.getString("messages.runner-down");
         this.statsMessage = conf.getStringList("messages.stats");
+        this.moneyRefundedMessage = conf.getString("messages.money-refunded");
 
         this.menuTrackerTitle = conf.getString("menus.tracker-title");
         this.menuTeleporterTitle = conf.getString("menus.teleporter-title");
@@ -506,6 +587,7 @@ public class Config {
         this.menuMaxHuntersTitle = conf.getString("menus.max-hunters-title");
         this.menuRunnerManagerTitle = conf.getString("menus.runner-manager-title");
         this.menuTwistVoteTitle = conf.getString("menus.twist-vote-title");
+        this.mainMenuTitle = conf.getString("menus.main-title");
 
         this.runnerNametagPrefix = conf.getString("prefixes.nametags.runner");
         this.hunterNametagPrefix = conf.getString("prefixes.nametags.hunter");
@@ -530,6 +612,9 @@ public class Config {
         this.respawnedWorldspawnActionbar = conf.getString("actionbar.respawned-worldspawn");
         this.respawnedBedActionbar = conf.getString("actionbar.respawned-bed");
 
+        this.searchingServerTitle = conf.getString("titles.searching-server");
+        this.noServersAvailableTitle = conf.getString("titles.no-servers-available");
+        this.newHostAssignedTitle = conf.getString("titles.new-host-assigned");
         this.gameEndDrawTitle = conf.getString("titles.game-end.draw");
         this.gameEndWinHunterTitle = conf.getString("titles.game-end.win-hunter");
         this.gameEndWinRunnerTitle = conf.getString("titles.game-end.win-runner");
@@ -568,6 +653,11 @@ public class Config {
         this.stoppingWinScoreboard = conf.getStringList("scoreboards.stopping-win");
         this.stoppingLoseScoreboard = conf.getStringList("scoreboards.stopping-lose");
 
+        this.cantHostGameSound = conf.getString("sounds.cant-host-game");
+        this.searchingServerTickingSound = conf.getString("sounds.searching-server-ticking");
+        this.noServersAvailableSound = conf.getString("sounds.no-servers-available");
+        this.newHostAssignedSound = conf.getString("sounds.new-host-assigned");
+        this.gameHostAnnouncementSound = conf.getString("sounds.game-host-announcement");
         this.gameEndDrawSound = conf.getString("sounds.game-end.draw");
         this.gameEndWinSound = conf.getString("sounds.game-end.win");
         this.gameEndLoseSound = conf.getString("sounds.game-end.lose");
@@ -600,7 +690,39 @@ public class Config {
         this.runnerRemovedSound = conf.getString("sounds.runner-removed");
         this.twistVoteSound = conf.getString("sounds.twist-vote");
         this.openTwistVoteMenuSound = conf.getString("sounds.open-twist-vote-menu");
+        this.mainMenuClickStoreItemSound = conf.getString("sounds.main-menu-click-store-item");
 
+        generalGoBackMaterial = conf.getString("items.general.go-back-material");
+        generalGoBackDisplayname = conf.getString("items.general.go-back-displayname");
+        generalGoBackLore = conf.getStringList("items.general.go-back-lore");
+        twistVoteMenuOptionDisabledMaterial = conf.getString("items.twist-vote-menu.option-disabled-material");
+        twistVoteMenuOptionDisabledDisplayname = conf.getString("items.twist-vote-menu.option-disabled-displayname");
+        twistVoteMenuOptionDisabledLore = conf.getStringList("items.twist-vote-menu.option-disabled-lore");
+
+        mainMenuHostGameCanHostMaterial = conf.getString("items.main-menu.host-game-can-host-material");
+        mainMenuHostGameCanHostDisplayname = conf.getString("items.main-menu.host-game-can-host-displayname");
+        mainMenuHostGameCanHostLore = conf.getStringList("items.main-menu.host-game-can-host-lore");
+        mainMenuHostGameCannotHostMaterial = conf.getString("items.main-menu.host-game-cannot-host-material");
+        mainMenuHostGameCannotHostDisplayname = conf.getString("items.main-menu.host-game-cannot-host-displayname");
+        mainMenuHostGameCannotHostLore = conf.getStringList("items.main-menu.host-game-cannot-host-lore");
+        mainMenuHostGameInvalidVersionMaterial = conf.getString("items.main-menu.host-game-invalid-version-material");
+        mainMenuHostGameInvalidVersionDisplayname = conf.getString("items.main-menu.host-game-invalid-version-displayname");
+        mainMenuHostGameInvalidVersionLore = conf.getStringList("items.main-menu.host-game-invalid-version-lore");
+        mainMenuJoinGameMaterial = conf.getString("items.main-menu.join-game-material");
+        mainMenuJoinGameDisplayname = conf.getString("items.main-menu.join-game-displayname");
+        mainMenuJoinGameLore = conf.getStringList("items.main-menu.join-game-lore");
+        mainMenuJoinGameInvalidVersionMaterial = conf.getString("items.main-menu.join-game-invalid-version-material");
+        mainMenuJoinGameInvalidVersionDisplayname = conf.getString("items.main-menu.join-game-invalid-version-displayname");
+        mainMenuJoinGameInvalidVersionLore = conf.getStringList("items.main-menu.join-game-invalid-version-lore");
+        mainMenuStoreMaterial = conf.getString("items.main-menu.store-material");
+        mainMenuStoreDisplayname = conf.getString("items.main-menu.store-displayname");
+        mainMenuStoreLore = conf.getStringList("items.main-menu.store-lore");
+        mainMenuBalanceInfoEnoughMaterial = conf.getString("items.main-menu.balance-info-enough-material");
+        mainMenuBalanceInfoEnoughDisplayname = conf.getString("items.main-menu.balance-info-enough-displayname");
+        mainMenuBalanceInfoEnoughLore = conf.getStringList("items.main-menu.balance-info-enough-lore");
+        mainMenuBalanceInfoNotEnoughMaterial = conf.getString("items.main-menu.balance-info-not-enough-material");
+        mainMenuBalanceInfoNotEnoughDisplayname = conf.getString("items.main-menu.balance-info-not-enough-displayname");
+        mainMenuBalanceInfoNotEnoughLore = conf.getStringList("items.main-menu.balance-info-not-enough-lore");
         eventMenuManhuntMaterial = conf.getString("items.event-menu.manhunt-material");
         eventMenuManhuntDisplayname = conf.getString("items.event-menu.manhunt-displayname");
         eventMenuManhuntLore = conf.getStringList("items.event-menu.manhunt-lore");
@@ -730,6 +852,7 @@ public class Config {
     }
 
     public void save() {
+        conf.set("debug", debug);
         conf.set("disable_setting_changing", disableSettingsChanging);
         conf.set("bungee.enabled", bungeeMode);
         conf.set("bungee.is-lobby", isLobbyServer);
@@ -744,6 +867,13 @@ public class Config {
         conf.set("teleport-players-to-lobby-in-void", teleportPlayersToLobbyInVoid);
         conf.set("auto-join-online-players-when-game-created", autoJoinOnlinePlayersWhenGameCreated);
         conf.set("minimum_client_protocol_version", minimumClientProtocolVersion);
+        conf.set("price-per-game", pricePerGame);
+        conf.set("send-game-host-announcement", sendGameHostAnnouncement);
+
+        conf.set("rewards.kill", killRewards);
+        conf.set("rewards.win", winRewards);
+        conf.set("rewards.lose", loseRewards);
+        conf.set("rewards.top-three", topThreeRewards);
 
         conf.set("default_settings.allow_twists", defaultOptionAllowTwists);
         conf.set("default_settings.max_players", defaultOptionMaxPlayers);
@@ -767,6 +897,19 @@ public class Config {
         conf.set("chat.lobby-format", lobbyChatFormat);
         conf.set("chat.spectators-have-general-color", spectatorsHaveGeneralColor);
 
+        conf.set("messages.cannot-host-game-invalid-version", cannotHostGameInvalidVersionMessage);
+        conf.set("messages.cannot-join-game-invalid-version", cannotJoinGameInvalidVersionMessage);
+        conf.set("messages.main-menu-click-store-item", mainMenuClickStoreItemMessage);
+        conf.set("messages.game-submitted", gameSubmittedMessage);
+        conf.set("messages.free-game-hosted", freeGameHostedMessage);
+        conf.set("messages.money-paid-hosting-game", moneyPaidHostingGameMessage);
+        conf.set("messages.not-enough-money-hosting-game", notEnoughMoneyHostingGameMessage);
+        conf.set("messages.no-permission-hosting-game", noPermissionHostingGameMessage);
+        conf.set("messages.money-refunded-no-servers", moneyRefundedNoServersMessage);
+        conf.set("messages.no-servers-available", noServersAvailableMessage);
+        conf.set("messages.new-host-assigned", newHostAssignedMessage);
+        conf.set("messages.game-host-announcement", gameHostAnnouncementMessage);
+        conf.set("messages.join-fail", joinFailMessage);
         conf.set("messages.game-joined", gameJoinMessage);
         conf.set("messages.game-left", gameLeftMessage);
         conf.set("messages.game-host-left", gameHostLeftMessage);
@@ -852,6 +995,7 @@ public class Config {
         conf.set("messages.cannot-leave-lobby", cannotLeaveLobbyMessage);
         conf.set("messages.auto-rejoin", autoRejoinMessage);
         conf.set("messages.stats", statsMessage);
+        conf.set("messages.money-refunded", moneyRefundedMessage);
 
         conf.set("menus.tracker-title", menuTrackerTitle);
         conf.set("menus.teleporter-title", menuTeleporterTitle);
@@ -862,6 +1006,7 @@ public class Config {
         conf.set("menus.max-hunters-title", menuMaxHuntersTitle);
         conf.set("menus.runner-manager-title", menuRunnerManagerTitle);
         conf.set("menus.twist-vote-title", menuTwistVoteTitle);
+        conf.set("menus.main-title", mainMenuTitle);
 
         conf.set("actionbar.tracking-portal", trackingPortalActionbar);
         conf.set("actionbar.tracking-other-dimension", trackingOtherDimensionActionbar);
@@ -886,6 +1031,9 @@ public class Config {
         conf.set("prefixes.status.stopping", stoppingStatusPrefix);
         conf.set("prefixes.selected", selectedPrefix);
 
+        conf.set("titles.searching-servers", searchingServerTitle);
+        conf.set("titles.no-servers-available", noServersAvailableTitle);
+        conf.set("titles.new-host-assigned", newHostAssignedTitle);
         conf.set("titles.game-end.draw", gameEndDrawTitle);
         conf.set("titles.game-end.win-runner", gameEndWinRunnerTitle);
         conf.set("titles.game-end.win-hunter", gameEndWinHunterTitle);
@@ -924,6 +1072,11 @@ public class Config {
         conf.set("scoreboards.stopping-win", stoppingWinScoreboard);
         conf.set("scoreboards.stopping-lose", stoppingLoseScoreboard);
 
+        conf.set("sounds.cant-host-game", cantHostGameSound);
+        conf.set("sounds.no-servers-available", noServersAvailableSound);
+        conf.set("sounds.searching-server-ticking", searchingServerTickingSound);
+        conf.set("sounds.new-host-assigned", newHostAssignedSound);
+        conf.set("sounds.game-host-announcement", gameHostAnnouncementSound);
         conf.set("sounds.game-end.draw", gameEndDrawSound);
         conf.set("sounds.game-end.win", gameEndWinSound);
         conf.set("sounds.game-end.lose", gameEndLoseSound);
@@ -954,7 +1107,40 @@ public class Config {
         conf.set("sounds.runner-removed", runnerRemovedSound);
         conf.set("sounds.twist-vote", twistVoteSound);
         conf.set("sounds.open-twist-vote-menu", openTwistVoteMenuSound);
+        conf.set("sounds.main-menu-click-store-item", mainMenuClickStoreItemSound);
 
+        conf.set("items.twist-vote-menu.option-disabled-material", twistVoteMenuOptionDisabledMaterial);
+        conf.set("items.twist-vote-menu.option-disabled-displayname", twistVoteMenuOptionDisabledDisplayname);
+        conf.set("items.twist-vote-menu.option-disabled-lore", twistVoteMenuOptionDisabledLore);
+        conf.set("items.general.go-back-material", generalGoBackMaterial);
+        conf.set("items.general.go-back-displayname", generalGoBackDisplayname);
+        conf.set("items.general.go-back-lore", generalGoBackLore);
+
+        conf.set("items.main-menu.host-game-can-host-material", mainMenuHostGameCanHostMaterial);
+        conf.set("items.main-menu.host-game-can-host-displayname", mainMenuHostGameCanHostDisplayname);
+        conf.set("items.main-menu.host-game-can-host-lore", mainMenuHostGameCanHostLore);
+        conf.set("items.main-menu.host-game-cannot-host-material", mainMenuHostGameCannotHostMaterial);
+        conf.set("items.main-menu.host-game-cannot-host-displayname", mainMenuHostGameCannotHostDisplayname);
+        conf.set("items.main-menu.host-game-cannot-host-lore", mainMenuHostGameCannotHostLore);
+        conf.set("items.main-menu.host-game-invalid-version-material", mainMenuHostGameInvalidVersionMaterial);
+        conf.set("items.main-menu.host-game-invalid-version-displayname", mainMenuHostGameInvalidVersionDisplayname);
+        conf.set("items.main-menu.host-game-invalid-version-lore", mainMenuHostGameInvalidVersionLore);
+        conf.set("items.main-menu.join-game-material", mainMenuJoinGameMaterial);
+        conf.set("items.main-menu.join-game-displayname", mainMenuJoinGameDisplayname);
+        conf.set("items.main-menu.join-game-lore", mainMenuJoinGameLore);
+        conf.set("items.main-menu.join-game-invalid-version-material", mainMenuJoinGameInvalidVersionMaterial);
+        conf.set("items.main-menu.join-game-invalid-version-displayname", mainMenuJoinGameInvalidVersionDisplayname);
+        conf.set("items.main-menu.join-game-invalid-version-lore", mainMenuJoinGameInvalidVersionLore);
+        conf.set("items.main-menu.store-material", mainMenuStoreMaterial);
+        conf.set("items.main-menu.store-displayname", mainMenuStoreDisplayname);
+        conf.set("items.main-menu.store-lore", mainMenuStoreLore);
+
+        conf.set("items.main-menu.balance-info-enough-material", mainMenuBalanceInfoEnoughMaterial);
+        conf.set("items.main-menu.balance-info-enough-displayname", mainMenuBalanceInfoEnoughDisplayname);
+        conf.set("items.main-menu.balance-info-enough-lore", mainMenuBalanceInfoEnoughLore);
+        conf.set("items.main-menu.balance-info-not-enough-material", mainMenuBalanceInfoNotEnoughMaterial);
+        conf.set("items.main-menu.balance-info-not-enough-displayname", mainMenuBalanceInfoNotEnoughDisplayname);
+        conf.set("items.main-menu.balance-info-not-enough-lore", mainMenuBalanceInfoNotEnoughLore);
         conf.set("items.event-menu.manhunt-material", eventMenuManhuntMaterial);
         conf.set("items.event-menu.manhunt-displayname", eventMenuManhuntDisplayname);
         conf.set("items.event-menu.manhunt-lore", eventMenuManhuntLore);

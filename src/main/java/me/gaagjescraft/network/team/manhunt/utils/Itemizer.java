@@ -38,7 +38,7 @@ public class Itemizer {
         CLOSE_ITEM = createItem(Manhunt.get().getCfg().generalCloseMaterial, 1, Manhunt.get().getCfg().generalCloseDisplayname, Manhunt.get().getCfg().generalCloseLore);
         FILL_NO_GAMES = createItem(Manhunt.get().getCfg().gamesMenuNoGamesMaterial, 1, Manhunt.get().getCfg().gamesMenuNoGamesDisplayname, Manhunt.get().getCfg().gamesMenuNoGamesLore);
 
-        GO_BACK_ITEM = createItem(Material.ARROW, 1, "§bGo back", Lists.newArrayList("§7Click to go back to", "§7the previous menu.")); // todo make this configurable.
+        GO_BACK_ITEM = createItem(Manhunt.get().getCfg().generalGoBackMaterial, 1, Manhunt.get().getCfg().generalGoBackDisplayname, Manhunt.get().getCfg().generalGoBackLore);
 
         NEW_GAME_ITEM = createItem(Manhunt.get().getCfg().gamesMenuHostGameMaterial, 1, Manhunt.get().getCfg().gamesMenuHostGameDisplayname, Manhunt.get().getCfg().gamesMenuHostGameLore);
         NEW_GAME_ITEM_UNSUPPORTED_PROTOCOL = createItem(Manhunt.get().getCfg().gamesMenuHostUnsupportedProtocolMaterial, 1, Manhunt.get().getCfg().gamesMenuHostUnsupportedProtocolDisplayname, Manhunt.get().getCfg().gamesMenuHostUnsupportedProtocolLore);
@@ -50,7 +50,7 @@ public class Itemizer {
         MANHUNT_LEAVE_ITEM = createItem(Manhunt.get().getCfg().generalLeaveMaterial, 1, Manhunt.get().getCfg().generalLeaveDisplayname, Manhunt.get().getCfg().generalLeaveLore);
         MANHUNT_VOTE_ITEM = createItem(Manhunt.get().getCfg().generalTwistVoteMaterial, 1, Manhunt.get().getCfg().generalTwistVoteDisplayname, Manhunt.get().getCfg().generalTwistVoteLore);
         MANHUNT_HOST_SETTINGS_ITEM = createItem(Manhunt.get().getCfg().generalSettingsMaterial, 1, Manhunt.get().getCfg().generalSettingsDisplayname, Manhunt.get().getCfg().generalSettingsLore);
-        MANHUNT_SETTING_DISABLED = createItem(Material.BARRIER, 1, "§c§lOption disabled", Lists.newArrayList("§7We currently disabled this option", "§7so you can't change it."));
+        MANHUNT_SETTING_DISABLED = createItem(Manhunt.get().getCfg().twistVoteMenuOptionDisabledMaterial, 1, Manhunt.get().getCfg().twistVoteMenuOptionDisabledDisplayname, Manhunt.get().getCfg().twistVoteMenuOptionDisabledLore);
 
     }
 

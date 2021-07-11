@@ -64,7 +64,6 @@ public class Manhunt extends JavaPlugin {
         manhuntTwistVoteMenu = new ManhuntTwistVoteMenu();
         manhuntHeadstartSetupMenu = new ManhuntHeadstartSetupMenu();
         manhuntRunnerManageMenu = new ManhuntRunnerManageMenu();
-        ecoHook = new VaultEcoHook();
         manhuntMainMenu = new ManhuntMainMenu();
 
         if (!new File(Manhunt.get().getDataFolder(), "manhunt-lobby.schem").exists()) {
@@ -104,6 +103,7 @@ public class Manhunt extends JavaPlugin {
             getLogger().info("Found ViaVersion! You can now use the protocol version checker.");
         }
         if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
+            ecoHook = new VaultEcoHook();
             if (!ecoHook.setupEconomy()) {
                 getLogger().info("Found Vault, but couldn't setup the Economy. Is it set up?");
             } else {

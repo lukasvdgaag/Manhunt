@@ -36,10 +36,10 @@ public class ManhuntCmd implements CommandExecutor {
             else {
                 Game target = Game.getGame(args[1]);
                 if (target == null)
-                    p.sendMessage(ChatColor.RED + "We couldn't find a game on our network with that name."); // todo make this configurable.
+                    p.sendMessage(Util.c(Manhunt.get().getCfg().invalidGameIdMessage));
                 else {
                     if (!target.addPlayer(p)) {
-                        p.sendMessage(ChatColor.RED + "We failed to put you in " + target.getIdentifier() + "'s game."); // todo make this configurable.
+                        p.sendMessage(Util.c(Manhunt.get().getCfg().joinFailMessage.replace("%game%", target.getIdentifier())));
                     }
                 }
             }
