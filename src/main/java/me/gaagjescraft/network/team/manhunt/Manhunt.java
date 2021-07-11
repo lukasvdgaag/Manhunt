@@ -27,7 +27,6 @@ import java.net.UnknownHostException;
 public class Manhunt extends JavaPlugin {
 
     private static Manhunt instance;
-    private EventMenu eventMenu;
     private ManhuntGamesMenu manhuntGamesMenu;
     private ManhuntGameSetupMenu manhuntGameSetupMenu;
     private ManhuntPlayerAmountSetupMenu manhuntPlayerAmountSetupMenu;
@@ -59,7 +58,6 @@ public class Manhunt extends JavaPlugin {
         util = new Util();
         Itemizer.load();
 
-        eventMenu = new EventMenu();
         manhuntGamesMenu = new ManhuntGamesMenu();
         manhuntGameSetupMenu = new ManhuntGameSetupMenu();
         manhuntPlayerAmountSetupMenu = new ManhuntPlayerAmountSetupMenu();
@@ -154,10 +152,15 @@ public class Manhunt extends JavaPlugin {
         String storageType = getCfg().storageType;
         if (storageType.equalsIgnoreCase("mongodb")) {
             this.playerStorage = new MongoStorage();
-        } else if (storageType.equalsIgnoreCase("yaml")) {
+        } else if (storageType.equalsIgnoreCase("yaml") || storageType.equalsIgnoreCase("file")) {
             this.playerStorage = new YamlStorage();
         } else if (storageType.equalsIgnoreCase("mysql")) {
             this.playerStorage = new MySQLStorage();
+        } else {
+            Bukkit.getLogger().severe("Manhunt found an invalid storage type in the config.yml. Please choose one of the following: YAML, MySQL, MongoDB.");
+            Bukkit.getLogger().severe("We will be shutting down the plugin to prevent further complications.");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
         }
 
         this.playerStorage.setup();
@@ -169,10 +172,6 @@ public class Manhunt extends JavaPlugin {
 
     public PlayerStorage getPlayerStorage() {
         return playerStorage;
-    }
-
-    public EventMenu getEventMenu() {
-        return eventMenu;
     }
 
     public ManhuntGamesMenu getManhuntGamesMenu() {
@@ -269,7 +268,6 @@ public class Manhunt extends JavaPlugin {
         getCommand("compass").setExecutor(new CompassCmd());
         getCommand("rejoin").setExecutor(new RejoinCmd());
         getCommand("manhuntstats").setExecutor(new StatsCmd());
-        getServer().getPluginManager().registerEvents(eventMenu, this);
         getServer().getPluginManager().registerEvents(manhuntGamesMenu, this);
         getServer().getPluginManager().registerEvents(manhuntGameSetupMenu, this);
         getServer().getPluginManager().registerEvents(manhuntPlayerAmountSetupMenu, this);

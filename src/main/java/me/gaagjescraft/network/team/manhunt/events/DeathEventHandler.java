@@ -142,7 +142,9 @@ public class DeathEventHandler implements Listener {
         }
 
         if (player.getHealth() - e.getFinalDamage() > 0) {
-            player.getWorld().spawnParticle(Particle.BLOCK_CRACK, player.getLocation().add(0, 1, 0), 4, Material.REDSTONE_BLOCK.createBlockData());
+            if (e.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK && e.getCause() != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK) {
+                player.getWorld().spawnParticle(Particle.BLOCK_CRACK, player.getLocation().add(0, 1, 0), 4, Material.REDSTONE_BLOCK.createBlockData());
+            }
         }
         // dropping inventory items before clearing inventory.
         //doCheckThingForDeath(player, game, gp, e.getCause(), player.getLastDamageCause() == null ? null : player.getLastDamageCause().getEntity());
@@ -174,6 +176,7 @@ public class DeathEventHandler implements Listener {
             String killMsg = determineDeathMessage(player, cause, killer);
 
             Util.sendTitle(player, Util.c(Manhunt.get().getCfg().deathTitle).replaceAll("%lives%", "0"), 20, 60, 20);
+            game.getRunnerTeleporterMenu().update();
 
             for (GamePlayer gp1 : game.getPlayers()) {
                 Player p = Bukkit.getPlayer(gp1.getUuid());

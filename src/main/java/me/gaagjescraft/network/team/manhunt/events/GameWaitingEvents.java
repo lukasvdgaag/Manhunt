@@ -87,7 +87,7 @@ public class GameWaitingEvents implements Listener {
         if (game == null) return;
 
         if (game.getStatus() == GameStatus.WAITING || game.getStatus() == GameStatus.STARTING || (game.getStatus() == GameStatus.PLAYING && game.getTimer() <= game.getHeadStart().getSeconds())) {
-            if (e.getLocation().getBlockY() >= 150) {
+            if (e.getLocation().getBlockY() >= 125) {
                 e.setCancelled(true);
             }
         }
@@ -96,13 +96,13 @@ public class GameWaitingEvents implements Listener {
     @EventHandler
     public void onPickup(EntityPickupItemEvent e) {
         if (e.getEntity().getType() != EntityType.PLAYER) return;
-        if (Manhunt.get().getCfg().lobby == null) return;
-
         Player player = (Player) e.getEntity();
 
-        if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
-            e.setCancelled(true);
-            return;
+        if (Manhunt.get().getCfg().lobby != null) {
+            if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+                e.setCancelled(true);
+                return;
+            }
         }
 
         Game game = Game.getGame(player);
@@ -128,6 +128,8 @@ public class GameWaitingEvents implements Listener {
         GamePlayer gp = game.getPlayer(e.getPlayer());
 
         if (gp.isDead()) {
+            e.setUseInteractedBlock(Event.Result.DENY);
+            e.setUseItemInHand(Event.Result.DENY);
             e.setCancelled(true);
         }
 
@@ -168,12 +170,13 @@ public class GameWaitingEvents implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
-        if (Manhunt.get().getCfg().lobby == null) return;
-
         Player player = e.getPlayer();
-        if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
-            e.setCancelled(true);
-            return;
+        if (Manhunt.get().getCfg().lobby != null) {
+            if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+                e.setBuild(false);
+                e.setCancelled(true);
+                return;
+            }
         }
 
         Game game = Game.getGame(player);
@@ -181,6 +184,7 @@ public class GameWaitingEvents implements Listener {
         GamePlayer gp = game.getPlayer(player);
 
         if (gp.isDead()) {
+            e.setBuild(false);
             e.setCancelled(true);
             return;
         }
@@ -194,13 +198,12 @@ public class GameWaitingEvents implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
-        if (Manhunt.get().getCfg().lobby == null) return;
-
         Player player = e.getPlayer();
-
-        if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
-            e.setCancelled(true);
-            return;
+        if (Manhunt.get().getCfg().lobby != null) {
+            if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+                e.setCancelled(true);
+                return;
+            }
         }
 
         Game game = Game.getGame(player);
@@ -221,15 +224,14 @@ public class GameWaitingEvents implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onDamage(EntityDamageEvent e) {
         if (e.getEntity().getType() != EntityType.PLAYER) return;
-        if (Manhunt.get().getCfg().lobby == null) return;
-
-        String loc = Manhunt.get().getCfg().lobby.getWorld().getName();
-        if (loc.equals(e.getEntity().getWorld().getName())) {
-            e.setCancelled(true);
-            return;
+        Player player = (Player) e.getEntity();
+        if (Manhunt.get().getCfg().lobby != null) {
+            if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+                e.setCancelled(true);
+                return;
+            }
         }
 
-        Player player = (Player) e.getEntity();
         Game game = Game.getGame(player);
         if (game == null) return;
         GamePlayer gp = game.getPlayer(player);
@@ -250,12 +252,12 @@ public class GameWaitingEvents implements Listener {
 
     @EventHandler
     public void onBlockPlace(PlayerDropItemEvent e) {
-        if (Manhunt.get().getCfg().lobby == null) return;
-
         Player player = e.getPlayer();
-        if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
-            e.setCancelled(true);
-            return;
+        if (Manhunt.get().getCfg().lobby != null) {
+            if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+                e.setCancelled(true);
+                return;
+            }
         }
         Game game = Game.getGame(player);
         if (game == null) return;
@@ -302,13 +304,14 @@ public class GameWaitingEvents implements Listener {
 
     @EventHandler
     public void onHunger(FoodLevelChangeEvent e) {
-        if (Manhunt.get().getCfg().lobby == null) return;
-
         Player player = (Player) e.getEntity();
-        if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
-            e.setCancelled(true);
-            return;
+        if (Manhunt.get().getCfg().lobby != null) {
+            if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+                e.setCancelled(true);
+                return;
+            }
         }
+
         Game game = Game.getGame(player);
         if (game == null) return;
         GamePlayer gp = game.getPlayer(player);
@@ -372,12 +375,12 @@ public class GameWaitingEvents implements Listener {
 
     @EventHandler
     public void onHandSwitch(PlayerSwapHandItemsEvent e) {
-        if (Manhunt.get().getCfg().lobby == null) return;
-
         Player player = e.getPlayer();
-        if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
-            e.setCancelled(true);
-            return;
+        if (Manhunt.get().getCfg().lobby != null) {
+            if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+                e.setCancelled(true);
+                return;
+            }
         }
         Game game = Game.getGame(player);
         if (game == null) return;

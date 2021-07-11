@@ -32,6 +32,7 @@ public class RunnerTrackerMenu {
     public void update() {
         int size = 9;
         this.runnersList = game.getOnlinePlayers(PlayerType.RUNNER);
+        this.runnersList.removeIf(GamePlayer::isFullyDead);
         int runners = runnersList.size();
         if (runners <= 9) size = 18;
         else if (runners <= 18) size = 27;

@@ -581,7 +581,7 @@ public class GamePlayer {
             }
         } else if (stat == GameStatus.PLAYING) {
             player.setGameMode(GameMode.SURVIVAL);
-            if (getPlayerType() == PlayerType.HUNTER || game.getPlayers(PlayerType.RUNNER).size() > 1) {
+            if ((getPlayerType() == PlayerType.HUNTER && game.getTimer() > game.getHeadStart().getSeconds()) || game.getPlayers(PlayerType.RUNNER).size() > 1) {
                 player.getInventory().setItem(8, Itemizer.MANHUNT_RUNNER_TRACKER);
             }
         }

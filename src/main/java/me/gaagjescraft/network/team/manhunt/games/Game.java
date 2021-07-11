@@ -8,6 +8,7 @@ import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.menus.RunnerTrackerMenu;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -520,29 +521,33 @@ public class Game {
         Location loc = Manhunt.get().getCfg().lobby;
 
         if (!Manhunt.get().getCfg().isLobbyServer) {
-            if (Manhunt.get().getCfg().bungeeMode) Manhunt.get().getUtil().createGameEndedMessage(this);
             for (GamePlayer gp : players) {
                 Player p = Bukkit.getPlayer(gp.getUuid());
                 if (p != null) {
                     if (!Manhunt.get().getCfg().bungeeMode) p.teleport(loc);
-                    p.setInvisible(false);
-                    p.setFlying(false);
-                    p.setAllowFlight(false);
-                    for (GamePlayer gp1 : players) {
-                        Player p1 = Bukkit.getPlayer(gp1.getUuid());
-                        if (p1 == null) continue;
-                        p.showPlayer(Manhunt.get(), p1);
-                        p1.showPlayer(Manhunt.get(), p);
-                    }
-                    if (Manhunt.get().getCfg().bungeeMode) {
+                    else {
                         ByteArrayDataOutput out = ByteStreams.newDataOutput();
                         out.writeUTF("Connect");
                         out.writeUTF(Manhunt.get().getCfg().lobbyServerName);
                         p.sendPluginMessage(Manhunt.get(), "BungeeCord", out.toByteArray());
                     }
+                    p.setInvisible(false);
+                    p.setFlying(false);
+                    p.setAllowFlight(false);
+
+                    Bukkit.getScheduler().runTaskAsynchronously(Manhunt.get(), () -> {
+                        for (GamePlayer gp1 : players) {
+                            Player p1 = Bukkit.getPlayer(gp1.getUuid());
+                            if (p1 == null) continue;
+                            p.showPlayer(Manhunt.get(), p1);
+                            p1.showPlayer(Manhunt.get(), p);
+                        }
+                    });
+
                     if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(p);
                 }
             }
+            if (Manhunt.get().getCfg().bungeeMode) Manhunt.get().getUtil().createGameEndedMessage(this);
         } else if (Manhunt.get().getCfg().bungeeMode) {
             // bungeemode is enabled, and server is lobby server.
             Manhunt.get().getUtil().createEndGameMessage(this, true);
@@ -863,7 +868,7 @@ public class Game {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.playSound(p.getLocation(), Sound.BLOCK_END_PORTAL_FRAME_FILL, 3, 1);
                 p.sendMessage("§7§m----------------------------");
-                p.spigot().sendMessage(new ComponentBuilder("A new")
+                BaseComponent[] bcs = new ComponentBuilder("A new")
                         .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manhunt join " + getIdentifier()))
                         .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aClick here to join " + getIdentifier() + "'s game!")))
                         .color(ChatColor.YELLOW)
@@ -897,7 +902,11 @@ public class Game {
                         .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manhunt join " + getIdentifier()))
                         .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aClick here to join " + getIdentifier() + "'s game!")))
 
-                        .create());
+                        .create();
+                p.spigot().sendMessage(bcs);
+                for (BaseComponent bc : bcs) {
+                    Bukkit.getLogger().warning(bc.toString());
+                }
 
 
                 p.sendMessage("§7§m----------------------------");

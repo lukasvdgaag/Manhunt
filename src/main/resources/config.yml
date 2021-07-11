@@ -16,7 +16,6 @@ storage:
   type: YAML
   database:
     hostname: localhost
-    port:
     database: manhunt
     username: 'user'
     password: 'pass'
