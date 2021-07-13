@@ -74,7 +74,7 @@ public class RunnerTrackerMenu {
             for (int i = 0; i < lore1.size(); i++) {
                 lore1.set(i, Util.c(lore1.get(i).replaceAll("%player%", player.getName())));
             }
-            meta1.setLore(lore);
+            meta1.setLore(lore1);
             meta1.addItemFlags(ItemFlag.values());
             item1.setItemMeta(meta1);
             trackMenu.setItem(slot, item1);

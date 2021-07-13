@@ -427,6 +427,7 @@ public class GamePlayer {
     }
 
     public void prepareForSpectate() {
+        if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) return;
         Player player = Bukkit.getPlayer(uuid);
         player.setInvisible(true);
         reset(player, false);
@@ -552,6 +553,7 @@ public class GamePlayer {
     }
 
     public void prepareForGame(GameStatus stat) {
+        if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) return;
         Player player = Bukkit.getPlayer(uuid);
         if (player == null) return;
         reset(player, false);
