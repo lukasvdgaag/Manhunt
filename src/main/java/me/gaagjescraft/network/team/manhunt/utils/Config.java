@@ -418,7 +418,7 @@ public class Config {
     public List<String> serverFoundMessage;
     public List<String> creatingGameErrorMessage;
     public String finishedPreparingServerMessage;
-
+    public boolean stopServerAfterGame;
     public boolean enableWorldBorder;
     public double worldBorderSize;
     public double worldBorderDamage;
@@ -467,6 +467,7 @@ public class Config {
         this.winRewards = conf.getStringList("rewards.win");
         this.loseRewards = conf.getStringList("rewards.lose");
         this.topThreeRewards = conf.getStringList("rewards.top-three");
+        this.stopServerAfterGame = conf.getBoolean("stop-server-after-game");
 
         this.defaultOptionAllowTwists = conf.getBoolean("default_settings.allow_twists");
         this.defaultOptionMaxPlayers = conf.getInt("default_settings.max_players");
@@ -893,6 +894,7 @@ public class Config {
         conf.set("minimum_client_protocol_version", minimumClientProtocolVersion);
         conf.set("price-per-game", pricePerGame);
         conf.set("send-game-host-announcement", sendGameHostAnnouncement);
+        conf.set("stop-server-after-game", stopServerAfterGame);
 
         conf.set("rewards.kill", killRewards);
         conf.set("rewards.win", winRewards);

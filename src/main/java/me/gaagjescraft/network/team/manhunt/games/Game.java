@@ -584,6 +584,10 @@ public class Game {
 
         this.players.clear();
         games.remove(this);
+
+        if (Manhunt.get().getCfg().stopServerAfterGame) {
+            Bukkit.shutdown();
+        }
     }
 
     public void create() {
