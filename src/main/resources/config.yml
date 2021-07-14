@@ -22,6 +22,13 @@ storage:
     database: manhunt
     username: 'user'
     password: 'pass'
+world-border:
+  enable: false
+  size: 4000
+  damage-amount: 0.2
+  damage-buffer: 5.0
+  warning-distance: 5
+  warning-time: 15
 
 rewards:
   kill: [ ]
@@ -660,6 +667,8 @@ actionbar:
   respawned-bed: '&aYou respawned at your bed location because you set your spawnpoint!'
 
 titles:
+  server-found: '&aServer Found!\n&7Wait here while we prepare the server.'
+  searching-server: '&eSearching Servers...\n&7Hold on while we find you a host server!'
   no-servers-available: '&cNo Servers Available\n&7There are currently no free servers available!'
   new-host-assigned: '&d&lNEW HOST!\n&b%player% &eis the new host!'
   game-end:
@@ -690,6 +699,17 @@ titles:
     hardcore: '&c&lHARDCORE!\n&7You have 3 hearts and won''t regen for 30s!'
 
 messages:
+  finished-preparing-server: '&aWe finished preparing your Manhunt host server. You will now be warped to that server.'
+  server-found:
+    - ''
+    - '&a&lManhunt host server found!'
+    - '&7We matched a server with your &bManhunt &7game.'
+    - '&7You will &eautomatically &7get moved once it''s ready.'
+    - ''
+  creating-game-error:
+    - ''
+    - '&c&lSomething went wrong whilst creating your game.'
+    - ''
   cannot-host-game-invalid-version: '&cYou are playing on an outdated version of Minecraft. If you wish to host games, please join with 1.16+.'
   cannot-join-game-invalid-verison: '&cYou are playing on an outdated version of Minecraft. If you wish to join games, please join with 1.16+.'
   main-menu-click-store-item: '["",{"text":"Click here to get ","color":"yellow","clickEvent":{"action":"open_url","value":"https://store.exodusmc.world/"},"hoverEvent":{"action":"show_text","contents":[{"text":"Upgrade your rank here!","color":"gray"}]}},{"text":"tokens ","color":"light_purple","clickEvent":{"action":"open_url","value":"https://store.exodusmc.world/"},"hoverEvent":{"action":"show_text","contents":[{"text":"Upgrade your rank here!","color":"gray"}]}},{"text":"by upgrading your rank! ","color":"yellow","clickEvent":{"action":"open_url","value":"https://store.exodusmc.world/"},"hoverEvent":{"action":"show_text","contents":[{"text":"Upgrade your rank here!","color":"gray"}]}},{"text":"https://store.exodusmc.world/","color":"aqua"}]'

@@ -414,6 +414,19 @@ public class Config {
     public String generalGoBackMaterial;
     public String generalGoBackDisplayname;
     public List<String> generalGoBackLore;
+    public String serverFoundTitle;
+    public List<String> serverFoundMessage;
+    public List<String> creatingGameErrorMessage;
+    public String finishedPreparingServerMessage;
+
+    public boolean enableWorldBorder;
+    public double worldBorderSize;
+    public double worldBorderDamage;
+    public double worldBorderDamageBuffer;
+    public int worldBorderWarningDistance;
+    public int worldBorderWarningTime;
+
+
     private FileConfiguration conf;
 
 
@@ -470,6 +483,13 @@ public class Config {
         this.databasePassword = conf.getString("storage.database.password");
         this.databaseDatabase = conf.getString("storage.database.database");
 
+        this.enableWorldBorder = conf.getBoolean("world-border.enable");
+        this.worldBorderSize = conf.getDouble("world-border.size");
+        this.worldBorderDamage = conf.getDouble("world-border.damage-amount");
+        this.worldBorderDamageBuffer = conf.getDouble("world-border.damage-buffer");
+        this.worldBorderWarningDistance = conf.getInt("world-border.warning-distance");
+        this.worldBorderWarningTime = conf.getInt("world-border.warning-time");
+
         this.enableLobbyChat = conf.getBoolean("chat.enable-lobby-chat");
         this.chatPerTeam = conf.getBoolean("chat.per-team");
         this.separateDeadChat = conf.getBoolean("chat.separate-dead-chat");
@@ -477,6 +497,9 @@ public class Config {
         this.lobbyChatFormat = conf.getString("chat.lobby-format");
         this.spectatorsHaveGeneralColor = conf.getBoolean("chat.spectators-have-general-color");
 
+        this.finishedPreparingServerMessage = conf.getString("messages.finished-preparing-server");
+        this.serverFoundMessage = conf.getStringList("messages.server-found");
+        this.creatingGameErrorMessage = conf.getStringList("messages.creating-game-error");
         this.cannotHostGameInvalidVersionMessage = conf.getString("messages.cannot-host-game-invalid-version");
         this.cannotJoinGameInvalidVersionMessage = conf.getString("messages.cannot-join-game-invalid-version");
         this.mainMenuClickStoreItemMessage = conf.getString("messages.main-menu-click-store-item");
@@ -612,6 +635,7 @@ public class Config {
         this.respawnedWorldspawnActionbar = conf.getString("actionbar.respawned-worldspawn");
         this.respawnedBedActionbar = conf.getString("actionbar.respawned-bed");
 
+        this.serverFoundTitle = conf.getString("titles.server-found");
         this.searchingServerTitle = conf.getString("titles.searching-server");
         this.noServersAvailableTitle = conf.getString("titles.no-servers-available");
         this.newHostAssignedTitle = conf.getString("titles.new-host-assigned");
@@ -890,6 +914,13 @@ public class Config {
         conf.set("storage.database.password", databasePassword);
         conf.set("storage.database.database", databaseDatabase);
 
+        conf.set("world-border.enable", enableWorldBorder);
+        conf.set("world-border.size", worldBorderSize);
+        conf.set("world-border.damage-amount", worldBorderDamage);
+        conf.set("world-border.damage-buffer", worldBorderDamageBuffer);
+        conf.set("world-border.warning-distance", worldBorderWarningDistance);
+        conf.set("world-border.warning-time", worldBorderWarningTime);
+
         conf.set("chat.enable-lobby-chat", enableLobbyChat);
         conf.set("chat.per-team", chatPerTeam);
         conf.set("chat.separate-dead-chat", separateDeadChat);
@@ -897,6 +928,9 @@ public class Config {
         conf.set("chat.lobby-format", lobbyChatFormat);
         conf.set("chat.spectators-have-general-color", spectatorsHaveGeneralColor);
 
+        conf.set("messages.finished-preparing-server", finishedPreparingServerMessage);
+        conf.set("messages.server-found", serverFoundMessage);
+        conf.set("messages.creating-game-error", creatingGameErrorMessage);
         conf.set("messages.cannot-host-game-invalid-version", cannotHostGameInvalidVersionMessage);
         conf.set("messages.cannot-join-game-invalid-version", cannotJoinGameInvalidVersionMessage);
         conf.set("messages.main-menu-click-store-item", mainMenuClickStoreItemMessage);
@@ -1031,7 +1065,8 @@ public class Config {
         conf.set("prefixes.status.stopping", stoppingStatusPrefix);
         conf.set("prefixes.selected", selectedPrefix);
 
-        conf.set("titles.searching-servers", searchingServerTitle);
+        conf.set("titles.server-found", serverFoundTitle);
+        conf.set("titles.searching-server", searchingServerTitle);
         conf.set("titles.no-servers-available", noServersAvailableTitle);
         conf.set("titles.new-host-assigned", newHostAssignedTitle);
         conf.set("titles.game-end.draw", gameEndDrawTitle);

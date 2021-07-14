@@ -23,10 +23,12 @@ public class DeathEventHandler implements Listener {
 
     @EventHandler
     public void onDeath(PlayerDeathEvent e) {
-        e.setDeathMessage(null);
+        if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) return;
+
         Player player = e.getEntity();
         Game game = Game.getGame(player);
         if (game == null) return;
+        e.setDeathMessage(null);
         GamePlayer gp = game.getPlayer(player);
         doCheckThingForDeath(player, game, gp, player.getLastDamageCause().getCause(), null);
         e.getDrops().clear();
@@ -34,6 +36,8 @@ public class DeathEventHandler implements Listener {
 
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent e) {
+        if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) return;
+
         if (e.getEntity().getType() == EntityType.ENDER_DRAGON) {
             if (e.getDamager().getType() == EntityType.PLAYER) {
                 Player damager = (Player) e.getDamager();
@@ -112,6 +116,8 @@ public class DeathEventHandler implements Listener {
 
     @EventHandler
     public void onHeal(EntityRegainHealthEvent e) {
+        if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) return;
+
         if (e.getEntity().getType() != EntityType.PLAYER) return;
         Player player = (Player) e.getEntity();
         Game game = Game.getGame(player);
@@ -124,6 +130,8 @@ public class DeathEventHandler implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onDeath(EntityDamageEvent e) {
+        if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) return;
+
         if (e.isCancelled()) return;
         if (e.getEntity().getType() != EntityType.PLAYER) return;
         Player player = (Player) e.getEntity();

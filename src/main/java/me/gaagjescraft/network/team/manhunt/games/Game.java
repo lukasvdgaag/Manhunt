@@ -7,7 +7,8 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.menus.RunnerTrackerMenu;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
 import org.bukkit.entity.Player;
@@ -598,6 +599,16 @@ public class Game {
         wworld.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
         wworld.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
 
+        if (Manhunt.get().getCfg().enableWorldBorder) {
+            WorldBorder border = wworld.getWorldBorder();
+            border.setSize(Manhunt.get().getCfg().worldBorderSize);
+            border.setCenter(wworld.getSpawnLocation());
+            border.setDamageAmount(Manhunt.get().getCfg().worldBorderDamage);
+            border.setDamageBuffer(Manhunt.get().getCfg().worldBorderDamageBuffer);
+            border.setWarningDistance(Manhunt.get().getCfg().worldBorderWarningDistance);
+            border.setWarningTime(Manhunt.get().getCfg().worldBorderWarningTime);
+        }
+
         if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + " NORMAL");
 
@@ -865,7 +876,7 @@ public class Game {
         if (Manhunt.get().getCfg().isLobbyServer && Manhunt.get().getCfg().sendGameHostAnnouncement) {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.playSound(p.getLocation(), Sound.valueOf(Manhunt.get().getCfg().gameHostAnnouncementSound), 3, 1);
-                p.spigot().sendMessage(TextComponent.fromLegacyText(Manhunt.get().getCfg().gameHostAnnouncementMessage.replaceAll("%game%", getIdentifier())));
+                p.spigot().sendMessage(ChatMessageType.CHAT, ComponentSerializer.parse(Manhunt.get().getCfg().gameHostAnnouncementMessage.replaceAll("%game%", getIdentifier())));
             }
         }
     }

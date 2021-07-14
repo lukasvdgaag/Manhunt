@@ -3,7 +3,8 @@ package me.gaagjescraft.network.team.manhunt.menus;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
@@ -108,7 +109,7 @@ public class ManhuntMainMenu implements Listener {
             player.closeInventory();
         } else if (e.getSlot() == 53) {
             player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().mainMenuClickStoreItemSound), 1, 1);
-            player.spigot().sendMessage(TextComponent.fromLegacyText(Manhunt.get().getCfg().mainMenuClickStoreItemMessage));
+            player.spigot().sendMessage(ChatMessageType.CHAT, ComponentSerializer.parse(Manhunt.get().getCfg().mainMenuClickStoreItemMessage));
             player.closeInventory();
         } else if (e.getSlot() == 29) {
             int protocol = Manhunt.get().getUtil().getProtocol(player);

@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.*;
+import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -398,22 +399,21 @@ public class BungeeSocketManager {
                     setup.getBungeeSetup().setServerMatched(true);
                     Bukkit.getScheduler().cancelTask(setup.getBungeeSetup().getRunnableTaskId());
                 }
-                if (p != null) p.sendTitle("§aServer Found!", "§7Wait here while we prepare the server.", 10, 50, 10);
+                if (p != null) Util.sendTitle(p, Util.c(Manhunt.get().getCfg().serverFoundTitle), 10, 50, 10);
                 if (p != null) Manhunt.get().getManhuntGameSetupMenu().gameSetups.remove(p);
                 game.setHeadStart(HeadstartType.valueOf(headstart));
                 game.setDoDaylightCycle(doDaylightCycle);
                 game.setAllowFriendlyFire(friendlyFire);
                 if (p != null) {
-                    p.sendMessage(" ");
-                    p.sendMessage("§a§lManhunt host server found!");
-                    p.sendMessage("§7We matched a server with your Manhunt game.");
-                    p.sendMessage("§7You will automatically get moved once it's ready."); // todo send message here with matched server name.
-                    p.sendMessage(" ");
+                    for (String s : Manhunt.get().getCfg().serverFoundMessage) {
+                        p.sendMessage(Util.c(s));
+                    }
                 }
             } else {
-                p.sendMessage(" ");
-                p.sendMessage("§c§lSomething went wrong whilst creating your game.");
-                p.sendMessage(" ");
+                if (p == null) return;
+                for (String s : Manhunt.get().getCfg().creatingGameErrorMessage) {
+                    p.sendMessage(Util.c(s));
+                }
             }
         }
     }
@@ -441,7 +441,7 @@ public class BungeeSocketManager {
             game.setBungeeServer(serverName);
             game.setReady(true);
 
-            p.sendMessage("§aWe finished preparing your Manhunt host server. You will now be warped to that server.");
+            p.sendMessage(Util.c(Manhunt.get().getCfg().finishedPreparingServerMessage));
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Connect");

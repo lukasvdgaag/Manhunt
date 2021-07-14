@@ -150,7 +150,7 @@
             <artifactId>nametagedit</artifactId>
             <version>4.4.16</version>
             <scope>system</scope>
-            <systemPath>C:/Users/gaagj/Downloads/NametagEdit.jar</systemPath>
+            <systemPath>C:/Users/gaagj/Downloads/NametagEdit (1).jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.viaversion</groupId>
