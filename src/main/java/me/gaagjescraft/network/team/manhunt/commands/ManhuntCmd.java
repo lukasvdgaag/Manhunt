@@ -30,7 +30,12 @@ public class ManhuntCmd implements CommandExecutor {
             return true;
         }
 
-        if (args.length >= 1 && args[0].equalsIgnoreCase("join") && Manhunt.get().getCfg().isLobbyServer) {
+        if (Manhunt.get().getCfg().lobby == null) {
+            p.sendMessage(ChatColor.RED + "Please set the lobby spawn before you can host/join Manhunt games.");
+            return true;
+        }
+
+        if (args.length >= 1 && args[0].equalsIgnoreCase("join") && (!Manhunt.get().getCfg().bungeeMode || Manhunt.get().getCfg().isLobbyServer)) {
             if (args.length == 1)
                 p.sendMessage(ChatColor.RED + "Correct usage: /manhunt join <game-id>");
             else {
@@ -101,7 +106,8 @@ public class ManhuntCmd implements CommandExecutor {
             p.sendMessage("§b/manhunt addrunner <player> §f> §7Make a player a runner.");
             p.sendMessage("§b/manhunt removerunner <player> §f> §7Demote a runner to a hunter.");
             p.sendMessage("§b/manhunt runners §f> §7Get a list of runners.");
-            p.sendMessage("§b/manhunt forcetwist §f> §7Force the twist to start.");
+            if (p.hasPermission("manhunt.forcetwist"))
+                p.sendMessage("§b/manhunt forcetwist §f> §7Force the twist to start.");
             p.sendMessage("§7§m-------------------------------------");
             return true;
         } else {
@@ -113,7 +119,7 @@ public class ManhuntCmd implements CommandExecutor {
                 p.sendMessage(Util.c(Manhunt.get().getCfg().startingGameMessage));
                 game.start();
                 return true;
-            } else if (args[0].equalsIgnoreCase("forcetwist")) {
+            } else if (args[0].equalsIgnoreCase("forcetwist") && p.hasPermission("manhunt.forcetwist")) {
                 if (game.getStatus() != GameStatus.PLAYING) {
                     p.sendMessage(Util.c(Manhunt.get().getCfg().gameMustBePlayingMessage));
                     return true;
@@ -190,7 +196,8 @@ public class ManhuntCmd implements CommandExecutor {
                 p.sendMessage("§b/manhunt addrunner <player> §f> §7Make a player a runner.");
                 p.sendMessage("§b/manhunt removerunner <player> §f> §7Demote a runner to a hunter.");
                 p.sendMessage("§b/manhunt runners §f> §7Get a list of runners.");
-                p.sendMessage("§b/manhunt forcetwist If> §7Force the twist to start.");
+                if (p.hasPermission("manhunt.forcetwist"))
+                    p.sendMessage("§b/manhunt forcetwist If> §7Force the twist to start.");
                 p.sendMessage("§7§m---------------------------------------");
                 return true;
             }

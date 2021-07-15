@@ -46,6 +46,16 @@ public class GameSchematic {
         BlockVector3 to = BlockVector3.at(spawn.getX(), spawn.getY(), spawn.getZ());
         ClipboardFormat format = ClipboardFormats.findByFile(file);
 
+        if (format == null) {
+            Bukkit.getLogger().severe("Manhunt failed to load the manhunt-lobby.schem file from the /plugins/Manhunt/ folder so we couldn't place the lobby schematic.");
+            Bukkit.getLogger().severe("We will stop this game to prevent further issues.");
+            if (!file.exists()) Bukkit.getLogger().severe("Missing file: " + file.getAbsolutePath());
+            else
+                Bukkit.getLogger().severe("File is not actually missing, it's just the WorldEdit ClipboardFormat being null.");
+            this.game.delete();
+            return;
+        }
+
         try {
             if (Bukkit.getPluginManager().isPluginEnabled("FastAsyncWorldEdit")) {
                 this.editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(new BukkitWorld(world), -1);

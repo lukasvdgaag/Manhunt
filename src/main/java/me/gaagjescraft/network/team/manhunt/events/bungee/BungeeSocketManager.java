@@ -347,6 +347,12 @@ public class BungeeSocketManager {
 
         if (Game.getGames().isEmpty()) {
             // no running games on this server yet. Ready to create the game.
+            if (Manhunt.get().getCfg().lobby == null) {
+                Bukkit.getLogger().severe("Manhunt denied a game creation from the lobby because the lobby spawnpoint has not been set yet.");
+                Bukkit.getLogger().severe("Please set it with '/manhunt setspawn'.");
+                sendMessage("createGameResponse", createGameResponse(host, "denied", hostUid, allowTwists, maxPlayers, headstart, doDaylightCycle, friendlyFire));
+                return;
+            }
 
             Game game = Game.createGame(allowTwists, host, hostUid, maxPlayers);
             if (game == null) {
