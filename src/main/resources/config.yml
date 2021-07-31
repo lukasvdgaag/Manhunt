@@ -961,7 +961,7 @@ scoreboards:
     - '&fHost: &a%host%'
     - ''
     - '&fSpeed runners left: &a%alivehunters%'
-    - '&fHunters left: &a%alivehunters%/%maxplayers%'
+    - '&fHunters left: &a%aliverunners%/%maxplayers%'
     - ''
     - '&fYour team: &r%prefix%'
     - ''
