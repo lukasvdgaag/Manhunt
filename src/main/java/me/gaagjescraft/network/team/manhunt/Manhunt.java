@@ -21,8 +21,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
 
 public class Manhunt extends JavaPlugin {
 
@@ -66,8 +68,16 @@ public class Manhunt extends JavaPlugin {
         manhuntRunnerManageMenu = new ManhuntRunnerManageMenu();
         manhuntMainMenu = new ManhuntMainMenu();
 
-        if (!new File(Manhunt.get().getDataFolder(), "manhunt-lobby.schem").exists()) {
-            Manhunt.get().saveResource("manhunt-lobby.schem", false);
+        File targetSchem = new File(Manhunt.get().getDataFolder(), "manhunt-lobby.schem");
+        if (!targetSchem.exists()) {
+            try {
+                Files.copy(Manhunt.class.getResourceAsStream("/manhunt-lobby.schem"), targetSchem.toPath());
+            } catch (IOException e) {
+                getLogger().severe("Manhunt failed to copy the manhunt-lobby.schem from the resources. Please download it yourself from this website and upload it to the /plugins/Manhunt/ folder.");
+                getLogger().severe("We will disable the plugin for the time being to prevent further complications.");
+                onDisable();
+                return;
+            }
         }
 
         loadStorage();
@@ -127,7 +137,7 @@ public class Manhunt extends JavaPlugin {
 
         try {
             InetAddress ad = InetAddress.getLocalHost();
-            getLogger().info("Info stuffies: " + ad);
+            getLogger().info("Possible socket IP (often internal): " + ad.getHostAddress());
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
