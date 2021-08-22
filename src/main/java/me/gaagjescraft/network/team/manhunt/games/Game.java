@@ -557,29 +557,35 @@ public class Game {
             return;
         }
 
-        try {
-            World w = Bukkit.getWorld("manhunt_" + identifier);
-            World w1 = Bukkit.getWorld("manhunt_" + identifier + "_nether");
-            World w2 = Bukkit.getWorld("manhunt_" + identifier + "_the_end");
-            if (w != null) {
-                Bukkit.unloadWorld(w, false);
+        World w = Bukkit.getWorld("manhunt_" + identifier);
+        World w1 = Bukkit.getWorld("manhunt_" + identifier + "_nether");
+        World w2 = Bukkit.getWorld("manhunt_" + identifier + "_the_end");
+        if (w != null) {
+            Bukkit.unloadWorld(w, false);
+            try {
                 FileUtils.deleteDirectory(w.getWorldFolder());
-                if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier);
+            } catch (IOException ignored) {
             }
-            if (w1 != null) {
-                Bukkit.unloadWorld(w1, false);
+            if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier);
+        }
+        if (w1 != null) {
+            Bukkit.unloadWorld(w1, false);
+            try {
                 FileUtils.deleteDirectory(w1.getWorldFolder());
-                if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier + "_nether");
+            } catch (IOException ignored) {
             }
-            if (w2 != null) {
-                Bukkit.unloadWorld(w2, false);
+            if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier + "_nether");
+        }
+        if (w2 != null) {
+            Bukkit.unloadWorld(w2, false);
+            try {
                 FileUtils.deleteDirectory(w2.getWorldFolder());
-                if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier + "_the_end");
+            } catch (IOException ignored) {
             }
-        } catch (IOException ignored) {
+            if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier + "_the_end");
         }
 
         this.players.clear();

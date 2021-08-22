@@ -46,17 +46,17 @@ public class ManhuntMainMenu implements Listener {
             if (protocol == -1 || protocol >= Manhunt.get().getCfg().minimumClientProtocolVersion) {
                 if (player.hasPermission("manhunt.hostgame") || (Manhunt.get().getEconomy() != null && Manhunt.get().getCfg().pricePerGame > 0 && Manhunt.get().getEconomy().hasBalance(player, 1))) {
                     tokens = Itemizer.createItem(Manhunt.get().getCfg().mainMenuHostGameCanHostMaterial, 1,
-                            Util.c(Manhunt.get().getCfg().mainMenuHostGameCanHostDisplayname), Manhunt.get().getUtil().replace(Manhunt.get().getCfg().mainMenuHostGameCanHostLore, "%balance%", tokenCount + ""));
+                            Util.c(Manhunt.get().getCfg().mainMenuHostGameCanHostDisplayname), Manhunt.get().getUtil().replace(Manhunt.get().getUtil().replace(Manhunt.get().getCfg().mainMenuHostGameCanHostLore, "%balance%", tokenCount + ""), "%price%", Manhunt.get().getCfg().pricePerGame + ""));
                     tokensMeta = tokens.getItemMeta();
                     tokensMeta.addEnchant(Enchantment.DURABILITY, 1, true);
                 } else {
                     tokens = Itemizer.createItem(Manhunt.get().getCfg().mainMenuHostGameCannotHostMaterial, 1,
-                            Util.c(Manhunt.get().getCfg().mainMenuHostGameCannotHostDisplayname), Manhunt.get().getUtil().replace(Manhunt.get().getCfg().mainMenuHostGameCannotHostLore, "%balance%", tokenCount + ""));
+                            Util.c(Manhunt.get().getCfg().mainMenuHostGameCannotHostDisplayname), Manhunt.get().getUtil().replace(Manhunt.get().getUtil().replace(Manhunt.get().getCfg().mainMenuHostGameCannotHostLore, "%balance%", tokenCount + ""), "%price%", Manhunt.get().getCfg().pricePerGame + ""));
                     tokensMeta = tokens.getItemMeta();
                 }
             } else {
                 tokens = Itemizer.createItem(Manhunt.get().getCfg().mainMenuHostGameInvalidVersionMaterial, 1,
-                        Util.c(Manhunt.get().getCfg().mainMenuHostGameInvalidVersionDisplayname), Manhunt.get().getUtil().replace(Manhunt.get().getCfg().mainMenuHostGameInvalidVersionLore, "%balance%", tokenCount + ""));
+                        Util.c(Manhunt.get().getCfg().mainMenuHostGameInvalidVersionDisplayname), Manhunt.get().getUtil().replace(Manhunt.get().getUtil().replace(Manhunt.get().getCfg().mainMenuHostGameInvalidVersionLore, "%balance%", tokenCount + ""), "%price%", Manhunt.get().getCfg().pricePerGame + ""));
                 tokensMeta = tokens.getItemMeta();
             }
             tokens.setItemMeta(tokensMeta);

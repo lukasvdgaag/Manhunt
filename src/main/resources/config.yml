@@ -48,9 +48,8 @@ join-game-on-server-join: false
 teleport-lobby-on-server-join: true
 announce-twist-vote-to-entire-game: false
 teleport-players-to-lobby-in-void: true
+lobby-teleport-void-y-coord: 0
 auto-join-online-players-when-game-created: true
-game-servers:
-  - manhunt-1
 seeds:
   - -160637833670189439
   - -421128817952592172

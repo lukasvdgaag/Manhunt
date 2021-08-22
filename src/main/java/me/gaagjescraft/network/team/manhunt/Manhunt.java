@@ -236,7 +236,7 @@ public class Manhunt extends JavaPlugin {
         getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
             if (Manhunt.get().getCfg().teleportPlayersToLobbyInVoid && getCfg().lobby != null) {
                 for (Player p : getCfg().lobby.getWorld().getPlayers()) {
-                    if (p.getLocation().getBlockY() < 50) {
+                    if (p.getLocation().getBlockY() < Manhunt.get().getCfg().lobbyTeleportYCoord) {
                         p.teleport(getCfg().lobby);
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
                         p.sendMessage(Util.c(Manhunt.get().getCfg().cannotLeaveLobbyMessage));

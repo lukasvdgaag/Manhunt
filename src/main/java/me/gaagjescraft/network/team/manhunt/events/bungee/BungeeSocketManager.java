@@ -60,7 +60,7 @@ public class BungeeSocketManager {
                         socketDout.flush();
                         count++;
                     } catch (Exception ignored) {
-                    } // todo maybe make something to remove the closed socket from the arraylist, but for now this is fine.
+                    }
                 }
             }
 
@@ -98,7 +98,7 @@ public class BungeeSocketManager {
                     Bukkit.getLogger().info("Attempting to accept a connection to the socket.");
                     s = ss.accept();
                     s.setKeepAlive(true);
-                    Bukkit.getLogger().warning("Manhunt successfully connected to the socket on port 8005 and is now ready to receive and send messages.");
+                    Bukkit.getLogger().warning("Manhunt successfully connected to the socket on port " + Manhunt.get().getCfg().socketPort + " and is now ready to receive and send messages.");
 
                     socketsConnected.add(s);
 
@@ -109,10 +109,9 @@ public class BungeeSocketManager {
                             socketsConnected.removeIf((socket -> socket.isClosed() || !socket.isConnected() || socket.isOutputShutdown() || socket.isInputShutdown()));
                             for (Socket s : socketsConnected) {
                                 DataInputStream din = new DataInputStream(s.getInputStream());
-                                if (din.available() != 0) {
+                                if (din.available() >= 2) {
                                     String subChannel = din.readUTF();
-                                    String value = "";
-                                    if (din.available() > 0) value = din.readUTF();
+                                    String value = din.readUTF();
                                     if (Manhunt.get().getCfg().debug)
                                         Bukkit.getLogger().severe("Message from socket: " + subChannel + ", " + value);
 
@@ -179,52 +178,43 @@ public class BungeeSocketManager {
     public void connectClientToServer() {
         close();
         thread = new Thread(() -> {
-            try {
-                s = new Socket(Manhunt.get().getCfg().socketHostname, Manhunt.get().getCfg().socketPort);
-                din = new DataInputStream(s.getInputStream());
-                dout = new DataOutputStream(s.getOutputStream());
-                Bukkit.getLogger().warning("Manhunt successfully connected to the socket and is now ready to receive and send messages.");
 
-                Bukkit.getScheduler().scheduleSyncRepeatingTask(Manhunt.get(), () -> {
-                    try {
-                        if (s == null || din == null || dout == null || s.isInputShutdown() || s.isOutputShutdown() || s.isClosed() || !s.isConnected()) {
-                            close();
-                            s = new Socket(Manhunt.get().getCfg().socketHostname, Manhunt.get().getCfg().socketPort);
-                            din = new DataInputStream(s.getInputStream());
-                            dout = new DataOutputStream(s.getOutputStream());
-                            Bukkit.getLogger().warning("Manhunt successfully connected to the socket and is now ready to receive and send messages.");
-                        }
-
-                        if (din.available() != 0) {
-                            String subChannel = din.readUTF();
-                            String value = "";
-                            if (din.available() > 0) value = din.readUTF();
-                            if (Manhunt.get().getCfg().debug)
-                                Bukkit.getLogger().severe("Message from socket: " + subChannel + ", " + value);
-
-                            switch (subChannel) {
-                                case "createGame":
-                                    clientProcessCreateGame(value);
-                                    break;
-                                case "endGame":
-                                    clientProcessEndGame(value);
-                                    break;
-                                case "disconnect":
-                                    clientProcessDisconnect();
-                                    break;
-                                case "addSpectator":
-                                    clientProcessAddSpectator(value);
-                                    break;
-                            }
-                        }
-                    } catch (IOException ignored) {
-                        Bukkit.getLogger().severe("Manhunt failed to connect to the socket. Trying again in 1/2 second.");
+            Bukkit.getScheduler().scheduleSyncRepeatingTask(Manhunt.get(), () -> {
+                try {
+                    if (s == null || din == null || dout == null || s.isInputShutdown() || s.isOutputShutdown() || s.isClosed() || !s.isConnected()) {
+                        close();
+                        s = new Socket(Manhunt.get().getCfg().socketHostname, Manhunt.get().getCfg().socketPort);
+                        din = new DataInputStream(s.getInputStream());
+                        dout = new DataOutputStream(s.getOutputStream());
+                        Bukkit.getLogger().warning("Manhunt successfully connected to the socket and is now ready to receive and send messages.");
                     }
-                }, 0, 5);
-            } catch (Exception e) {
-                e.printStackTrace();
-                close();
-            }
+
+                    if (din.available() >= 2) {
+                        String subChannel = din.readUTF();
+                        String value = din.readUTF();
+                        if (Manhunt.get().getCfg().debug)
+                            Bukkit.getLogger().severe("Message from socket: " + subChannel + ", " + value);
+
+                        switch (subChannel) {
+                            case "createGame":
+                                clientProcessCreateGame(value);
+                                break;
+                            case "endGame":
+                                clientProcessEndGame(value);
+                                break;
+                            case "disconnect":
+                                clientProcessDisconnect();
+                                break;
+                            case "addSpectator":
+                                clientProcessAddSpectator(value);
+                                break;
+                        }
+                    }
+                } catch (IOException ignored) {
+                    if (Manhunt.get().getCfg().debug)
+                        Bukkit.getLogger().severe("Manhunt failed to connect to the socket. Trying again in 1/2 second.");
+                }
+            }, 0, 5);
         });
         thread.start();
     }

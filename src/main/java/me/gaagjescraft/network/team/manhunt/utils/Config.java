@@ -425,6 +425,7 @@ public class Config {
     public double worldBorderDamageBuffer;
     public int worldBorderWarningDistance;
     public int worldBorderWarningTime;
+    public int lobbyTeleportYCoord;
 
 
     private FileConfiguration conf;
@@ -458,6 +459,7 @@ public class Config {
         this.joinGameOnServerJoin = conf.getBoolean("join-game-on-server-join");
         this.announceTwistVoteToEntireGame = conf.getBoolean("announce-twist-vote-to-entire-game");
         this.teleportPlayersToLobbyInVoid = conf.getBoolean("teleport-players-to-lobby-in-void");
+        this.lobbyTeleportYCoord = conf.getInt("lobby-teleport-void-y-coord");
         this.autoJoinOnlinePlayersWhenGameCreated = conf.getBoolean("auto-join-online-players-when-game-created");
         this.minimumClientProtocolVersion = conf.getInt("minimum_client_protocol_version");
         this.debug = conf.getBoolean("debug");
@@ -890,6 +892,7 @@ public class Config {
         conf.set("teleport-lobby-on-server-join", teleportLobbyOnServerJoin);
         conf.set("announce-twist-vote-to-entire-game", announceTwistVoteToEntireGame);
         conf.set("teleport-players-to-lobby-in-void", teleportPlayersToLobbyInVoid);
+        conf.set("lobby-teleport-void-y-coord", lobbyTeleportYCoord);
         conf.set("auto-join-online-players-when-game-created", autoJoinOnlinePlayersWhenGameCreated);
         conf.set("minimum_client_protocol_version", minimumClientProtocolVersion);
         conf.set("price-per-game", pricePerGame);
