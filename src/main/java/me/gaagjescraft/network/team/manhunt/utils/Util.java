@@ -79,6 +79,7 @@ public class Util {
     }
 
     public void createGameServer(GameSetup setup, String targetGameServer) {
+        if (Manhunt.get().getBungeeSocketManager() == null) return;
         Player host = setup.getHost();
         String json = "{'server_name': '" + Manhunt.get().getCfg().serverName + "', 'game_server':'" + targetGameServer + "', 'host':'" + host.getName() + "', 'host_uuid':'" + setup.getHost().getUniqueId().toString() + "', " +
                 "'max_players':" + setup.getMaxPlayers() + ", 'headstart':'" + setup.getHeadstart().name() + "', " +
@@ -90,29 +91,35 @@ public class Util {
     }
 
     public void createAddSpectatorMessage(Game game, UUID player) {
+        if (Manhunt.get().getBungeeSocketManager() == null) return;
         Manhunt.get().getBungeeSocketManager().sendMessage("addSpectator", "{'game':'" + game.getIdentifier() + "', 'player':'" + player.toString() + "'}");
     }
 
     public void createDisconnectClientMessage() {
+        if (Manhunt.get().getBungeeSocketManager() == null) return;
         Manhunt.get().getBungeeSocketManager().sendMessage("disconnect", "");
     }
 
     public void createGameReadyMessage(Game game) {
+        if (Manhunt.get().getBungeeSocketManager() == null) return;
         String json = "{'server_name': '" + Manhunt.get().getCfg().serverName + "', 'game':'" + game.getIdentifier() + "', 'host_uuid':'" + game.getHostUUID().toString() + "'}";
         Manhunt.get().getBungeeSocketManager().sendMessage("gameReady", json);
     }
 
     public void createGameEndedMessage(Game game) {
+        if (Manhunt.get().getBungeeSocketManager() == null) return;
         String json = "{'game':'" + game.getIdentifier() + "'}";
         Manhunt.get().getBungeeSocketManager().sendMessage("gameEnded", json);
     }
 
     public void createEndGameMessage(Game game, boolean forceStop) {
+        if (Manhunt.get().getBungeeSocketManager() == null) return;
         String json = "{'game':'" + game.getIdentifier() + "', 'force_stop':" + forceStop + "}";
         Manhunt.get().getBungeeSocketManager().sendMessage("endGame", json);
     }
 
     public void createUpdateGameMessage(Game game) {
+        if (Manhunt.get().getBungeeSocketManager() == null) return;
         JsonObject object = new JsonObject();
         object.addProperty("server", Manhunt.get().getCfg().serverName);
         object.addProperty("id", game.getIdentifier());

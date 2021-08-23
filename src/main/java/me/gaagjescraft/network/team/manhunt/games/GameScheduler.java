@@ -37,10 +37,18 @@ public class GameScheduler {
                     }
                 }
 
+                if (game.getStatus() == GameStatus.WAITING || game.getStatus() == GameStatus.LOADING || game.getStatus() == GameStatus.STARTING) {
+                    World w = game.getWorld();
+                    if (w != null) w.setTime(6000);
+                }
+
                 // todo add automatic start for minimum amount of players.
                 if (game.getStatus() == GameStatus.STARTING) {
+                    if (Manhunt.get().getCfg().debug) Bukkit.getLogger().severe("Starting the game now. (1)");
                     doStartingCountdown();
                     if (game.getTimer() == 10) {
+                        if (Manhunt.get().getCfg().debug)
+                            Bukkit.getLogger().severe("Finished countdown, dropping runners now. (1)");
                         game.setStatus(GameStatus.PLAYING);
                         game.setTimer(0);
                         game.getRunnerTeleporterMenu().update();
@@ -226,6 +234,7 @@ public class GameScheduler {
     private void doStartingCountdown() {
         int timer = game.getTimer();
         if (timer == 10) {
+            if (Manhunt.get().getCfg().debug) Bukkit.getLogger().severe("Finished countdown, selecting twist. (1)");
             game.selectTwist();
         }
 

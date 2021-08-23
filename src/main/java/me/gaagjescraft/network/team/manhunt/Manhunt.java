@@ -21,10 +21,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.file.Files;
 
 public class Manhunt extends JavaPlugin {
 
@@ -71,8 +69,8 @@ public class Manhunt extends JavaPlugin {
         File targetSchem = new File(Manhunt.get().getDataFolder(), "manhunt-lobby.schem");
         if (!targetSchem.exists()) {
             try {
-                Files.copy(Manhunt.class.getResourceAsStream("/manhunt-lobby.schem"), targetSchem.toPath());
-            } catch (IOException e) {
+                saveResource("manhunt-lobby.schem", false);
+            } catch (Exception e) {
                 getLogger().severe("Manhunt failed to copy the manhunt-lobby.schem from the resources. Please download it yourself from this website and upload it to the /plugins/Manhunt/ folder.");
                 getLogger().severe("We will disable the plugin for the time being to prevent further complications.");
                 onDisable();
@@ -145,6 +143,8 @@ public class Manhunt extends JavaPlugin {
         getLogger().info("This plugin was created in collaboration with ExodusMC.");
         getLogger().info("Do not claim this project as yours.");
         getLogger().info("----------------------------------");
+
+        Bukkit.getOnlinePlayers().forEach(player -> getPlayerStorage().loadUser(player.getUniqueId()));
     }
 
     @Override

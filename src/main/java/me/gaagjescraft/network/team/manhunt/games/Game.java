@@ -89,7 +89,7 @@ public class Game {
         this.players.add(gameHost);
         games.add(this);
 
-        if (Manhunt.get().getCfg().bungeeMode && !Manhunt.get().getCfg().isLobbyServer) this.scheduler.start();
+        if (!Manhunt.get().getCfg().bungeeMode || !Manhunt.get().getCfg().isLobbyServer) this.scheduler.start();
     }
 
     public void addSpectator(UUID uuid) {
@@ -164,6 +164,7 @@ public class Game {
     }
 
     public void sendUpdate() {
+        if (Manhunt.get().getBungeeSocketManager() == null) return;
         Manhunt.get().getUtil().createUpdateGameMessage(this);
     }
 
@@ -379,10 +380,10 @@ public class Game {
         int aliveRunners = 0;
         int aliveHunters = 0;
         for (GamePlayer run : runners) {
-            if (run.getDeaths() == 0) aliveRunners++;
+            if (!run.isFullyDead()) aliveRunners++;
         }
         for (GamePlayer hun : hunters) {
-            if (hun.getDeaths() < 3) aliveHunters++;
+            if (!hun.isFullyDead()) aliveHunters++;
         }
 
         if (draw) winningTeam = null;
@@ -661,6 +662,7 @@ public class Game {
             world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
             world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
             world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, isDoDaylightCycle());
+            world.setTime(6000);
 
             this.schematic.load();
 

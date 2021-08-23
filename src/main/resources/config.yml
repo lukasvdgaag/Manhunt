@@ -11,6 +11,8 @@ bungee:
     hostname: localhost
     port: 8005
 minimum_client_protocol_version: 701 # this is 1.16+
+minimum_players: 4
+maximum_players: 100
 disable_setting_changing: false
 send-game-host-announcement: true
 price-per-game: 1
