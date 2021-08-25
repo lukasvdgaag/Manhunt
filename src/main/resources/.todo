@@ -2,6 +2,7 @@
 Added an option to change the lobby spawn teleportation coordinate level.
 Added 2 new config options to change the minimum and maximum player amount per game.
 Added online player stats loading on enable in case the plugin was loaded when the server was already running.
+Fixed the waiting lobby schematic file being corrupted causing games to crash.
 Fixed games not working on Bukkit.
 Fixed world time changing while waiting for the game to start.
 Fixed bungee socket error message on bukkit mode.
