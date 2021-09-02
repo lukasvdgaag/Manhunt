@@ -1,4 +1,7 @@
-# 1.1.1:
+# 1.1.2:
+Fixed minimum and maximum players being reset to 0 when changing.
+
+  # 1.1.1:
 Added an option to change the lobby spawn teleportation coordinate level.
 Added 2 new config options to change the minimum and maximum player amount per game.
 Added online player stats loading on enable in case the plugin was loaded when the server was already running.

@@ -450,6 +450,8 @@ public class Config {
 
     public void load() {
         conf = YamlConfiguration.loadConfiguration(file);
+        conf.options().copyDefaults(true);
+
         this.disableSettingsChanging = conf.getBoolean("disable_setting_changing", false);
         this.bungeeMode = conf.getBoolean("bungee.enabled", false);
         this.isLobbyServer = conf.getBoolean("bungee.is-lobby", false);

@@ -90,19 +90,19 @@ public class ManhuntPlayerAmountSetupMenu implements Listener {
             if (current > min)
                 player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound), 1, 1);
             else player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
-            setup.setMaxPlayers(Math.min(current - 25, min));
+            setup.setMaxPlayers(Math.max(current - 25, min));
             updateItems(player, setup);
         } else if (e.getSlot() == 10) {
             if (current > min)
                 player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound), 1, 1);
             else player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
-            setup.setMaxPlayers(Math.min(current - 10, min));
+            setup.setMaxPlayers(Math.max(current - 10, min));
             updateItems(player, setup);
         } else if (e.getSlot() == 11) {
             if (current > min)
                 player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound), 1, 1);
             else player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
-            setup.setMaxPlayers(Math.min(current - 1, min));
+            setup.setMaxPlayers(Math.max(current - 1, min));
             updateItems(player, setup);
         }
         else if (e.getSlot() == 13) {
