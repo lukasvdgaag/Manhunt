@@ -34,7 +34,7 @@ public class GameSchematic {
     }
 
     public void load() {
-        org.bukkit.World world = Bukkit.getWorld("manhunt_" + game.getIdentifier());
+        org.bukkit.World world = Bukkit.getWorld(game.getWorldIdentifier());
         Location spawn = world.getSpawnLocation();
         spawn.setY(150);
         spawn.setYaw(180);
@@ -84,7 +84,7 @@ public class GameSchematic {
     }
 
     public void unload() {
-        World world = Bukkit.getWorld("manhunt_" + game.getIdentifier());
+        World world = Bukkit.getWorld(game.getWorldIdentifier());
         Location spawn = world.getSpawnLocation();
         spawn.setY(150);
 

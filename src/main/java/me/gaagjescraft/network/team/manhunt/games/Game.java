@@ -28,6 +28,7 @@ public class Game {
     }
 
     private final String identifier;
+    private final String worldIdentifier;
     private List<GamePlayer> players;
     private List<UUID> spectators;
     private boolean twistsAllowed;
@@ -54,6 +55,7 @@ public class Game {
 
     private Game(String id, boolean twistsAllowed, UUID host, int maxPlayers) {
         this.identifier = id;
+        this.worldIdentifier = "manhunt_" + (Manhunt.get().getCfg().useUuidsAsWorldNames ? host.toString() : id);
         this.twistsAllowed = twistsAllowed;
         this.players = new ArrayList<>();
         this.selectedTwist = TwistVote.NONE;
@@ -92,18 +94,6 @@ public class Game {
         if (!Manhunt.get().getCfg().bungeeMode || !Manhunt.get().getCfg().isLobbyServer) this.scheduler.start();
     }
 
-    public void addSpectator(UUID uuid) {
-        this.spectators.add(uuid);
-    }
-
-    public void removeSpectator(UUID uuid) {
-        this.spectators.remove(uuid);
-    }
-
-    public List<UUID> getSpectators() {
-        return spectators;
-    }
-
     public static Game createGame(boolean twistsAllowed, String host, UUID hostUUID, int maxPlayers) {
         if (getGame(host) != null) return null;
         return new Game(host, twistsAllowed, hostUUID, maxPlayers);
@@ -112,6 +102,11 @@ public class Game {
     public static Game createGame(boolean twistsAllowed, Player host, int maxPlayers) {
         if (getGame(host.getName()) != null || getGame(host) != null) return null;
         return new Game(host.getName(), twistsAllowed, host.getUniqueId(), maxPlayers);
+    }
+
+    public static Game getGame(UUID worldId) {
+        for (Game g : games) if (g.getWorldIdentifier().equals(worldId.toString())) return g;
+        return null;
     }
 
     public static Game getGame(Player player) {
@@ -135,8 +130,21 @@ public class Game {
     }
 
     public static Game getGame(String id) {
-        for (Game g : games) if (g.getIdentifier().equalsIgnoreCase(id)) return g;
+        for (Game g : games)
+            if (g.getIdentifier().equalsIgnoreCase(id) || g.getWorldIdentifier().equals("manhunt_" + id)) return g;
         return null;
+    }
+
+    public void addSpectator(UUID uuid) {
+        this.spectators.add(uuid);
+    }
+
+    public void removeSpectator(UUID uuid) {
+        this.spectators.remove(uuid);
+    }
+
+    public List<UUID> getSpectators() {
+        return spectators;
     }
 
     public int getBungeeHunterCount() {
@@ -250,7 +258,7 @@ public class Game {
         if (getStatus() == GameStatus.WAITING || getStatus() == GameStatus.STARTING ||
                 (getStatus() == GameStatus.PLAYING && gamePlayer.getPlayerType() == PlayerType.HUNTER && getTimer() <= getHeadStart().getSeconds()))
             player.teleport(this.schematic.getSpawnLocation());
-        else player.teleport(Bukkit.getWorld("manhunt_" + identifier).getSpawnLocation());
+        else player.teleport(Bukkit.getWorld(getWorldIdentifier()).getSpawnLocation());
 
         this.getRunnerTeleporterMenu().update();
         sendUpdate();
@@ -558,9 +566,9 @@ public class Game {
             return;
         }
 
-        World w = Bukkit.getWorld("manhunt_" + identifier);
-        World w1 = Bukkit.getWorld("manhunt_" + identifier + "_nether");
-        World w2 = Bukkit.getWorld("manhunt_" + identifier + "_the_end");
+        World w = Bukkit.getWorld(getWorldIdentifier());
+        World w1 = Bukkit.getWorld(getWorldIdentifier() + "_nether");
+        World w2 = Bukkit.getWorld(getWorldIdentifier() + "_the_end");
         if (w != null) {
             Bukkit.unloadWorld(w, false);
             try {
@@ -568,7 +576,7 @@ public class Game {
             } catch (IOException ignored) {
             }
             if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier);
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove " + getWorldIdentifier());
         }
         if (w1 != null) {
             Bukkit.unloadWorld(w1, false);
@@ -577,7 +585,7 @@ public class Game {
             } catch (IOException ignored) {
             }
             if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier + "_nether");
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove " + getWorldIdentifier() + "_nether");
         }
         if (w2 != null) {
             Bukkit.unloadWorld(w2, false);
@@ -586,7 +594,7 @@ public class Game {
             } catch (IOException ignored) {
             }
             if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove manhunt_" + identifier + "_the_end");
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove " + getWorldIdentifier() + "_the_end");
         }
 
         this.players.clear();
@@ -601,7 +609,7 @@ public class Game {
         int random = ThreadLocalRandom.current().nextInt(Manhunt.get().getCfg().seeds.size());
         long seed = Manhunt.get().getCfg().seeds.get(random);
 
-        WorldCreator creator = new WorldCreator("manhunt_" + identifier);
+        WorldCreator creator = new WorldCreator(getWorldIdentifier());
         creator.environment(World.Environment.NORMAL);
         creator.seed(seed);
         World wworld = creator.createWorld();
@@ -621,13 +629,13 @@ public class Game {
         }
 
         if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + " NORMAL");
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import " + getWorldIdentifier() + " NORMAL");
 
-        WorldCreator creatorNether = new WorldCreator("manhunt_" + identifier + "_nether");
+        WorldCreator creatorNether = new WorldCreator(getWorldIdentifier() + "_nether");
         creatorNether.environment(World.Environment.NETHER);
         creatorNether.seed(seed);
 
-        WorldCreator creatorEnd = new WorldCreator("manhunt_" + identifier + "_the_end");
+        WorldCreator creatorEnd = new WorldCreator(getWorldIdentifier() + "_the_end");
         creatorEnd.environment(World.Environment.THE_END);
         creatorEnd.seed(seed);
 
@@ -637,7 +645,7 @@ public class Game {
             w.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
             w.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
             if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + "_nether NETHER");
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import " + getWorldIdentifier() + "_nether NETHER");
         }, 60L);
         Bukkit.getScheduler().scheduleSyncDelayedTask(Manhunt.get(), () -> {
             World w = creatorEnd.createWorld();
@@ -645,11 +653,11 @@ public class Game {
             w.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
             w.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
             if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import manhunt_" + identifier + "_the_end THE_END");
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import " + getWorldIdentifier() + "_the_end THE_END");
         }, 120L);
 
         Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> {
-            World world = Bukkit.getWorld("manhunt_" + identifier);
+            World world = Bukkit.getWorld(getWorldIdentifier());
             if (world == null) {
                 Bukkit.getLogger().severe("Something went wrong whilst creating the manhunt world with id " + identifier);
                 return;
@@ -784,7 +792,7 @@ public class Game {
     }
 
     public World getWorld() {
-        return Bukkit.getWorld("manhunt_" + identifier);
+        return Bukkit.getWorld(getWorldIdentifier());
     }
 
     public GameScheduler getScheduler() {
@@ -897,4 +905,7 @@ public class Game {
         players.sort(Comparator.comparing(GamePlayer::getKills).reversed());
     }
 
+    public String getWorldIdentifier() {
+        return worldIdentifier;
+    }
 }

@@ -463,7 +463,7 @@ public class GamePlayer {
                 Player player = Bukkit.getPlayer(uuid);
                 if (player == null || !player.isOnline()) return;
                 Util.sendTitle(player, Util.c(Manhunt.get().getCfg().respawningSoonTitle.replaceAll("%time%", i + "")), 5, 10, 5);
-                World world = Bukkit.getWorld("manhunt_" + game.getIdentifier());
+                World world = Bukkit.getWorld(game.getWorldIdentifier());
 
                 if (world == null) {
                     this.cancel();
