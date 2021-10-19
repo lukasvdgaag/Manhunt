@@ -170,6 +170,8 @@ public class Config {
     public List<String> runnerAddInstructionsMessage;
     public String menuRunnerManagerCannotRemoveHostMessage;
     public String menuRunnerManagerCannotRemoveHostSound;
+    public String menuRunnerManagerCannotRemoveRunnerMessage;
+    public String menuRunnerManagerCannotRemoveRunnerSound;
     public String runnerRemovedSound;
     public String eventMenuManhuntMaterial;
     public String eventMenuManhuntDisplayname;
@@ -606,6 +608,7 @@ public class Config {
         this.runnerAddTryAgainMessage = conf.getString("messages.runner-add-try-again");
         this.runnerAddInstructionsMessage = conf.getStringList("messages.runner-add-instructions");
         this.menuRunnerManagerCannotRemoveHostMessage = conf.getString("messages.menu-runner-manager-cannot-remove-host");
+        this.menuRunnerManagerCannotRemoveRunnerMessage = conf.getString("messages.menu-runner-manager-cannot-remove-runner");
         this.cannotLeaveLobbyMessage = conf.getString("messages.cannot-leave-lobby");
         this.cannotLeaveWaitingZoneMessage = conf.getString("messages.cannot-leave-waiting-zone");
         this.autoRejoinMessage = conf.getStringList("messages.auto-rejoin");
@@ -723,6 +726,7 @@ public class Config {
         this.openMenuHeadstartSound = conf.getString("sounds.open-menu-headstart");
         this.menuMaxHuntersChangeAmountSound = conf.getString("sounds.menu-max-hunters-change-amount");
         this.menuRunnerManagerCannotRemoveHostSound = conf.getString("sounds.menu-runner-manager-cannot-remove-host");
+        this.menuRunnerManagerCannotRemoveRunnerSound = conf.getString("sounds.menu-runner-manager-cannot-remove-runner");
         this.runnerRemovedSound = conf.getString("sounds.runner-removed");
         this.twistVoteSound = conf.getString("sounds.twist-vote");
         this.openTwistVoteMenuSound = conf.getString("sounds.open-twist-vote-menu");
@@ -1042,6 +1046,7 @@ public class Config {
         conf.set("messages.runner-add-try-again", runnerAddTryAgainMessage);
         conf.set("messages.runner-add-instructions", runnerAddInstructionsMessage);
         conf.set("messages.menu-runner-manager-cannot-remove-host", menuRunnerManagerCannotRemoveHostMessage);
+        conf.set("messages.menu-runner-manager-cannot-remove-runner", menuRunnerManagerCannotRemoveRunnerMessage);
         conf.set("messages.cannot-leave-waiting-zone", cannotLeaveWaitingZoneMessage);
         conf.set("messages.cannot-leave-lobby", cannotLeaveLobbyMessage);
         conf.set("messages.auto-rejoin", autoRejoinMessage);
@@ -1156,6 +1161,7 @@ public class Config {
         conf.set("sounds.open-menu-headstart", openMenuHeadstartSound);
         conf.set("sounds.menu-max-hunters-change-amount", menuMaxHuntersChangeAmountSound);
         conf.set("sounds.menu-runner-manager-cannot-remove-host", menuRunnerManagerCannotRemoveHostSound);
+        conf.set("sounds.menu-runner-manager-cannot-remove-runner", menuRunnerManagerCannotRemoveRunnerSound);
         conf.set("sounds.runner-removed", runnerRemovedSound);
         conf.set("sounds.twist-vote", twistVoteSound);
         conf.set("sounds.open-twist-vote-menu", openTwistVoteMenuSound);

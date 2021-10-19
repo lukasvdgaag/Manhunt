@@ -18,6 +18,7 @@ send-game-host-announcement: true
 price-per-game: 1
 stop-server-after-game: false
 hunter-lives: 3
+use-uuids-as-world-names: true
 storage:
   # Type could be: YAML, MONGODB, MYSQL
   type: YAML
@@ -461,7 +462,9 @@ items:
     host-runner-displayname: '&e&l%player% &d(Host)'
     host-runner-lore:
       - ''
-      - '&cYou can''t remove the host.'
+      - '&7&oHost can only be removed as runner if'
+      - '&7&othere is at least one other runner.'
+      - '&6Shift Click&e to remove this runner.'
     add-runner-material: OAK_SIGN
     add-runner-displayname: '&bAdd a new runner'
     add-runner-lore:
@@ -657,6 +660,7 @@ sounds:
   open-menu-headstart: BLOCK_CHEST_OPEN
   menu-max-hunters-change-amount: BLOCK_NOTE_BLOCK_PLING
   menu-runner-manager-cannot-remove-host: ENTITY_VILLAGER_NO
+  menu-runner-manager-cannot-remove-runner: ENTITY_VILLAGER_NO
   runner-removed: ENTITY_VILLAGER_YES
   twist-vote: BLOCK_NOTE_BLOCK_PLING
   open-twist-vote-menu: ITEM_BOOK_PAGE_TURN
@@ -747,6 +751,7 @@ messages:
     - '&7The target player does have to be in the game.'
     - '&cType ''cancel'' to cancel.'
   menu-runner-manager-cannot-remove-host: '&cYou can''t remove the host as a runner!'
+  menu-runner-manager-cannot-remove-runner: '&cThere must be at least one other runner before you can remove this runner!'
   game-unavailable: '&c%host%''s game is full or just not joinable right now.'
   game-created: '&aSuccessfully saved your game settings. Please wait for your game to finish loading. You will get teleported when it is ready.'
   already-own-game: 'It seems like you already have a game running. Let''s wait for that one to finish first. If you wish to force stop your current game, please type &7/manhunt stop&c.'

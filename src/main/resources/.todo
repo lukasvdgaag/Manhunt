@@ -1,4 +1,7 @@
-# 1.1.2:
+# 1.2.0
+Added
+
+  # 1.1.2:
 Fixed minimum and maximum players being reset to 0 when changing.
 
   # 1.1.1:

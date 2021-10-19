@@ -13,6 +13,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+
 public class ManhuntCmd implements CommandExecutor {
 
     @Override
@@ -89,13 +91,11 @@ public class ManhuntCmd implements CommandExecutor {
         GamePlayer gp = game.getPlayer(p);
         if (gp == null) {
             p.sendMessage(Util.c(Manhunt.get().getCfg().somethingWentWrong));
-
             return true;
         }
 
         if (!gp.isHost()) {
             p.sendMessage(Util.c(Manhunt.get().getCfg().commandNoHostMessage));
-
             return true;
         }
 
@@ -170,14 +170,24 @@ public class ManhuntCmd implements CommandExecutor {
                     }
 
                     GamePlayer targetGP = game.getPlayer(target);
+
                     if (targetGP == null) {
                         p.sendMessage(Util.c(Manhunt.get().getCfg().targetPlayerNotIngameMessage));
                     } else if (targetGP.getPlayerType() != PlayerType.RUNNER) {
                         p.sendMessage(Util.c(Manhunt.get().getCfg().targetPlayerNoRunner));
                     } else {
-                        targetGP.setPlayerType(PlayerType.HUNTER);
-                        game.getRunnerTeleporterMenu().update();
-                        p.sendMessage(Util.c(Manhunt.get().getCfg().playerRemoveRunnerMessage).replaceAll("%player%", target.getName()));
+                        List<GamePlayer> runners = game.getPlayers(PlayerType.RUNNER);
+                        if (runners.size() > 1) {
+                            // can remove host because there are multiple hunters.
+                            p.sendMessage(Util.c(Manhunt.get().getCfg().playerRemoveRunnerMessage.replaceAll("%player%", target.getName())));
+                            gp.setPlayerType(PlayerType.HUNTER);
+                            game.getRunnerTeleporterMenu().update();
+                            Util.playSound(p, Manhunt.get().getCfg().runnerRemovedSound, 1, 1);
+                        } else {
+                            // cannot remove any runners because there must be at least one in the game.
+                            p.sendMessage(Util.c(Manhunt.get().getCfg().menuRunnerManagerCannotRemoveRunnerMessage.replaceAll("%player%", target.getName())));
+                            Util.playSound(p, Manhunt.get().getCfg().menuRunnerManagerCannotRemoveRunnerSound, 1, 1);
+                        }
                     }
                 }
                 return true;

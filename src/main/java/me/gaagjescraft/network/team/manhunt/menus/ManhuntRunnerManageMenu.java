@@ -102,19 +102,22 @@ public class ManhuntRunnerManageMenu implements Listener {
                 if (runners.size() > e.getSlot()) {
                     if (e.getClick().isShiftClick()) {
                         GamePlayer gp = runners.get(e.getSlot());
-                        if (gp.isHost()) {
-                            player.sendMessage(Util.c(Manhunt.get().getCfg().menuRunnerManagerCannotRemoveHostMessage));
-                            Util.playSound(player, Manhunt.get().getCfg().menuRunnerManagerCannotRemoveHostSound, 1, 1);
-                        } else {
-                            Player target = Bukkit.getPlayer(gp.getUuid());
+                        OfflinePlayer target = Bukkit.getOfflinePlayer(gp.getUuid());
+
+                        if (runners.size() > 1) {
+                            // can remove host because there are multiple hunters.
                             player.sendMessage(Util.c(Manhunt.get().getCfg().playerRemoveRunnerMessage.replaceAll("%player%", target.getName())));
                             gp.setPlayerType(PlayerType.HUNTER);
                             game.getRunnerTeleporterMenu().update();
                             Util.playSound(player, Manhunt.get().getCfg().runnerRemovedSound, 1, 1);
+
                             this.chatPlayers.remove(player);
                             open(player, game);
+                        } else {
+                            // cannot remove any runners because there must be at least one in the game.
+                            player.sendMessage(Util.c(Manhunt.get().getCfg().menuRunnerManagerCannotRemoveRunnerMessage.replaceAll("%player%", target.getName())));
+                            Util.playSound(player, Manhunt.get().getCfg().menuRunnerManagerCannotRemoveRunnerSound, 1, 1);
                         }
-                        return;
                     }
                 }
             }
