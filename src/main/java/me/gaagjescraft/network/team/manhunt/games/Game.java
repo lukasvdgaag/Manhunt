@@ -663,7 +663,7 @@ public class Game {
                 return;
             }
             world.setGameRule(GameRule.DO_FIRE_TICK, false);
-            world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+            world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, !Manhunt.get().getCfg().disableAdvancementAnnouncing);
             world.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
             world.setGameRule(GameRule.SPAWN_RADIUS, 0);
             world.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);

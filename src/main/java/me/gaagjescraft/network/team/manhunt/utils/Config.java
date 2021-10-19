@@ -433,6 +433,7 @@ public class Config {
     public int maximumPlayers;
     public int hunterLives;
     public boolean useUuidsAsWorldNames;
+    public boolean disableAdvancementAnnouncing;
 
 
     private FileConfiguration conf;
@@ -483,6 +484,7 @@ public class Config {
         this.maximumPlayers = conf.getInt("maximum-players-per-game");
         this.hunterLives = conf.getInt("hunter-lives");
         this.useUuidsAsWorldNames = conf.getBoolean("use-uuids-as-world-names");
+        this.disableAdvancementAnnouncing = conf.getBoolean("disable-advancement-announcing");
 
         this.defaultOptionAllowTwists = conf.getBoolean("default_settings.allow_twists");
         this.defaultOptionMaxPlayers = conf.getInt("default_settings.max_players");
@@ -917,6 +919,7 @@ public class Config {
         conf.set("maximum-players-per-game", maximumPlayers);
         conf.set("hunter-lives", hunterLives);
         conf.set("use-uuids-as-world-names", useUuidsAsWorldNames);
+        conf.set("disable-advancement-announcing", disableAdvancementAnnouncing);
 
         conf.set("rewards.kill", killRewards);
         conf.set("rewards.win", winRewards);
