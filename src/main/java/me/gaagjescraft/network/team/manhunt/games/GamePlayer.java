@@ -675,7 +675,7 @@ public class GamePlayer {
             line = line.replaceAll("%time_formatted%", Manhunt.get().getUtil().secondsToTimeString(timeLeft, "simplified"));
             line = line.replaceAll("%color%", getColor());
             line = line.replaceAll("%winner%", game.getWinningTeam() == null ? "null" : game.getWinningTeam().name());
-            line = line.replaceAll("%lives%", Math.max(getMaxLives() - getDeaths(), 0) + "");
+            line = line.replaceAll("%lives%", getMaxLives() < 1 ? "unlimited" : Math.max(getMaxLives() - getDeaths(), 0) + "");
             line = line.replaceAll("%hunters%", hunters + "");
             line = line.replaceAll("%runners%", runners + "");
             line = line.replaceAll("%alivehunters%", aliveHunters + "");
@@ -690,7 +690,7 @@ public class GamePlayer {
 
     public int getMaxLives() {
         if (getPlayerType() == PlayerType.RUNNER) return 1;
-        return 3;
+        return Manhunt.get().getCfg().hunterLives;
     }
 
     public Location getBedSpawn() {
@@ -702,7 +702,20 @@ public class GamePlayer {
     }
 
     public boolean isFullyDead() {
-        return ((spectating) || (playerType == PlayerType.HUNTER && deaths >= 3) || (playerType == PlayerType.RUNNER && deaths > 0));
+        //if player is spectating, return dead.
+        if (spectating) return true;
+
+        if (playerType == PlayerType.HUNTER) {
+            // if player is hunter and config says unlimited lives, return false.
+            if (getMaxLives() < 1) {
+                return false;
+            }
+            // else return if they died fewer times than they have lives.
+            return deaths >= getMaxLives();
+        }
+
+        // else player is runner, check if player has died more than once.
+        return deaths > 0;
     }
 
 }

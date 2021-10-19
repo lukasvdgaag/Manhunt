@@ -203,10 +203,9 @@ public class DeathEventHandler implements Listener {
                     Util.sendTitle(p, Util.c(Manhunt.get().getCfg().runnerDownTitle).replaceAll("%player%", player.getName()), 20, 60, 20);
                 }
             }
-        } else if (gp.getPlayerType() == PlayerType.HUNTER && gp.getDeaths() <= 3) {
+        } else if (gp.getPlayerType() == PlayerType.HUNTER && !gp.isFullyDead()) {
             String killMsg = determineDeathMessage(player, cause, killer);
-            int livesLeft = gp.getDeaths() >= 3 ? 0 : (3 - gp.getDeaths());
-            Util.sendTitle(player, Util.c(Manhunt.get().getCfg().deathTitle).replaceAll("%lives%", livesLeft + ""), 20, 60, 20);
+            Util.sendTitle(player, Util.c(Manhunt.get().getCfg().deathTitle).replaceAll("%lives%", (gp.getMaxLives() < 1 ? "unlimited" : (Math.max(gp.getMaxLives() - gp.getDeaths(), 0))) + ""), 20, 60, 20);
 
             game.sendMessage(null, killMsg);
         }

@@ -17,6 +17,7 @@ disable_setting_changing: false
 send-game-host-announcement: true
 price-per-game: 1
 stop-server-after-game: false
+hunter-lives: 3
 storage:
   # Type could be: YAML, MONGODB, MYSQL
   type: YAML

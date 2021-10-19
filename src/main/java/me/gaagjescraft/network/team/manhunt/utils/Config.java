@@ -429,6 +429,7 @@ public class Config {
 
     public int minimumPlayers;
     public int maximumPlayers;
+    public int hunterLives;
 
 
     private FileConfiguration conf;
@@ -477,6 +478,7 @@ public class Config {
         this.stopServerAfterGame = conf.getBoolean("stop-server-after-game");
         this.minimumPlayers = conf.getInt("minimum-players-per-game");
         this.maximumPlayers = conf.getInt("maximum-players-per-game");
+        this.hunterLives = conf.getInt("hunter-lives");
 
         this.defaultOptionAllowTwists = conf.getBoolean("default_settings.allow_twists");
         this.defaultOptionMaxPlayers = conf.getInt("default_settings.max_players");
@@ -907,6 +909,7 @@ public class Config {
         conf.set("stop-server-after-game", stopServerAfterGame);
         conf.set("minimum-players-per-game", minimumPlayers);
         conf.set("maximum-players-per-game", maximumPlayers);
+        conf.set("hunter-lives", hunterLives);
 
         conf.set("rewards.kill", killRewards);
         conf.set("rewards.win", winRewards);
