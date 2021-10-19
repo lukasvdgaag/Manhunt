@@ -277,6 +277,53 @@ public class Util {
         return b;
     }
 
+    public static void playSound(Player player, String soundString, float volume, float pitch) {
+        Sound sound = null;
+
+        if (soundString.contains(";")) {
+            String[] split = soundString.split(";");
+            if (!split[0].contains(":")) {
+                try {
+                    sound = Sound.valueOf(soundString.toUpperCase());
+                } catch (Exception ignored) {
+                }
+            }
+
+            if (split.length >= 3) {
+                // getting the volume (2nd in the array).
+                try {
+                    volume = Float.parseFloat(split[1]);
+                } catch (Exception ex) {
+                    Manhunt.get().getLogger().severe("You entered a wrongly formatted volume for the sound string: '" + soundString + "'.");
+                }
+            }
+
+            try {
+                // getting the pitch (last in the array).
+                pitch = Float.parseFloat(split[split.length - 1]);
+            } catch (Exception ex) {
+                Manhunt.get().getLogger().severe("You entered a wrongly formatted pitch for the sound string: '" + soundString + "'.");
+            }
+            // changing value of soundString for the code below so it will execute correctly if sound is null.
+            soundString = split[0];
+        } else {
+            try {
+                sound = Sound.valueOf(soundString.toUpperCase());
+            } catch (Exception ignored) {
+            }
+        }
+
+        try {
+            if (sound != null) {
+                player.playSound(player.getLocation(), sound, volume, pitch);
+            } else {
+                player.playSound(player.getLocation(), soundString, volume, pitch);
+            }
+        } catch (Exception e) {
+            Manhunt.get().getLogger().severe("We failed to play the sound '" + soundString + " for player " + player.getName() + ". Does it exist?");
+        }
+    }
+
     public void performRewardActions(Player p, Game game, List<String> actions) {
         if (Bukkit.getPluginManager().isPluginEnabled("Additions")) {
             List<String> wn = new ArrayList<>();

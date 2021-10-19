@@ -30,7 +30,7 @@ public class ManhuntGameSetupMenu implements Listener {
     private List<Player> allowFriendlyFireDelays = Lists.newArrayList();
 
     public void openMenu(Player player, Game game) {
-        player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().openMenuHostGameSound), 0.5f, 1);
+        Util.playSound(player, Manhunt.get().getCfg().openMenuHostGameSound, .5f, 1);
         Inventory inventory = Bukkit.createInventory(null, 54, Util.c(Manhunt.get().getCfg().menuHostTitle));
         player.openInventory(inventory);
         updateItems(player, game);
@@ -140,7 +140,7 @@ public class ManhuntGameSetupMenu implements Listener {
     public void onClose(InventoryCloseEvent e) {
         if (!e.getView().getTitle().equals(Util.c(Manhunt.get().getCfg().menuHostTitle))) return;
         Player player = (Player) e.getPlayer();
-        player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().closeMenuHostGameSound), 0.5f, 1);
+        Util.playSound(player, Manhunt.get().getCfg().closeMenuHostGameSound, .5f, 1);
     }
 
     @EventHandler
@@ -164,14 +164,14 @@ public class ManhuntGameSetupMenu implements Listener {
             gameSetups.remove(player);
         } else if (e.getSlot() == 11 && !allowTwistsDelays.contains(player) && !Manhunt.get().getCfg().disableSettingsChanging) {
             boolean nv = !setup.isAllowTwists();
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHostToggleTwistSound), 1, nv ? 2 : 1);
+            Util.playSound(player, Manhunt.get().getCfg().menuHostToggleTwistSound, 1, nv ? 2 : 1);
             setup.setAllowTwists(nv, true);
             updateItems(player, Game.getGame(player));
             allowTwistsDelays.add(player);
             Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> allowTwistsDelays.remove(player), 20L);
         } else if (e.getSlot() == 29 && !daylightDelays.contains(player) && !Manhunt.get().getCfg().disableSettingsChanging) {
             boolean nv = !setup.isDoDaylightCycle();
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHostToggleDaylightSound), 1, nv ? 2 : 1);
+            Util.playSound(player, Manhunt.get().getCfg().menuHostToggleDaylightSound, 1, nv ? 2 : 1);
             setup.setDoDaylightCycle(nv, true);
             updateItems(player, Game.getGame(player));
             daylightDelays.add(player);
@@ -181,7 +181,7 @@ public class ManhuntGameSetupMenu implements Listener {
             Manhunt.get().getManhuntHeadstartSetupMenu().openMenu(player, setup);
         } else if (e.getSlot() == 15 && !allowFriendlyFireDelays.contains(player) && !Manhunt.get().getCfg().disableSettingsChanging) {
             boolean nv = !setup.isAllowFriendlyFire();
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHostToggleFriendlyFireSound), 1, nv ? 2 : 1);
+            Util.playSound(player, Manhunt.get().getCfg().menuHostToggleFriendlyFireSound, 1, nv ? 2 : 1);
             setup.setAllowFriendlyFire(nv, true);
             updateItems(player, Game.getGame(player));
             allowFriendlyFireDelays.add(player);
@@ -195,7 +195,7 @@ public class ManhuntGameSetupMenu implements Listener {
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
         } else if (e.getSlot() == 33) {
             if (setup.getGame() == null) {
-                player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHostLockedSound), 1, 1);
+                Util.playSound(player, Manhunt.get().getCfg().menuHostLockedSound, 1, 1);
             } else {
                 player.closeInventory();
                 Manhunt.get().getManhuntRunnerManageMenu().open(player, setup.getGame());
@@ -211,13 +211,13 @@ public class ManhuntGameSetupMenu implements Listener {
                         Manhunt.get().getEconomy().removeBalance(player, Manhunt.get().getCfg().pricePerGame);
                         player.sendMessage(Util.c(Manhunt.get().getCfg().moneyPaidHostingGameMessage));
                     } else {
-                        player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().cantHostGameSound), 1, 1);
+                        Util.playSound(player, Manhunt.get().getCfg().cantHostGameSound, 1, 1);
                         player.sendMessage(Util.c(Manhunt.get().getCfg().notEnoughMoneyHostingGameMessage));
                         return;
                     }
                 } else {
                     // no permission
-                    player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().cantHostGameSound), 1, 1);
+                    Util.playSound(player, Manhunt.get().getCfg().cantHostGameSound, 1, 1);
                     player.sendMessage(Util.c(Manhunt.get().getCfg().noPermissionHostingGameMessage));
                     return;
                 }
@@ -230,7 +230,7 @@ public class ManhuntGameSetupMenu implements Listener {
                 } else {
                     Game game = Game.createGame(setup.isAllowTwists(), player, setup.getMaxPlayers());
                     if (game == null) {
-                        player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHostLockedSound), 1, 1);
+                        Util.playSound(player, Manhunt.get().getCfg().menuHostLockedSound, 1, 1);
                         player.sendMessage(Util.c(Manhunt.get().getCfg().alreadyOwnGameMessage));
                         return;
                     }
@@ -257,7 +257,7 @@ public class ManhuntGameSetupMenu implements Listener {
                 game.start();
 
                 player.sendMessage(Util.c(Manhunt.get().getCfg().startingGameMessage));
-                player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHostGameStartedSound), 1, 1);
+                Util.playSound(player, Manhunt.get().getCfg().menuHostGameStartedSound, 1, 1);
                 player.closeInventory();
             }
         }

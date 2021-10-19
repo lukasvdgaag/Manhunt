@@ -408,7 +408,7 @@ public class Game {
                 for (String s : Manhunt.get().getCfg().gameEndDrawMessage) {
                     player.sendMessage(Util.c(s));
                 }
-                player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().gameEndDrawSound), 1, 1);
+                Util.playSound(player, Manhunt.get().getCfg().gameEndDrawSound, 1, 1);
                 Util.sendTitle(player, Manhunt.get().getCfg().gameEndDrawTitle, 20, 80, 20);
             } else {
                 List<String> msgs = gp.getPlayerType() == winningTeam ? Manhunt.get().getCfg().gameEndWinMessage : Manhunt.get().getCfg().gameEndLoseMessage;
@@ -460,7 +460,7 @@ public class Game {
                 }
 
                 if (gp.getPlayerType() == winningTeam) {
-                    player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().gameEndWinSound), 1, 1);
+                    Util.playSound(player, Manhunt.get().getCfg().gameEndWinSound, 1, 1);
                     gp.addWin();
                     if (isDragonDefeated()) {
                         Util.sendTitle(player, Manhunt.get().getCfg().gameEndWinRunnerDragonTitle, 20, 80, 20);
@@ -473,7 +473,7 @@ public class Game {
                     }
                 } else {
                     gp.addLose(); // doesn't actually save a lose, but is for rewards.
-                    player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().gameEndLoseSound), 1, 1);
+                    Util.playSound(player, Manhunt.get().getCfg().gameEndLoseSound, 1, 1);
                     if (gp.getPlayerType() == PlayerType.HUNTER) {
                         Util.sendTitle(player, Manhunt.get().getCfg().gameEndLoseHunterTitle, 20, 80, 20);
                     } else {
@@ -887,7 +887,7 @@ public class Game {
     public void sendGameAnnouncement() {
         if (Manhunt.get().getCfg().isLobbyServer && Manhunt.get().getCfg().sendGameHostAnnouncement) {
             for (Player p : Bukkit.getOnlinePlayers()) {
-                p.playSound(p.getLocation(), Sound.valueOf(Manhunt.get().getCfg().gameHostAnnouncementSound), 3, 1);
+                Util.playSound(p, Manhunt.get().getCfg().gameHostAnnouncementSound, 3, 1);
                 p.spigot().sendMessage(ChatMessageType.CHAT, ComponentSerializer.parse(Manhunt.get().getCfg().gameHostAnnouncementMessage.replaceAll("%game%", getIdentifier())));
             }
         }

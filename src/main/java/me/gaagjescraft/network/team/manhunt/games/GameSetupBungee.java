@@ -3,7 +3,6 @@ package me.gaagjescraft.network.team.manhunt.games;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
-import org.bukkit.Sound;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,13 +77,13 @@ public class GameSetupBungee {
                     }
 
                     if (currentTick % 10 == 0) {
-                        gameSetup.getHost().playSound(gameSetup.getHost().getLocation(), Sound.valueOf(Manhunt.get().getCfg().searchingServerTickingSound), 1, 1);
+                        Util.playSound(gameSetup.getHost(), Manhunt.get().getCfg().searchingServerTickingSound, 1, 1);
                     }
                     if (currentTick - lastServerTicked >= 60 && !isServerMatched()) {
                         if (!isLastServer) requestNextGameCreation();
                         else {
                             Bukkit.getScheduler().cancelTask(runnableTaskId);
-                            gameSetup.getHost().playSound(gameSetup.getHost().getLocation(), Sound.valueOf(Manhunt.get().getCfg().noServersAvailableSound), 1, 1);
+                            Util.playSound(gameSetup.getHost(), Manhunt.get().getCfg().noServersAvailableSound, 1, 1);
                             gameSetup.getHost().resetTitle();
                             Util.sendTitle(gameSetup.getHost(), Util.c(Manhunt.get().getCfg().noServersAvailableTitle), 10, 50, 10);
                             gameSetup.getHost().sendMessage(Util.c(Manhunt.get().getCfg().noServersAvailableMessage));

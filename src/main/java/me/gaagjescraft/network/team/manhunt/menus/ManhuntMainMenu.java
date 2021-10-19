@@ -108,7 +108,7 @@ public class ManhuntMainMenu implements Listener {
         if (e.getSlot() == 49) {
             player.closeInventory();
         } else if (e.getSlot() == 53) {
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().mainMenuClickStoreItemSound), 1, 1);
+            Util.playSound(player, Manhunt.get().getCfg().mainMenuClickStoreItemSound, 1, 1);
             player.spigot().sendMessage(ChatMessageType.CHAT, ComponentSerializer.parse(Manhunt.get().getCfg().mainMenuClickStoreItemMessage));
             player.closeInventory();
         } else if (e.getSlot() == 29) {
@@ -120,15 +120,15 @@ public class ManhuntMainMenu implements Listener {
                     Manhunt.get().getManhuntGameSetupMenu().openMenu(player, null);
                 } else if (Manhunt.get().getEconomy() != null) {
                     // player does not have the permission, and not enough money.
-                    player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().cantHostGameSound), 1, 1);
+                    Util.playSound(player, Manhunt.get().getCfg().cantHostGameSound, 1, 1);
                     player.sendMessage(Util.c(Manhunt.get().getCfg().notEnoughMoneyHostingGameMessage));
                 } else {
                     // player does not have the permission, no economy found.
-                    player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().cantHostGameSound), 1, 1);
+                    Util.playSound(player, Manhunt.get().getCfg().cantHostGameSound, 1, 1);
                     player.sendMessage(Util.c(Manhunt.get().getCfg().noPermissionHostingGameMessage));
                 }
             } else {
-                player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().cantHostGameSound), 1, 1);
+                Util.playSound(player, Manhunt.get().getCfg().cantHostGameSound, 1, 1);
                 player.sendMessage(Util.c(Manhunt.get().getCfg().cannotHostGameInvalidVersionMessage));
             }
         } else if (e.getSlot() == 33) {

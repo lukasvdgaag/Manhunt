@@ -9,7 +9,6 @@ import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -37,7 +36,7 @@ public class ManhuntTwistVoteMenu implements Listener {
             teleportMenu.setItem(i, Itemizer.FILL_ITEM);
         }
 
-        player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().openTwistVoteMenuSound), 1, 1);
+        Util.playSound(player, Manhunt.get().getCfg().openTwistVoteMenuSound, 1, 1);
         player.openInventory(teleportMenu);
         updateItems(player, game);
     }
@@ -156,43 +155,43 @@ public class ManhuntTwistVoteMenu implements Listener {
         GamePlayer gp = game.getPlayer(player);
 
         if (e.getSlot() == 10 && gp.getTwistVoted() != TwistVote.HARDCORE && !voteCooldowns.contains(player)) {
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().twistVoteSound), 1, 2);
+            Util.playSound(player, Manhunt.get().getCfg().twistVoteSound, 1, 2);
             gp.setTwistVoted(TwistVote.HARDCORE);
             voteCooldowns.add(player);
             Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> voteCooldowns.remove(player), 20L);
             Manhunt.get().getManhuntTwistVoteMenu().updateItems(player, game);
         } else if (e.getSlot() == 12 && gp.getTwistVoted() != TwistVote.EXTRA_HEALTH && !voteCooldowns.contains(player)) {
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().twistVoteSound), 1, 2);
+            Util.playSound(player, Manhunt.get().getCfg().twistVoteSound, 1, 2);
             gp.setTwistVoted(TwistVote.EXTRA_HEALTH);
             voteCooldowns.add(player);
             Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> voteCooldowns.remove(player), 20L);
             Manhunt.get().getManhuntTwistVoteMenu().updateItems(player, game);
         } else if (e.getSlot() == 14 && gp.getTwistVoted() != TwistVote.BLINDNESS && !voteCooldowns.contains(player)) {
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().twistVoteSound), 1, 2);
+            Util.playSound(player, Manhunt.get().getCfg().twistVoteSound, 1, 2);
             gp.setTwistVoted(TwistVote.BLINDNESS);
             voteCooldowns.add(player);
             Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> voteCooldowns.remove(player), 20L);
             Manhunt.get().getManhuntTwistVoteMenu().updateItems(player, game);
         } else if (e.getSlot() == 16 && gp.getTwistVoted() != TwistVote.RANDOM_YEET && !voteCooldowns.contains(player)) {
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().twistVoteSound), 1, 2);
+            Util.playSound(player, Manhunt.get().getCfg().twistVoteSound, 1, 2);
             gp.setTwistVoted(TwistVote.RANDOM_YEET);
             voteCooldowns.add(player);
             Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> voteCooldowns.remove(player), 20L);
             Manhunt.get().getManhuntTwistVoteMenu().updateItems(player, game);
         } else if (e.getSlot() == 29 && gp.getTwistVoted() != TwistVote.SPEED_BOOST && !voteCooldowns.contains(player)) {
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().twistVoteSound), 1, 2);
+            Util.playSound(player, Manhunt.get().getCfg().twistVoteSound, 1, 2);
             gp.setTwistVoted(TwistVote.SPEED_BOOST);
             voteCooldowns.add(player);
             Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> voteCooldowns.remove(player), 20L);
             Manhunt.get().getManhuntTwistVoteMenu().updateItems(player, game);
         } else if (e.getSlot() == 31 && gp.getTwistVoted() != TwistVote.NONE && !voteCooldowns.contains(player)) {
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().twistVoteSound), 1, 2);
+            Util.playSound(player, Manhunt.get().getCfg().twistVoteSound, 1, 2);
             gp.setTwistVoted(TwistVote.NONE);
             voteCooldowns.add(player);
             Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> voteCooldowns.remove(player), 20L);
             Manhunt.get().getManhuntTwistVoteMenu().updateItems(player, game);
         } else if (e.getSlot() == 33 && gp.getTwistVoted() != TwistVote.ACID_RAIN && !voteCooldowns.contains(player)) {
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().twistVoteSound), 1, 2);
+            Util.playSound(player, Manhunt.get().getCfg().twistVoteSound, 1, 2);
             gp.setTwistVoted(TwistVote.ACID_RAIN);
             voteCooldowns.add(player);
             Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> voteCooldowns.remove(player), 20L);

@@ -5,7 +5,6 @@ import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.games.GamePlayer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -51,13 +50,13 @@ public class RunnerTrackerMenuHandler implements Listener {
                 return;
             }
             if (target.getUniqueId().equals(player.getUniqueId())) {
-                player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().playerIsYouSound), 1, 1);
+                Util.playSound(player, Manhunt.get().getCfg().playerIsYouSound, 1, 1);
                 player.sendMessage(Util.c(Manhunt.get().getCfg().playerIsYouMessage));
                 return;
             }
 
             player.closeInventory();
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().trackingPlayerSound), 1, 1);
+            Util.playSound(player, Manhunt.get().getCfg().trackingPlayerSound, 1, 1);
             if (teleporting) {
                 player.teleport(target.getLocation());
                 player.sendMessage(Util.c(Manhunt.get().getCfg().teleportingPlayerMessage.replaceAll("%prefix%", targetGP.getPrefix())

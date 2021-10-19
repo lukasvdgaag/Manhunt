@@ -6,7 +6,6 @@ import me.gaagjescraft.network.team.manhunt.games.HeadstartType;
 import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
-import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,7 +18,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class ManhuntHeadstartSetupMenu implements Listener {
 
     public void openMenu(Player player, GameSetup setup) {
-        player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().openMenuHeadstartSound), 0.5f, 1);
+        Util.playSound(player, Manhunt.get().getCfg().openMenuHeadstartSound, .5f, 1);
         Inventory inventory = Bukkit.createInventory(null, 18, Util.c(Manhunt.get().getCfg().menuHeadstartTitle));
         player.openInventory(inventory);
         updateItems(player, setup);
@@ -85,23 +84,23 @@ public class ManhuntHeadstartSetupMenu implements Listener {
 
         if (e.getSlot() == 1 && setup.getHeadstart() != HeadstartType.HALF_MINUTE) {
             setup.setHeadstart(HeadstartType.HALF_MINUTE, true);
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHeadstartSelectSound), 1, 1);
+            Util.playSound(player, Manhunt.get().getCfg().menuHeadstartSelectSound, 1, 1);
             updateItems(player, setup);
         } else if (e.getSlot() == 3 && setup.getHeadstart() != HeadstartType.ONE_MINUTE) {
             setup.setHeadstart(HeadstartType.ONE_MINUTE, true);
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHeadstartSelectSound), 1, 1);
+            Util.playSound(player, Manhunt.get().getCfg().menuHeadstartSelectSound, 1, 1);
             updateItems(player, setup);
         } else if (e.getSlot() == 5 && setup.getHeadstart() != HeadstartType.ONE_HALF_MINUTE) {
             setup.setHeadstart(HeadstartType.ONE_HALF_MINUTE, true);
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHeadstartSelectSound), 1, 1);
+            Util.playSound(player, Manhunt.get().getCfg().menuHeadstartSelectSound, 1, 1);
             updateItems(player, setup);
         } else if (e.getSlot() == 7 && setup.getHeadstart() != HeadstartType.TWO_MINUTES) {
             setup.setHeadstart(HeadstartType.TWO_MINUTES, true);
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHeadstartSelectSound), 1, 1);
+            Util.playSound(player, Manhunt.get().getCfg().menuHeadstartSelectSound, 1, 1);
             updateItems(player, setup);
         } else if (e.getSlot() == 13) {
             // continue setup
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHeadstartSaveSound), 1, 1);
+            Util.playSound(player, Manhunt.get().getCfg().menuHeadstartSelectSound, 1, 1);
             Manhunt.get().getManhuntGameSetupMenu().openMenu(player, setup.getGame());
         }
     }

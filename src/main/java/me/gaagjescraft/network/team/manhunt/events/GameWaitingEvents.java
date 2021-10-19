@@ -10,7 +10,6 @@ import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -357,7 +356,7 @@ public class GameWaitingEvents implements Listener {
                 Player p = Bukkit.getPlayer(gp2.getUuid());
                 if (p == null) continue;
                 p.sendMessage(Util.c(Manhunt.get().getCfg().runnerEnteredNetherMessage.replaceAll("%prefix%", gp.getPrefix()).replaceAll("%player%", e.getPlayer().getName())));
-                p.playSound(p.getLocation(), Sound.valueOf(Manhunt.get().getCfg().runnerEnteredNetherSound), 1, 1);
+                Util.playSound(p, Manhunt.get().getCfg().runnerEnteredNetherSound, 1, 1);
             }
         } else if (worldName.endsWith("_the_end") && !gp.isReachedEnd()) {
             gp.setReachedEnd(true);
@@ -367,7 +366,7 @@ public class GameWaitingEvents implements Listener {
                 Player p = Bukkit.getPlayer(gp2.getUuid());
                 if (p == null) continue;
                 p.sendMessage(Util.c(Manhunt.get().getCfg().runnerEnteredEndMessage.replaceAll("%prefix%", gp.getPrefix()).replaceAll("%player%", e.getPlayer().getName())));
-                p.playSound(p.getLocation(), Sound.valueOf(Manhunt.get().getCfg().runnerEnteredEndSound), 1, 1);
+                Util.playSound(p, Manhunt.get().getCfg().runnerEnteredEndSound, 1, 1);
             }
         }
 

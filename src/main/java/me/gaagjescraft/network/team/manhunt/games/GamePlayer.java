@@ -129,14 +129,14 @@ public class GamePlayer {
             if (leaveTask != null) {
                 leaveTask.cancel();
                 if (!forceStopScheduler) {
-                    player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().delayedLeaveCancelSound), 1, 0.5f);
+                    Util.playSound(player, Manhunt.get().getCfg().delayedLeaveCancelSound, 1, .5f);
                     player.sendMessage(Util.c(Manhunt.get().getCfg().delayedLeaveCancelMessage));
                 }
             }
             return;
         }
         setLeavingGame(true);
-        player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().delayedLeaveStartSound), 1, 2f);
+        Util.playSound(player, Manhunt.get().getCfg().delayedLeaveStartSound, 1, 2);
         player.sendMessage(Util.c(Manhunt.get().getCfg().delayedLeaveStartMessage));
         leaveTask = new BukkitRunnable() {
             @Override
@@ -471,7 +471,7 @@ public class GamePlayer {
                 }
 
                 if (i == 0) {
-                    player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().playerRespawnedSound), 1, 1);
+                    Util.playSound(player, Manhunt.get().getCfg().playerRespawnedSound, 1, 1);
                     setDead(false);
                     prepareForGame(game.getStatus());
 

@@ -104,13 +104,13 @@ public class ManhuntRunnerManageMenu implements Listener {
                         GamePlayer gp = runners.get(e.getSlot());
                         if (gp.isHost()) {
                             player.sendMessage(Util.c(Manhunt.get().getCfg().menuRunnerManagerCannotRemoveHostMessage));
-                            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuRunnerManagerCannotRemoveHostSound), 1, 1);
+                            Util.playSound(player, Manhunt.get().getCfg().menuRunnerManagerCannotRemoveHostSound, 1, 1);
                         } else {
                             Player target = Bukkit.getPlayer(gp.getUuid());
                             player.sendMessage(Util.c(Manhunt.get().getCfg().playerRemoveRunnerMessage.replaceAll("%player%", target.getName())));
                             gp.setPlayerType(PlayerType.HUNTER);
                             game.getRunnerTeleporterMenu().update();
-                            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().runnerRemovedSound), 1, 1);
+                            Util.playSound(player, Manhunt.get().getCfg().runnerRemovedSound, 1, 1);
                             this.chatPlayers.remove(player);
                             open(player, game);
                         }
@@ -120,7 +120,7 @@ public class ManhuntRunnerManageMenu implements Listener {
             }
         } else if (e.getSlot() == 22) {
             // continue setup
-            player.playSound(player.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHeadstartSaveSound), 1, 1);
+            Util.playSound(player, Manhunt.get().getCfg().menuHeadstartSaveSound, 1, 1);
             Manhunt.get().getManhuntGameSetupMenu().openMenu(player, game);
         } else if (e.getSlot() == 26) {
             this.chatPlayers.add(player);
