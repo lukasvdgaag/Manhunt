@@ -1,10 +1,12 @@
 # 1.2.0
   Added customizable pitches and volumes to config sounds. It also allows you to play custom sounds, just like the command.
-Use one of the following formats: "SOUND", "SOUND;pitch", "SOUND;volume;pitch"
+    Use one of the following formats: "SOUND", "SOUND;pitch", "SOUND;volume;pitch"
   Added customizable max lives for hunters. Set it to something lower than 1 to make it infinite.
   Added the possibility for hosts to remove themselves as runners.
   Added a minimum of 2 runners required in order to remove one runner.
   Added the option to use UUIDs as world names instead of player names.
+  Added a new option to disable advancements (disabled by default).
+  Fixed the WorldEdit lobby schematic being corrupted when loading.
 
   # 1.1.2:
   Fixed minimum and maximum players being reset to 0 when changing.
