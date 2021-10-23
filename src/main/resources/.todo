@@ -1,21 +1,24 @@
+# 1.2.1
+
+Updated the AdditionsPlus hook to support v2.5.0. No older versions are supported anymore!
+
 # 1.2.0
-  Added customizable pitches and volumes to config sounds. It also allows you to play custom sounds, just like the command.
-    Use one of the following formats: "SOUND", "SOUND;pitch", "SOUND;volume;pitch"
-  Added customizable max lives for hunters. Set it to something lower than 1 to make it infinite.
-  Added the possibility for hosts to remove themselves as runners.
-  Added a minimum of 2 runners required in order to remove one runner.
-  Added the option to use UUIDs as world names instead of player names.
-  Added a new option to disable advancements (disabled by default).
-  Fixed the WorldEdit lobby schematic being corrupted when loading.
 
-  # 1.1.2:
-  Fixed minimum and maximum players being reset to 0 when changing.
+Added customizable pitches and volumes to config sounds. It also allows you to play custom sounds, just like the
+command. Use one of the following formats: "SOUND", "SOUND;pitch", "SOUND;volume;pitch"
+Added customizable max lives for hunters. Set it to something lower than 1 to make it infinite. Added the possibility
+for hosts to remove themselves as runners. Added a minimum of 2 runners required in order to remove one runner. Added
+the option to use UUIDs as world names instead of player names. Added a new option to disable advancements (disabled by
+default). Fixed the WorldEdit lobby schematic being corrupted when loading.
 
-  # 1.1.1:
-  Added an option to change the lobby spawn teleportation coordinate level.
-  Added 2 new config options to change the minimum and maximum player amount per game.
-  Added online player stats loading on enable in case the plugin was loaded when the server was already running.
-  Fixed the waiting lobby schematic file being corrupted causing games to crash.
-  Fixed games not working on Bukkit.
+# 1.1.2:
+
+Fixed minimum and maximum players being reset to 0 when changing.
+
+# 1.1.1:
+
+Added an option to change the lobby spawn teleportation coordinate level. Added 2 new config options to change the minimum and maximum player amount per game.
+Added online player stats loading on enable in case the plugin was loaded when the server was already running. Fixed the waiting lobby schematic file being corrupted causing games to crash.
+Fixed games not working on Bukkit.
 Fixed world time changing while waiting for the game to start.
 Fixed bungee socket error message on bukkit mode.

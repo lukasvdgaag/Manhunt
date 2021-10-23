@@ -177,11 +177,11 @@
             <version>4.0.3</version>
         </dependency>
         <dependency>
-            <groupId>net.gaagjescraft</groupId>
+            <groupId>net.gcnt</groupId>
             <artifactId>AdditionsPlus</artifactId>
-            <version>1.0.0</version>
+            <version>2.5.0</version>
             <scope>system</scope>
-            <systemPath>C:/Users/gaagj/OneDrive/Documents/plugins/AdditionsPlus.jar</systemPath>
+            <systemPath>${project.basedir}/lib/AdditionsPlus 2.5.0.jar</systemPath>
         </dependency>
     </dependencies>
 </project>
