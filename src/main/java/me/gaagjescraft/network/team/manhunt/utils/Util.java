@@ -85,7 +85,7 @@ public class Util {
             String[] split = soundString.split(";");
             if (!split[0].contains(":")) {
                 try {
-                    sound = Sound.valueOf(soundString.toUpperCase());
+                    sound = Sound.valueOf(split[0].toUpperCase());
                 } catch (Exception ignored) {
                 }
             }

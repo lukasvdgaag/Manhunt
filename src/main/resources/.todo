@@ -1,3 +1,7 @@
+# 1.2.2
+
+Fixed sounds not working when specifying a pitch/volume.
+
 # 1.2.1
 
 Updated the AdditionsPlus hook to support v2.5.0. No older versions are supported anymore!
@@ -11,11 +15,11 @@ for hosts to remove themselves as runners. Added a minimum of 2 runners required
 the option to use UUIDs as world names instead of player names. Added a new option to disable advancements (disabled by
 default). Fixed the WorldEdit lobby schematic being corrupted when loading.
 
-# 1.1.2:
+# 1.1.2
 
 Fixed minimum and maximum players being reset to 0 when changing.
 
-# 1.1.1:
+# 1.1.1
 
 Added an option to change the lobby spawn teleportation coordinate level. Added 2 new config options to change the minimum and maximum player amount per game.
 Added online player stats loading on enable in case the plugin was loaded when the server was already running. Fixed the waiting lobby schematic file being corrupted causing games to crash.
