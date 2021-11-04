@@ -1,6 +1,9 @@
 # 1.2.2
-
-Fixed sounds not working when specifying a pitch/volume.
+Added a new option to cancel interactions in the lobby (this used to be enabled by default)
+Added a new option to only send the game host announcement to the people in the Manhunt lobby. Fixed MySQL data not
+saving properly. Fixed sounds not working when specifying a pitch/volume. Fixed /manhuntstats not working. Fixed worlds
+not being removed on Bungeecord mode. Fixed vault hook being enabled when having game prices disabled. Updated the
+WorldEdit API to v7.2.7
 
 # 1.2.1
 

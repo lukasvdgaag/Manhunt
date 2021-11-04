@@ -67,7 +67,7 @@ public class GameSchematic {
                     clipboard = reader.read();
                 }
 
-                try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(new BukkitWorld(world), -1)) {
+                try (EditSession editSession = WorldEdit.getInstance().newEditSession(new BukkitWorld(world))) {
                     Operation operation = new ClipboardHolder(clipboard)
                             .createPaste(editSession)
                             .to(to)

@@ -170,11 +170,13 @@ public class GameWaitingEvents implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
         Player player = e.getPlayer();
-        if (Manhunt.get().getCfg().lobby != null) {
-            if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
-                e.setBuild(false);
-                e.setCancelled(true);
-                return;
+        if (Manhunt.get().getCfg().cancelLobbyInteractions) {
+            if (Manhunt.get().getCfg().lobby != null) {
+                if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+                    e.setBuild(false);
+                    e.setCancelled(true);
+                    return;
+                }
             }
         }
 
@@ -198,10 +200,12 @@ public class GameWaitingEvents implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
         Player player = e.getPlayer();
-        if (Manhunt.get().getCfg().lobby != null) {
-            if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
-                e.setCancelled(true);
-                return;
+        if (Manhunt.get().getCfg().cancelLobbyInteractions) {
+            if (Manhunt.get().getCfg().lobby != null) {
+                if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+                    e.setCancelled(true);
+                    return;
+                }
             }
         }
 
@@ -224,10 +228,12 @@ public class GameWaitingEvents implements Listener {
     public void onDamage(EntityDamageEvent e) {
         if (e.getEntity().getType() != EntityType.PLAYER) return;
         Player player = (Player) e.getEntity();
-        if (Manhunt.get().getCfg().lobby != null) {
-            if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
-                e.setCancelled(true);
-                return;
+        if (Manhunt.get().getCfg().cancelLobbyInteractions) {
+            if (Manhunt.get().getCfg().lobby != null) {
+                if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+                    e.setCancelled(true);
+                    return;
+                }
             }
         }
 
@@ -252,10 +258,12 @@ public class GameWaitingEvents implements Listener {
     @EventHandler
     public void onBlockPlace(PlayerDropItemEvent e) {
         Player player = e.getPlayer();
-        if (Manhunt.get().getCfg().lobby != null) {
-            if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
-                e.setCancelled(true);
-                return;
+        if (Manhunt.get().getCfg().cancelLobbyInteractions) {
+            if (Manhunt.get().getCfg().lobby != null) {
+                if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+                    e.setCancelled(true);
+                    return;
+                }
             }
         }
         Game game = Game.getGame(player);
@@ -304,10 +312,12 @@ public class GameWaitingEvents implements Listener {
     @EventHandler
     public void onHunger(FoodLevelChangeEvent e) {
         Player player = (Player) e.getEntity();
-        if (Manhunt.get().getCfg().lobby != null) {
-            if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
-                e.setCancelled(true);
-                return;
+        if (Manhunt.get().getCfg().cancelLobbyInteractions) {
+            if (Manhunt.get().getCfg().lobby != null) {
+                if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+                    e.setCancelled(true);
+                    return;
+                }
             }
         }
 

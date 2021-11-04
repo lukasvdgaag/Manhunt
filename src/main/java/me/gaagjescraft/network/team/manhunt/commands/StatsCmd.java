@@ -24,6 +24,7 @@ public class StatsCmd implements CommandExecutor {
 
         int wins = (sp.getHunterWins() + sp.getRunnerWins());
         int games = (sp.getHunterGamesPlayed() + sp.getRunnerGamesPlayed());
+        int kills = (sp.getHunterKills() + sp.getRunnerKills());
         int winRate = (games == 0) ? 0 : (wins / games) * 100;
 
         for (String a : Manhunt.get().getCfg().statsMessage) {
@@ -36,6 +37,7 @@ public class StatsCmd implements CommandExecutor {
                     .replaceAll("%runner_games_played%", sp.getRunnerGamesPlayed() + "")
                     .replaceAll("%total_games_played%", games + "")
                     .replaceAll("%total_wins%", wins + "")
+                    .replaceAll("%total_kills%", kills + "")
                     .replaceAll("%win_rate%", winRate + "")
                     .replaceAll("%runner_beat_time%", sp.getBestSpeedRunTime() == 0 ? "N/A" : Manhunt.get().getUtil().secondsToTimeString((int) sp.getBestSpeedRunTime(), "string")));
         }

@@ -110,7 +110,7 @@ public class Manhunt extends JavaPlugin {
         if (Bukkit.getPluginManager().isPluginEnabled("ViaVersion")) {
             getLogger().info("Found ViaVersion! You can now use the protocol version checker.");
         }
-        if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
+        if (Bukkit.getPluginManager().isPluginEnabled("Vault") && getCfg().pricePerGame > 0) {
             ecoHook = new VaultEcoHook();
             if (!ecoHook.setupEconomy()) {
                 getLogger().info("Found Vault, but couldn't setup the Economy. Is it set up?");
@@ -155,7 +155,6 @@ public class Manhunt extends JavaPlugin {
 
         if (bungeeSocketManager != null && getCfg().isLobbyServer) getUtil().createDisconnectClientMessage();
         if (bungeeSocketManager != null) bungeeSocketManager.close();
-        Bukkit.getScheduler().cancelTasks(this);
     }
 
     public void loadStorage() {
@@ -250,7 +249,7 @@ public class Manhunt extends JavaPlugin {
                         for (GamePlayer gp : game.getOnlinePlayers(null)) {
                             Player p = Bukkit.getPlayer(gp.getUuid());
                             if (p == null) continue;
-                            if (p.getLocation().getBlockY() <= 150) {
+                            if (p.getLocation().getBlockY() <= 150 || !p.getWorld().getName().equals(game.getWorld().getName())) {
                                 if (!gp.isSpectating() && (game.getStatus() != GameStatus.PLAYING || (game.getStatus() == GameStatus.PLAYING && game.getTimer() <= game.getHeadStart().getSeconds() && gp.getPlayerType() == PlayerType.HUNTER))) {
                                     p.sendMessage(Util.c(Manhunt.get().getCfg().cannotLeaveWaitingZoneMessage));
                                     p.teleport(game.getSchematic().getSpawnLocation());

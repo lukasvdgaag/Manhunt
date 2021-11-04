@@ -106,19 +106,32 @@ public class MySQLStorage implements PlayerStorage {
         PlayerStat ps = getUser(uuid);
 
         try (Connection conn = getConnection()) {
-            PreparedStatement sm = conn.prepareStatement("INSERT INTO `manhunt_playerdata` (`uuid`, `best_speedrun_time`, `hunter_kills`, `runner_kills`, `hunter_wins`, `runner_wins`, `hunter_games_played`, `runner_games_played`) " +
-                    "VALUES(?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `uuid`=?");
-            sm.setString(1, uuid.toString());
-            sm.setLong(2, ps != null ? ps.getBestSpeedRunTime() : 0);
-            sm.setInt(3, ps != null ? ps.getHunterKills() : 0);
-            sm.setInt(4, ps != null ? ps.getRunnerKills() : 0);
-            sm.setInt(5, ps != null ? ps.getHunterWins() : 0);
-            sm.setInt(6, ps != null ? ps.getRunnerWins() : 0);
-            sm.setInt(7, ps != null ? ps.getHunterGamesPlayed() : 0);
-            sm.setInt(8, ps != null ? ps.getRunnerGamesPlayed() : 0);
-            sm.setString(9, uuid.toString());
-            sm.executeUpdate();
-            sm.close();
+            if (conn.prepareStatement("SELECT * FROM `manhunt_playerdata` WHERE `uuid`='" + uuid.toString() + "'").executeQuery().next()) {
+                PreparedStatement sm = conn.prepareStatement("UPDATE `manhunt_playerdata` SET `best_speedrun_time`=?, `hunter_kills`=?, `runner_kills`=?, `hunter_wins`=?, `runner_wins`=?, `hunter_games_played`=?, `runner_games_played`=? WHERE `uuid`=?");
+                sm.setLong(1, ps != null ? ps.getBestSpeedRunTime() : 0);
+                sm.setInt(2, ps != null ? ps.getHunterKills() : 0);
+                sm.setInt(3, ps != null ? ps.getRunnerKills() : 0);
+                sm.setInt(4, ps != null ? ps.getHunterWins() : 0);
+                sm.setInt(5, ps != null ? ps.getRunnerWins() : 0);
+                sm.setInt(6, ps != null ? ps.getHunterGamesPlayed() : 0);
+                sm.setInt(7, ps != null ? ps.getRunnerGamesPlayed() : 0);
+                sm.setString(8, uuid.toString());
+                sm.executeUpdate();
+                sm.close();
+            } else {
+                PreparedStatement sm = conn.prepareStatement("INSERT INTO `manhunt_playerdata` (`uuid`, `best_speedrun_time`, `hunter_kills`, `runner_kills`, `hunter_wins`, `runner_wins`, `hunter_games_played`, `runner_games_played`) " +
+                        "VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
+                sm.setString(1, uuid.toString());
+                sm.setLong(2, ps != null ? ps.getBestSpeedRunTime() : 0);
+                sm.setInt(3, ps != null ? ps.getHunterKills() : 0);
+                sm.setInt(4, ps != null ? ps.getRunnerKills() : 0);
+                sm.setInt(5, ps != null ? ps.getHunterWins() : 0);
+                sm.setInt(6, ps != null ? ps.getRunnerWins() : 0);
+                sm.setInt(7, ps != null ? ps.getHunterGamesPlayed() : 0);
+                sm.setInt(8, ps != null ? ps.getRunnerGamesPlayed() : 0);
+                sm.executeUpdate();
+                sm.close();
+            }
         } catch (SQLException e) {
             Bukkit.getLogger().severe("Manhunt failed to save the player data of user '" + uuid.toString() + "' to the MySQL database.");
             e.printStackTrace();

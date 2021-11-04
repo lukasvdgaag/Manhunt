@@ -428,6 +428,8 @@ public class Config {
     public int worldBorderWarningDistance;
     public int worldBorderWarningTime;
     public int lobbyTeleportYCoord;
+    public boolean cancelLobbyInteractions;
+    public boolean sendGameHostAnnouncementToLobbyOnly;
 
     public int minimumPlayers;
     public int maximumPlayers;
@@ -475,6 +477,7 @@ public class Config {
         this.debug = conf.getBoolean("debug");
         this.pricePerGame = conf.getInt("price-per-game");
         this.sendGameHostAnnouncement = conf.getBoolean("send-game-host-announcement");
+        this.sendGameHostAnnouncementToLobbyOnly = conf.getBoolean("send-game-announcement-to-lobby-only");
         this.killRewards = conf.getStringList("rewards.kill");
         this.winRewards = conf.getStringList("rewards.win");
         this.loseRewards = conf.getStringList("rewards.lose");
@@ -485,6 +488,7 @@ public class Config {
         this.hunterLives = conf.getInt("hunter-lives");
         this.useUuidsAsWorldNames = conf.getBoolean("use-uuids-as-world-names");
         this.disableAdvancementAnnouncing = conf.getBoolean("disable-advancement-announcing");
+        this.cancelLobbyInteractions = conf.getBoolean("cancel-lobby-interactions");
 
         this.defaultOptionAllowTwists = conf.getBoolean("default_settings.allow_twists");
         this.defaultOptionMaxPlayers = conf.getInt("default_settings.max_players");
@@ -617,7 +621,7 @@ public class Config {
         this.cannotLeaveWaitingZoneMessage = conf.getString("messages.cannot-leave-waiting-zone");
         this.autoRejoinMessage = conf.getStringList("messages.auto-rejoin");
         this.runnerDownMessage = conf.getString("messages.runner-down");
-        this.statsMessage = conf.getStringList("messages.stats");
+        this.statsMessage = conf.getStringList("messages.stats-message");
         this.moneyRefundedMessage = conf.getString("messages.money-refunded");
 
         this.menuTrackerTitle = conf.getString("menus.tracker-title");
@@ -914,12 +918,14 @@ public class Config {
         conf.set("minimum_client_protocol_version", minimumClientProtocolVersion);
         conf.set("price-per-game", pricePerGame);
         conf.set("send-game-host-announcement", sendGameHostAnnouncement);
+        conf.set("send-game-announcement-to-lobby-only", sendGameHostAnnouncementToLobbyOnly);
         conf.set("stop-server-after-game", stopServerAfterGame);
         conf.set("minimum-players-per-game", minimumPlayers);
         conf.set("maximum-players-per-game", maximumPlayers);
         conf.set("hunter-lives", hunterLives);
         conf.set("use-uuids-as-world-names", useUuidsAsWorldNames);
         conf.set("disable-advancement-announcing", disableAdvancementAnnouncing);
+        conf.set("cancel-lobby-interactions", cancelLobbyInteractions);
 
         conf.set("rewards.kill", killRewards);
         conf.set("rewards.win", winRewards);
@@ -1056,7 +1062,7 @@ public class Config {
         conf.set("messages.cannot-leave-waiting-zone", cannotLeaveWaitingZoneMessage);
         conf.set("messages.cannot-leave-lobby", cannotLeaveLobbyMessage);
         conf.set("messages.auto-rejoin", autoRejoinMessage);
-        conf.set("messages.stats", statsMessage);
+        conf.set("messages.stats-message", statsMessage);
         conf.set("messages.money-refunded", moneyRefundedMessage);
 
         conf.set("menus.tracker-title", menuTrackerTitle);

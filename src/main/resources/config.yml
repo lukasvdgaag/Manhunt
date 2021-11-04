@@ -15,11 +15,13 @@ minimum-players-per-game: 4
 maximum-players-per-game: 100
 disable_setting_changing: false
 send-game-host-announcement: true
+send-game-announcement-to-lobby-only: false
 price-per-game: 1
 stop-server-after-game: false
 hunter-lives: 3
 use-uuids-as-world-names: true
 disable-advancement-announcing: true
+cancel-lobby-interactions: true
 storage:
   # Type could be: YAML, MONGODB, MYSQL
   type: YAML

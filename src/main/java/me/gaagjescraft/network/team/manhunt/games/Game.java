@@ -605,7 +605,7 @@ public class Game {
         }
     }
 
-    public void create() {
+    public synchronized void create() {
         int random = ThreadLocalRandom.current().nextInt(Manhunt.get().getCfg().seeds.size());
         long seed = Manhunt.get().getCfg().seeds.get(random);
 
@@ -894,7 +894,9 @@ public class Game {
 
     public void sendGameAnnouncement() {
         if (Manhunt.get().getCfg().isLobbyServer && Manhunt.get().getCfg().sendGameHostAnnouncement) {
-            for (Player p : Bukkit.getOnlinePlayers()) {
+            List<Player> players = Manhunt.get().getCfg().sendGameHostAnnouncementToLobbyOnly ? Manhunt.get().getCfg().lobby.getWorld().getPlayers() : new ArrayList<>(Bukkit.getOnlinePlayers());
+
+            for (Player p : players) {
                 Util.playSound(p, Manhunt.get().getCfg().gameHostAnnouncementSound, 3, 1);
                 p.spigot().sendMessage(ChatMessageType.CHAT, ComponentSerializer.parse(Manhunt.get().getCfg().gameHostAnnouncementMessage.replaceAll("%game%", getIdentifier())));
             }
