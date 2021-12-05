@@ -22,7 +22,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Game {
 
@@ -667,21 +671,32 @@ public class Game {
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import " + getWorldIdentifier() + "_the_end THE_END");
         }, 120L);
 
-        Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> {
-            World world = Bukkit.getWorld(getWorldIdentifier());
-            if (world == null) {
-                Bukkit.getLogger().severe("Something went wrong whilst creating the manhunt world with id " + identifier);
-                return;
+        Bukkit.getScheduler().runTaskLaterAsynchronously(Manhunt.get(), () -> {
+            AtomicReference<World> world = new AtomicReference<>();
+            Future<Object> setGameRulesFuture = Bukkit.getScheduler().callSyncMethod(Manhunt.get(), () -> {
+                World tmpWorld = Bukkit.getWorld(getWorldIdentifier());
+                world.set(tmpWorld);
+                if (world.get() == null) {
+                    Bukkit.getLogger().severe("Something went wrong whilst creating the manhunt world with id " + identifier);
+                    return null;
+                }
+                tmpWorld.setGameRule(GameRule.DO_FIRE_TICK, false);
+                tmpWorld.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, !Manhunt.get().getCfg().disableAdvancementAnnouncing);
+                tmpWorld.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
+                tmpWorld.setGameRule(GameRule.SPAWN_RADIUS, 0);
+                tmpWorld.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
+                tmpWorld.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+                tmpWorld.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
+                tmpWorld.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, isDoDaylightCycle());
+                tmpWorld.setTime(6000);
+                return null;
+            });
+
+            try {
+                setGameRulesFuture.get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
             }
-            world.setGameRule(GameRule.DO_FIRE_TICK, false);
-            world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, !Manhunt.get().getCfg().disableAdvancementAnnouncing);
-            world.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
-            world.setGameRule(GameRule.SPAWN_RADIUS, 0);
-            world.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
-            world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
-            world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
-            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, isDoDaylightCycle());
-            world.setTime(6000);
 
             CompletableFuture<Chunk> chunkFuture = PaperLib.getChunkAtAsync(
                     world.get(), world.get().getSpawnLocation().getBlockX(), world.get().getSpawnLocation().getBlockZ());
@@ -718,6 +733,13 @@ public class Game {
                         }
                     }
                 }
+                return null;
+            });
+
+            try {
+                part2.get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
             }
         }, 60L);
     }
