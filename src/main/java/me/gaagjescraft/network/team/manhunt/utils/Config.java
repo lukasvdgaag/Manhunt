@@ -426,6 +426,9 @@ public class Config {
     public int lobbyTeleportYCoord;
     public boolean cancelLobbyInteractions;
     public boolean sendGameHostAnnouncementToLobbyOnly;
+    public String revivedPlayerMessage;
+    public String addLifeMessage;
+    public String removeLifeMessage;
 
     public int minimumPlayers;
     public int maximumPlayers;
@@ -515,6 +518,9 @@ public class Config {
         this.lobbyChatFormat = conf.getString("chat.lobby-format");
         this.spectatorsHaveGeneralColor = conf.getBoolean("chat.spectators-have-general-color");
 
+        this.addLifeMessage = conf.getString("messages.addlife-player");
+        this.removeLifeMessage = conf.getString("messages.removelife-player");
+        this.revivedPlayerMessage = conf.getString("messages.revived-player");
         this.finishedPreparingServerMessage = conf.getString("messages.finished-preparing-server");
         this.serverFoundMessage = conf.getStringList("messages.server-found");
         this.creatingGameErrorMessage = conf.getStringList("messages.creating-game-error");
@@ -957,6 +963,9 @@ public class Config {
         conf.set("chat.lobby-format", lobbyChatFormat);
         conf.set("chat.spectators-have-general-color", spectatorsHaveGeneralColor);
 
+        conf.set("messages.addlife-player", addLifeMessage);
+        conf.set("messages.removelife-player", removeLifeMessage);
+        conf.set("messages.revived-player", revivedPlayerMessage);
         conf.set("messages.finished-preparing-server", finishedPreparingServerMessage);
         conf.set("messages.server-found", serverFoundMessage);
         conf.set("messages.creating-game-error", creatingGameErrorMessage);

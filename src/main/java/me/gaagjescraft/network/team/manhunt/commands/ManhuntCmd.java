@@ -79,6 +79,81 @@ public class ManhuntCmd implements CommandExecutor {
             }
             game.start();
             return true;
+        } else if (args.length >= 2 && args[0].equalsIgnoreCase("revive") && p.hasPermission("manhunt.admin")) {
+            Player target = Bukkit.getPlayer(args[1]);
+            if (target == null) {
+                sender.sendMessage(Util.c(Manhunt.get().getCfg().playerNotOnlineMessage));
+                return true;
+            }
+
+            Game game = Game.getGame(target);
+            if (game == null) {
+                sender.sendMessage(Util.c(Manhunt.get().getCfg().targetPlayerNotIngameMessage.replace("%player%", target.getName())));
+                return true;
+            }
+            GamePlayer gp = game.getPlayer(target);
+            gp.setDeaths(Math.min(0, gp.getDeaths() - 1));
+            gp.prepareForRespawn();
+            sender.sendMessage(Util.c(Manhunt.get().getCfg().revivedPlayerMessage.replace("%player%", target.getName())));
+            return true;
+        } else if (args.length >= 2 && args[0].equalsIgnoreCase("addlife") && p.hasPermission("manhunt.admin")) {
+            Player target = Bukkit.getPlayer(args[1]);
+            if (target == null) {
+                sender.sendMessage(Util.c(Manhunt.get().getCfg().playerNotOnlineMessage));
+                return true;
+            }
+
+            Game game = Game.getGame(target);
+            if (game == null || !game.getPlayer(target).isOnline()) {
+                sender.sendMessage(Util.c(Manhunt.get().getCfg().targetPlayerNotIngameMessage.replace("%player%", target.getName())));
+                return true;
+            }
+            GamePlayer gp = game.getPlayer(target);
+
+            int amount = 1;
+            if (args.length >= 3 && Manhunt.get().getUtil().isInt(args[2])) {
+                amount = Integer.parseInt(args[2]);
+            }
+
+            gp.setExtraLives(gp.getExtraLives() + amount);
+            if (gp.isFullyDead()) {
+                gp.prepareForRespawn();
+            }
+            sender.sendMessage(Util.c(Manhunt.get().getCfg().addLifeMessage
+                    .replace("%player%", target.getName())
+                    .replace("%added%", amount + "")));
+            return true;
+
+        } else if (args.length >= 2 && args[0].equalsIgnoreCase("removelife") && p.hasPermission("manhunt.admin")) {
+            Player target = Bukkit.getPlayer(args[1]);
+            if (target == null) {
+                sender.sendMessage(Util.c(Manhunt.get().getCfg().playerNotOnlineMessage));
+                return true;
+            }
+
+            Game game = Game.getGame(target);
+            if (game == null || !game.getPlayer(target).isOnline()) {
+                sender.sendMessage(Util.c(Manhunt.get().getCfg().targetPlayerNotIngameMessage.replace("%player%", target.getName())));
+                return true;
+            }
+            GamePlayer gp = game.getPlayer(target);
+
+            int amount = 1;
+            if (args.length >= 3 && Manhunt.get().getUtil().isInt(args[2])) {
+                amount = Integer.parseInt(args[2]);
+            }
+
+            int extraLives = gp.getExtraLives();
+            if (extraLives - amount > 0) {
+                gp.setExtraLives(extraLives);
+            } else {
+                gp.setDeaths(gp.getDeaths() - amount + 1);
+                target.setHealth(0);
+            }
+            sender.sendMessage(Util.c(Manhunt.get().getCfg().removeLifeMessage
+                    .replace("%player%", target.getName())
+                    .replace("%removed%", amount + "")));
+            return true;
         }
 
         Game game = (Game.getGame(p));
@@ -100,15 +175,7 @@ public class ManhuntCmd implements CommandExecutor {
         }
 
         if (args.length == 0) {
-            p.sendMessage("§7§m------§r §6§lManhunt Host Commands §7§m------");
-            p.sendMessage("§b/manhunt stop §f> §7Stop your current manhunt game.");
-            p.sendMessage("§b/manhunt start §f> §7Start your current manhunt game.");
-            p.sendMessage("§b/manhunt addrunner <player> §f> §7Make a player a runner.");
-            p.sendMessage("§b/manhunt removerunner <player> §f> §7Demote a runner to a hunter.");
-            p.sendMessage("§b/manhunt runners §f> §7Get a list of runners.");
-            if (p.hasPermission("manhunt.forcetwist"))
-                p.sendMessage("§b/manhunt forcetwist §f> §7Force the twist to start.");
-            p.sendMessage("§7§m-------------------------------------");
+            sendHelpMessage(p);
             return true;
         } else {
             if (args[0].equalsIgnoreCase("stop")) {
@@ -200,20 +267,36 @@ public class ManhuntCmd implements CommandExecutor {
                 }
                 p.sendMessage("§7§m---------------------------------------");
             } else {
-                p.sendMessage("§7§m---------------&r §6§lManhunt §7§m---------------");
-                p.sendMessage("§b/manhunt stop §f> §7Stop your current manhunt game.");
-                p.sendMessage("§b/manhunt start §f> §7Start your current manhunt game.");
-                p.sendMessage("§b/manhunt addrunner <player> §f> §7Make a player a runner.");
-                p.sendMessage("§b/manhunt removerunner <player> §f> §7Demote a runner to a hunter.");
-                p.sendMessage("§b/manhunt runners §f> §7Get a list of runners.");
-                if (p.hasPermission("manhunt.forcetwist"))
-                    p.sendMessage("§b/manhunt forcetwist If> §7Force the twist to start.");
-                p.sendMessage("§7§m---------------------------------------");
+                sendHelpMessage(p);
                 return true;
             }
         }
 
 
         return true;
+    }
+
+    private void sendHelpMessage(Player p) {
+        p.sendMessage("§7§m------§r §6§lManhunt Host Commands §7§m------");
+
+        if (p.hasPermission("manhunt.admin")) p.sendMessage("§b/manhunt stop [player] §f> §7Stop a manhunt game.");
+        else p.sendMessage("§b/manhunt stop §f> §7Stop your current manhunt game.");
+
+        if (p.hasPermission("manhunt.admin")) p.sendMessage("§b/manhunt start [player] §f> §7Start a manhunt game.");
+        else p.sendMessage("§b/manhunt stop §f> §7Start your current manhunt game.");
+
+        p.sendMessage("§b/manhunt addrunner <player> §f> §7Make a player a runner.");
+        p.sendMessage("§b/manhunt removerunner <player> §f> §7Demote a runner to a hunter.");
+        p.sendMessage("§b/manhunt runners §f> §7Get a list of runners.");
+
+        if (p.hasPermission("manhunt.forcetwist"))
+            p.sendMessage("§b/manhunt forcetwist §f> §7Force the twist to start.");
+        if (p.hasPermission("manhunt.revive"))
+            p.sendMessage("§b/manhunt revive <player> §f> §7Revive a player.");
+        if (p.hasPermission("manhunt.addlife"))
+            p.sendMessage("§b/manhunt addlife <player> [amount] §f> §7Add lives to a player.");
+        if (p.hasPermission("mahhunt.removelife"))
+            p.sendMessage("§b/manhunt removelife <player> [amount] §f> §7Remove lives from a player.");
+        p.sendMessage("§7§m-------------------------------------");
     }
 }

@@ -40,6 +40,7 @@ public class GamePlayer {
     private boolean joinedBefore;
     private String username;
     private boolean spectating;
+    private int extraLives;
 
     private Location netherPortal; // portal from overworld -> nether
     private Location overworldPortal; // portal from nether -> overworld
@@ -65,12 +66,21 @@ public class GamePlayer {
         this.username = username;
         this.joinedBefore = !Manhunt.get().getCfg().bungeeMode;
         this.spectating = false;
+        this.extraLives = 0;
 
         this.netherPortal = null;
         this.overworldPortal = null;
         this.endPortal = null;
 
         if (!Manhunt.get().getCfg().isLobbyServer) updateScoreboard();
+    }
+
+    public int getExtraLives() {
+        return extraLives;
+    }
+
+    public void setExtraLives(int extraLives) {
+        this.extraLives = extraLives;
     }
 
     public CompassTracker getCompassTracker() {
@@ -646,8 +656,8 @@ public class GamePlayer {
     }
 
     public int getMaxLives() {
-        if (getPlayerType() == PlayerType.RUNNER) return 1;
-        return Manhunt.get().getCfg().hunterLives;
+        if (getPlayerType() == PlayerType.RUNNER) return 1 + getExtraLives();
+        return Manhunt.get().getCfg().hunterLives + getExtraLives();
     }
 
     public Location getBedSpawn() {
@@ -656,6 +666,10 @@ public class GamePlayer {
 
     public void setBedSpawn(Location bedSpawn) {
         this.bedSpawn = bedSpawn;
+    }
+
+    public void setDeaths(int deaths) {
+        this.deaths = deaths;
     }
 
     public boolean isFullyDead() {

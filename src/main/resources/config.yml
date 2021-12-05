@@ -709,6 +709,9 @@ titles:
     hardcore: '&c&lHARDCORE!\n&7You have 3 hearts and won''t regen for 30s!'
 
 messages:
+  removelife-player: '&cYou have removed &e%removed% &clives from &e%player%&c!'
+  addlife-player: '&aYou have added &e%added% &alives to &e%player%&a!'
+  revived-player: '&aYou have revived &e%player%&a!'
   finished-preparing-server: '&aWe finished preparing your Manhunt host server. You will now be warped to that server.'
   server-found:
     - ''
