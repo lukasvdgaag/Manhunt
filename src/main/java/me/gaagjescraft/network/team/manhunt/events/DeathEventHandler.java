@@ -189,7 +189,7 @@ public class DeathEventHandler implements Listener {
             for (GamePlayer gp1 : game.getPlayers()) {
                 Player p = Bukkit.getPlayer(gp1.getUuid());
 
-                if (gp1.getTracking() != null && gp1.getTracking().getUuid().equals(player.getUniqueId())) {
+                if (gp1.getCompassTracker().getTrackingPlayer() != null && gp1.getCompassTracker().getTrackingPlayer().getUuid().equals(player.getUniqueId())) {
                     if (p != null && gp1.isOnline())
                         p.sendMessage(Util.c(Manhunt.get().getCfg().trackerResetDiedMessage));
                     gp1.setTracking(null);

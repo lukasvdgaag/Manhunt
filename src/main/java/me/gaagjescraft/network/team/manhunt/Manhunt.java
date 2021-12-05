@@ -15,6 +15,8 @@ import me.gaagjescraft.network.team.manhunt.menus.*;
 import me.gaagjescraft.network.team.manhunt.menus.handlers.RunnerTrackerMenuHandler;
 import me.gaagjescraft.network.team.manhunt.utils.*;
 import me.gaagjescraft.network.team.manhunt.utils.exodus.ExodusCociteSupport;
+import me.gaagjescraft.network.team.manhunt.utils.platform.OriginalPlatformUtils;
+import me.gaagjescraft.network.team.manhunt.utils.platform.PlatformUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -37,6 +39,7 @@ public class Manhunt extends JavaPlugin {
     private Util util;
     private Config config;
     private PlayerStorage playerStorage;
+    private PlatformUtils platformUtils;
     private TagUtils tagUtils;
     private BungeeSocketManager bungeeSocketManager;
     private VaultEcoHook ecoHook;
@@ -65,6 +68,7 @@ public class Manhunt extends JavaPlugin {
         manhuntHeadstartSetupMenu = new ManhuntHeadstartSetupMenu();
         manhuntRunnerManageMenu = new ManhuntRunnerManageMenu();
         manhuntMainMenu = new ManhuntMainMenu();
+        setPlatformUtils(new OriginalPlatformUtils());
 
         File targetSchem = new File(Manhunt.get().getDataFolder(), "manhunt-lobby.schem");
         if (!targetSchem.exists()) {
@@ -145,6 +149,14 @@ public class Manhunt extends JavaPlugin {
         getLogger().info("----------------------------------");
 
         Bukkit.getOnlinePlayers().forEach(player -> getPlayerStorage().loadUser(player.getUniqueId()));
+    }
+
+    public PlatformUtils getPlatformUtils() {
+        return platformUtils;
+    }
+
+    public void setPlatformUtils(PlatformUtils platformUtils) {
+        this.platformUtils = platformUtils;
     }
 
     @Override

@@ -33,7 +33,7 @@ import java.util.List;
 
 public class GameWaitingEvents implements Listener {
 
-    private List<Player> leaveDelays = new ArrayList<>();
+    private final List<Player> leaveDelays = new ArrayList<>();
 
     private void checkVehicleCancel(Cancellable e, Entity entity) {
         if (entity == null || entity.getType() != EntityType.PLAYER) return;

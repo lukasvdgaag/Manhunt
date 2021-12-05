@@ -104,12 +104,10 @@ public class ManhuntPlayerAmountSetupMenu implements Listener {
             else player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             setup.setMaxPlayers(Math.max(current - 1, min));
             updateItems(player, setup);
-        }
-        else if (e.getSlot() == 13) {
+        } else if (e.getSlot() == 13) {
             // continue setup
             Manhunt.get().getManhuntGameSetupMenu().openMenu(player, setup.getGame());
-        }
-        else if (e.getSlot() == 15) {
+        } else if (e.getSlot() == 15) {
             if (current < max)
                 Util.playSound(player, Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound, 1, 2);
             else player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);

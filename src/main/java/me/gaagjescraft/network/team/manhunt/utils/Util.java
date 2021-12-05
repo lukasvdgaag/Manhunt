@@ -57,7 +57,7 @@ public class Util {
             sb.append(" ");
             compensated += spaceLength;
         }
-        player.sendMessage(sb.toString() + message);
+        player.sendMessage(sb + message);
     }
 
     public static List<String> r(List<String> items, String search, String replaceAll) {
@@ -128,7 +128,7 @@ public class Util {
     public void createGameServer(GameSetup setup, String targetGameServer) {
         if (Manhunt.get().getBungeeSocketManager() == null) return;
         Player host = setup.getHost();
-        String json = "{'server_name': '" + Manhunt.get().getCfg().serverName + "', 'game_server':'" + targetGameServer + "', 'host':'" + host.getName() + "', 'host_uuid':'" + setup.getHost().getUniqueId().toString() + "', " +
+        String json = "{'server_name': '" + Manhunt.get().getCfg().serverName + "', 'game_server':'" + targetGameServer + "', 'host':'" + host.getName() + "', 'host_uuid':'" + setup.getHost().getUniqueId() + "', " +
                 "'max_players':" + setup.getMaxPlayers() + ", 'headstart':'" + setup.getHeadstart().name() + "', " +
                 "'allow_twists':" + setup.isAllowTwists() + ", 'daylight_cycle':" + setup.isDoDaylightCycle() + ", 'friendly_fire':" + setup.isAllowFriendlyFire() + "}";
 
@@ -212,9 +212,9 @@ public class Util {
         } else {
             hours = (int) seconds / 3600;
             int remainder = (int) seconds - hours * 3600;
-            mins = (int) remainder / 60;
+            mins = remainder / 60;
             remainder = remainder - mins * 60;
-            secs = (int) remainder;
+            secs = remainder;
         }
 
         if (format.equals("simplified")) {

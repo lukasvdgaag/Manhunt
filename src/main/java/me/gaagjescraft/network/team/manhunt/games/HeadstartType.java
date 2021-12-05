@@ -8,7 +8,10 @@ public enum HeadstartType {
     TWO_MINUTES(120);
 
     private final int seconds;
-    HeadstartType(int sec) { this.seconds = sec; }
+
+    HeadstartType(int sec) {
+        this.seconds = sec;
+    }
 
     public int getSeconds() {
         return seconds;

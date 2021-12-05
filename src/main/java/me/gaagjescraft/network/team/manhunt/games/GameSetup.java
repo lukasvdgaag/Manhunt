@@ -11,9 +11,9 @@ public class GameSetup {
     private boolean doDaylightCycle;
     private boolean allowFriendlyFire;
     private Game game;
-    private Player host;
+    private final Player host;
     private HeadstartType headstart;
-    private GameSetupBungee bungeeSetup;
+    private final GameSetupBungee bungeeSetup;
 
     public GameSetup(Player host, boolean allowTwists, int maxPlayers, boolean doDaylightCycle, boolean allowFriendlyFire, HeadstartType type) {
         this.host = host;
@@ -34,6 +34,10 @@ public class GameSetup {
         return game;
     }
 
+    public void setGame(Game game) {
+        this.game = game;
+    }
+
     public HeadstartType getHeadstart() {
         return headstart;
     }
@@ -46,10 +50,6 @@ public class GameSetup {
                 getGame().sendMessage(null, Util.c(Manhunt.get().getCfg().headstartChangeMessage.replaceAll("%time%", Manhunt.get().getUtil().secondsToTimeString(headstart.getSeconds(), "string")).replaceAll("%player%", host.getName())));
             }
         }
-    }
-
-    public void setGame(Game game) {
-        this.game = game;
     }
 
     public Player getHost() {

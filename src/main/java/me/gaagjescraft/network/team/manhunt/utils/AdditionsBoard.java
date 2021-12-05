@@ -14,15 +14,11 @@ import java.util.HashMap;
 public class AdditionsBoard {
 
     public Scoreboard board;
-    private Player player;
-    private Objective objective;
-    private int linecount;
+    private final Player player;
+    private final Objective objective;
+    private final int linecount;
 
-    private HashMap<Integer, String> cache = new HashMap<>();
-
-    public Scoreboard getScoreboard() {
-        return board;
-    }
+    private final HashMap<Integer, String> cache = new HashMap<>();
 
     public AdditionsBoard(Player player, int linecount) {
         this.player = player;
@@ -40,6 +36,10 @@ public class AdditionsBoard {
             score--;
         }
         this.player.setScoreboard(this.board); // sets the player scoreboard
+    }
+
+    public Scoreboard getScoreboard() {
+        return board;
     }
 
     public void setTitle(String arg0) {

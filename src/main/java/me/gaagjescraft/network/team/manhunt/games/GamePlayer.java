@@ -2,6 +2,7 @@ package me.gaagjescraft.network.team.manhunt.games;
 
 import com.google.common.collect.Lists;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
+import me.gaagjescraft.network.team.manhunt.games.compass.CompassTracker;
 import me.gaagjescraft.network.team.manhunt.inst.PlayerStat;
 import me.gaagjescraft.network.team.manhunt.utils.AdditionsBoard;
 import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
@@ -10,8 +11,6 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.CompassMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -22,8 +21,9 @@ import java.util.UUID;
 
 public class GamePlayer {
 
-    private Game game;
-    private UUID uuid;
+    private final CompassTracker compassTracker;
+    private final Game game;
+    private final UUID uuid;
     private TwistVote twistVoted;
     private PlayerType playerType;
     private int deaths;
@@ -31,7 +31,6 @@ public class GamePlayer {
     private AdditionsBoard scoreboard;
     private int kills;
     private boolean isDead;
-    private GamePlayer tracking;
     private boolean reachedNether;
     private boolean reachedEnd;
     private boolean isLeavingGame;
@@ -47,6 +46,7 @@ public class GamePlayer {
     private Location endPortal; // portal from overworld -> end
 
     public GamePlayer(Game game, UUID uuid, PlayerType playerType, boolean isHost, String username) {
+        this.compassTracker = Manhunt.get().getPlatformUtils().getCompassTracker(this);
         this.game = game;
         this.uuid = uuid;
         this.twistVoted = null;
@@ -56,7 +56,6 @@ public class GamePlayer {
         this.scoreboard = null;
         this.kills = 0;
         this.isDead = false;
-        this.tracking = null;
         this.reachedEnd = false;
         this.reachedNether = false;
         this.isLeavingGame = false;
@@ -72,6 +71,10 @@ public class GamePlayer {
         this.endPortal = null;
 
         if (!Manhunt.get().getCfg().isLobbyServer) updateScoreboard();
+    }
+
+    public CompassTracker getCompassTracker() {
+        return compassTracker;
     }
 
     public String getUsername() {
@@ -195,56 +198,10 @@ public class GamePlayer {
         isDead = dead;
     }
 
-    public GamePlayer getTracking() {
-        return tracking;
-    }
-
     public void setTracking(GamePlayer tracking) {
-        this.tracking = tracking;
+        setTrackingPlayer(tracking);
         if (tracking == null) return;
-        Player player = Bukkit.getPlayer(this.uuid);
-        Player track = Bukkit.getPlayer(tracking.getUuid());
-        if (track == null || player == null) return;
-        if (!track.getWorld().getName().equals(player.getWorld().getName())) {
-            if (track.getWorld().getEnvironment() == World.Environment.NETHER && player.getWorld().getEnvironment() == World.Environment.NORMAL && tracking.getNetherPortal() != null) {
-                // player is in overworld, tracked player is in the nether.
-                player.setCompassTarget(tracking.getNetherPortal());
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingPortalActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", tracking.getColor()))));
-            } else if (player.getWorld().getEnvironment() == World.Environment.NETHER && track.getWorld().getEnvironment() == World.Environment.NORMAL && tracking.getOverworldPortal() != null) {
-                // player is in nether, tracked player is in the overworld.
-                player.setCompassTarget(tracking.getOverworldPortal());
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingPortalActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", tracking.getColor()))));
-            } else if (track.getWorld().getEnvironment() == World.Environment.THE_END && player.getWorld().getEnvironment() == World.Environment.NORMAL && tracking.getEndPortal() != null) {
-                // player is in overworld, tracked player is in the end.
-                player.setCompassTarget(tracking.getEndPortal());
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingPortalActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", tracking.getColor()))));
-            } else {
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingOtherDimensionActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", tracking.getColor()))));
-            }
-            return;
-        }
-
-        for (int i = 0; i < player.getInventory().getSize(); i++) {
-            ItemStack item = player.getInventory().getItem(i);
-            if (item == null || item.getType() == Material.AIR) continue;
-            if (item.getType() == Material.COMPASS && item.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname))) {
-                CompassMeta meta = (CompassMeta) item.getItemMeta();
-                if (player.getWorld().getEnvironment() != World.Environment.NORMAL) {
-                    meta.setLodestone(track.getLocation());
-                    meta.setLodestoneTracked(false);
-                } else {
-                    meta.setLodestoneTracked(true);
-                    meta.setLodestone(null);
-                    player.setCompassTarget(track.getLocation());
-                }
-                item.setItemMeta(meta);
-                // player.getInventory().setItem(i, compass);
-                break;
-            }
-        }
-
-        int distance = (int) player.getLocation().distance(track.getLocation());
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", tracking.getColor()).replaceAll("%distance%", distance + ""))));
+        getCompassTracker().updateCompass();
     }
 
     public boolean isReachedEnd() {
@@ -716,6 +673,10 @@ public class GamePlayer {
 
         // else player is runner, check if player has died more than once.
         return deaths > 0;
+    }
+
+    public void setTrackingPlayer(GamePlayer gamePlayer) {
+        getCompassTracker().setTracking(gamePlayer);
     }
 
 }

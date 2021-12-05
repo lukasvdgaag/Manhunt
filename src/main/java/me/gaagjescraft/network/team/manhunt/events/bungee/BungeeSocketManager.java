@@ -5,6 +5,7 @@ import com.google.common.io.ByteStreams;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
+import me.gaagjescraft.network.team.manhunt.events.custom.ManhuntBungeeMessageReceiveEvent;
 import me.gaagjescraft.network.team.manhunt.games.*;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
@@ -28,7 +29,7 @@ public class BungeeSocketManager {
     private Thread thread = null;
     private int bukkitTaskId = -1;
 
-    private List<Socket> socketsConnected = new ArrayList<>();
+    private final List<Socket> socketsConnected = new ArrayList<>();
 
     /*
         This method sends a message to all the connected clients. (Only server side supported).
@@ -115,6 +116,8 @@ public class BungeeSocketManager {
                                     if (Manhunt.get().getCfg().debug)
                                         Bukkit.getLogger().severe("Message from socket: " + subChannel + ", " + value);
 
+                                    Bukkit.getPluginManager().callEvent(new ManhuntBungeeMessageReceiveEvent(subChannel, value));
+
                                     switch (subChannel) {
                                         case "createGameResponse":
                                             serverProcessCreateGameResponse(value);
@@ -194,6 +197,8 @@ public class BungeeSocketManager {
                         String value = din.readUTF();
                         if (Manhunt.get().getCfg().debug)
                             Bukkit.getLogger().severe("Message from socket: " + subChannel + ", " + value);
+
+                        Bukkit.getPluginManager().callEvent(new ManhuntBungeeMessageReceiveEvent(subChannel, value));
 
                         switch (subChannel) {
                             case "createGame":

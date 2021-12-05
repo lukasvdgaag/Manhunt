@@ -1,6 +1,6 @@
 package me.gaagjescraft.network.team.manhunt.events.custom;
 
-import me.gaagjescraft.network.team.manhunt.games.GameSetup;
+import me.gaagjescraft.network.team.manhunt.games.Game;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -9,19 +9,19 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
-public class GameSetupMenuClickEvent extends Event implements Cancellable {
+public class GameTrackerMenuClickEvent extends Event implements Cancellable {
 
     private static final HandlerList handlers = new HandlerList();
 
     private final Player player;
-    private final GameSetup gameSetup;
+    private final Game gameSetup;
     private final int slot;
     private final ClickType clickType;
     private final Inventory inventory;
 
     private boolean cancel;
 
-    public GameSetupMenuClickEvent(Player player, GameSetup gameSetup, Inventory inventory, int slot, ClickType clickType) {
+    public GameTrackerMenuClickEvent(Player player, Game gameSetup, Inventory inventory, int slot, ClickType clickType) {
         this.player = player;
         this.gameSetup = gameSetup;
         this.inventory = inventory;
@@ -43,7 +43,7 @@ public class GameSetupMenuClickEvent extends Event implements Cancellable {
         return player;
     }
 
-    public GameSetup getGame() {
+    public Game getGame() {
         return gameSetup;
     }
 

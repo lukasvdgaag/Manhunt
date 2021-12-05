@@ -27,7 +27,7 @@ import java.util.List;
 
 public class ManhuntTwistVoteMenu implements Listener {
 
-    private List<Player> voteCooldowns = Lists.newArrayList();
+    private final List<Player> voteCooldowns = Lists.newArrayList();
 
     public void open(Player player, Game game) {
         Inventory teleportMenu = Bukkit.createInventory(null, 45, Util.c(Manhunt.get().getCfg().menuTwistVoteTitle));

@@ -25,7 +25,7 @@ import java.util.List;
 
 public class ManhuntGamesMenu implements Listener {
 
-    private List<Player> viewers = new ArrayList<>();
+    private final List<Player> viewers = new ArrayList<>();
 
     public void openMenu(Player player) {
         Inventory inventory = Bukkit.createInventory(null, 27, Util.c(Manhunt.get().getCfg().menuGamesTitle));

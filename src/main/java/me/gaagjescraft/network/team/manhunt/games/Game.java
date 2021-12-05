@@ -3,8 +3,13 @@ package me.gaagjescraft.network.team.manhunt.games;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import io.papermc.lib.PaperLib;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
+import me.gaagjescraft.network.team.manhunt.events.custom.GameCreationEvent;
+import me.gaagjescraft.network.team.manhunt.events.custom.GameJoinEvent;
+import me.gaagjescraft.network.team.manhunt.events.custom.GameLeaveEvent;
+import me.gaagjescraft.network.team.manhunt.events.custom.GameRemovalEvent;
 import me.gaagjescraft.network.team.manhunt.menus.RunnerTrackerMenu;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import net.md_5.bungee.api.ChatMessageType;
@@ -29,8 +34,8 @@ public class Game {
 
     private final String identifier;
     private final String worldIdentifier;
-    private List<GamePlayer> players;
-    private List<UUID> spectators;
+    private final List<GamePlayer> players;
+    private final List<UUID> spectators;
     private boolean twistsAllowed;
     private boolean doDaylightCycle;
     private TwistVote selectedTwist;
@@ -38,10 +43,10 @@ public class Game {
     private PlayerType winningTeam;
     private GameStatus status;
     private int timer;
-    private GameSchematic schematic;
-    private GameScheduler scheduler;
+    private final GameSchematic schematic;
+    private final GameScheduler scheduler;
     private boolean allowFriendlyFire;
-    private RunnerTrackerMenu runnerTrackerMenu;
+    private final RunnerTrackerMenu runnerTrackerMenu;
     private int nextEventTime;
     private boolean eventActive;
     private HeadstartType headStart;
@@ -213,6 +218,11 @@ public class Game {
             if (status == GameStatus.LOADING || status == GameStatus.STOPPING || (hunterCount >= maxPlayers && (gplayer == null || gplayer.isOnline())))
                 return false;
         }
+
+        GameJoinEvent joinEvent = new GameJoinEvent(player, this);
+        Bukkit.getPluginManager().callEvent(joinEvent);
+        if (joinEvent.isCancelled()) return false;
+
         GamePlayer gamePlayer = gplayer;
         if (gamePlayer == null) {
             gamePlayer = new GamePlayer(this, player.getUniqueId(), PlayerType.HUNTER, false, player.getName());
@@ -275,6 +285,8 @@ public class Game {
             }
         }
         if (gamePlayer == null) return;
+        Bukkit.getPluginManager().callEvent(new GameLeaveEvent(player, this));
+
         Manhunt.get().getManhuntGameSetupMenu().gameSetups.remove(player);
         gamePlayer.setOnline(false);
 
@@ -378,10 +390,7 @@ public class Game {
     }
 
     public void checkForWin(boolean forceWin) {
-        boolean draw = false;
-        if (getStatus() != GameStatus.PLAYING) {
-            draw = true;
-        }
+        boolean draw = getStatus() != GameStatus.PLAYING;
 
         List<GamePlayer> runners = getOnlinePlayers(PlayerType.RUNNER);
         List<GamePlayer> hunters = getOnlinePlayers(PlayerType.HUNTER);
@@ -530,6 +539,8 @@ public class Game {
     public void delete() {
         Location loc = Manhunt.get().getCfg().lobby;
 
+        Bukkit.getPluginManager().callEvent(new GameRemovalEvent(this));
+
         if (!Manhunt.get().getCfg().isLobbyServer) {
             for (GamePlayer gp : players) {
                 Player p = Bukkit.getPlayer(gp.getUuid());
@@ -605,7 +616,7 @@ public class Game {
         }
     }
 
-    public synchronized void create() {
+    public void create() {
         int random = ThreadLocalRandom.current().nextInt(Manhunt.get().getCfg().seeds.size());
         long seed = Manhunt.get().getCfg().seeds.get(random);
 
@@ -672,25 +683,39 @@ public class Game {
             world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, isDoDaylightCycle());
             world.setTime(6000);
 
-            this.schematic.load();
-
-            ready = true;
-            setStatus(GameStatus.WAITING);
-            Manhunt.get().getUtil().createGameReadyMessage(this);
-
-            for (GamePlayer gp : getOnlinePlayers(null)) {
-                Player p = Bukkit.getPlayer(gp.getUuid());
-                if (p == null) continue;
-                p.teleport(this.schematic.getSpawnLocation());
-                gp.prepareForGame(getStatus());
-                gp.updateScoreboard();
-
-                if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(p);
+            CompletableFuture<Chunk> chunkFuture = PaperLib.getChunkAtAsync(
+                    world.get(), world.get().getSpawnLocation().getBlockX(), world.get().getSpawnLocation().getBlockZ());
+            try {
+                Chunk chunk = chunkFuture.get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
             }
-            if (Manhunt.get().getCfg().autoJoinOnlinePlayersWhenGameCreated) {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    if (Game.getGame(player) == null) {
-                        addPlayer(player);
+
+            // Done loading chunk
+
+            Future<Object> part2 = Bukkit.getScheduler().callSyncMethod(Manhunt.get(), () -> {
+                this.schematic.load();
+
+                ready = true;
+                setStatus(GameStatus.WAITING);
+                Manhunt.get().getUtil().createGameReadyMessage(this);
+
+                Bukkit.getPluginManager().callEvent(new GameCreationEvent(this));
+
+                for (GamePlayer gp : getOnlinePlayers(null)) {
+                    Player p = Bukkit.getPlayer(gp.getUuid());
+                    if (p == null) continue;
+                    p.teleport(this.schematic.getSpawnLocation());
+                    gp.prepareForGame(getStatus());
+                    gp.updateScoreboard();
+
+                    if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(p);
+                }
+                if (Manhunt.get().getCfg().autoJoinOnlinePlayersWhenGameCreated) {
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        if (Game.getGame(player) == null) {
+                            addPlayer(player);
+                        }
                     }
                 }
             }

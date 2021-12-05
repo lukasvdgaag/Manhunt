@@ -9,8 +9,8 @@ import java.util.List;
 
 public class GameSetupBungee {
 
-    private GameSetup gameSetup;
-    private List<String> serversChecked;
+    private final GameSetup gameSetup;
+    private final List<String> serversChecked;
     private boolean startedSearching;
     private boolean noGameAvailable;
     private int runnableTaskId;
@@ -32,6 +32,10 @@ public class GameSetupBungee {
         return noGameAvailable;
     }
 
+    public void setNoGameAvailable(boolean noGameAvailable) {
+        this.noGameAvailable = noGameAvailable;
+    }
+
     public boolean isStartedSearching() {
         return startedSearching;
     }
@@ -50,10 +54,6 @@ public class GameSetupBungee {
 
     public boolean isLastServer() {
         return isLastServer;
-    }
-
-    public void setNoGameAvailable(boolean noGameAvailable) {
-        this.noGameAvailable = noGameAvailable;
     }
 
     public void requestNextGameCreation() {

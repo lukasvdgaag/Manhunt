@@ -12,6 +12,7 @@ import java.util.List;
 
 public class Config {
 
+    private final File file;
     public boolean disableSettingsChanging;
     public boolean bungeeMode;
     public boolean isLobbyServer;
@@ -291,13 +292,11 @@ public class Config {
     public List<String> teleporterMenuPlayerLore;
     public String trackerMenuPlayerDisplayname;
     public List<String> trackerMenuPlayerLore;
-
     public String generalFillMaterial;
     public String generalCloseMaterial;
     public String gamesMenuNoGamesMaterial;
     public String gamesMenuHostGameMaterial;
     public String gamesMenuHostUnsupportedProtocolMaterial;
-
     public String hostMenuFinishMaterial;
     public String hostMenuStartMaterial;
     public String generalTrackerMaterial;
@@ -338,7 +337,6 @@ public class Config {
     public String spectatorChatColor;
     public boolean spectatorsHaveGeneralColor;
     public String trackingPortalActionbar;
-
     public String storageType;
     public String databaseHostname;
     public String databaseUsername;
@@ -348,13 +346,11 @@ public class Config {
     public int socketPort;
     public String lobbyServerName;
     public int minimumClientProtocolVersion;
-
     public boolean defaultOptionAllowTwists;
     public int defaultOptionMaxPlayers;
     public boolean defaultOptionAllowFriendlyFire;
     public boolean defaultOptionDoDaylightCycle;
     public HeadstartType defaultOptionHeadstart;
-    private final File file;
     public String joinFailMessage;
     public boolean debug;
     public String moneyRefundedMessage;

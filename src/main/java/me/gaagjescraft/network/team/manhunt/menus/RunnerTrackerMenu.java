@@ -1,6 +1,7 @@
 package me.gaagjescraft.network.team.manhunt.menus;
 
 import me.gaagjescraft.network.team.manhunt.Manhunt;
+import me.gaagjescraft.network.team.manhunt.events.custom.GameTrackerMenuOpenEvent;
 import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.games.GamePlayer;
 import me.gaagjescraft.network.team.manhunt.games.PlayerType;
@@ -19,7 +20,7 @@ import java.util.List;
 
 public class RunnerTrackerMenu {
 
-    private Game game;
+    private final Game game;
     private Inventory teleporterMenu;
     private Inventory trackerMenu;
     private List<GamePlayer> runnersList;
@@ -86,8 +87,14 @@ public class RunnerTrackerMenu {
     }
 
     public void open(Player player, boolean teleporting) {
-        if (teleporting) player.openInventory(this.teleporterMenu);
-        else player.openInventory(this.trackerMenu);
+        Inventory inv = teleporting ? this.teleporterMenu : this.trackerMenu;
+        GameTrackerMenuOpenEvent event = new GameTrackerMenuOpenEvent(player, game, inv);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+            return;
+        }
+
+        player.openInventory(inv);
     }
 
     public List<GamePlayer> getRunnersList() {

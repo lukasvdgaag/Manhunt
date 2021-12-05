@@ -18,7 +18,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class GameScheduler {
 
-    private Game game;
+    private final Game game;
 
     GameScheduler(Game game) {
         this.game = game;
@@ -32,7 +32,7 @@ public class GameScheduler {
                 for (GamePlayer gp : game.getOnlinePlayers(null)) {
                     if ((Bukkit.getPlayer(gp.getUuid()) != null)) {
                         gp.updateScoreboard();
-                        if (gp.getTracking() != null) gp.setTracking(gp.getTracking());
+                        gp.getCompassTracker().updateCompass();
                     }
                 }
 
@@ -288,10 +288,10 @@ public class GameScheduler {
         } else if (game.getSelectedTwist() == TwistVote.SPEED_BOOST) {
             game.setEventActive(true);
             ThreadLocalRandom random = ThreadLocalRandom.current();
-            int rand = random.nextInt(1,4);
+            int rand = random.nextInt(1, 4);
 
             StringBuilder a = new StringBuilder();
-            for (int i = 0; i<rand; i++){
+            for (int i = 0; i < rand; i++) {
                 a.append("I");
             }
 
@@ -306,7 +306,7 @@ public class GameScheduler {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 400, rand));
                 }
             }
-            Bukkit.getScheduler().runTaskLater(Manhunt.get(),()->{
+            Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> {
                 game.setEventActive(false);
                 game.determineNextEventTime();
             }, 400);

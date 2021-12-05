@@ -1,6 +1,7 @@
 package me.gaagjescraft.network.team.manhunt.menus.handlers;
 
 import me.gaagjescraft.network.team.manhunt.Manhunt;
+import me.gaagjescraft.network.team.manhunt.events.custom.GameTrackerMenuClickEvent;
 import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.games.GamePlayer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
@@ -22,11 +23,18 @@ public class RunnerTrackerMenuHandler implements Listener {
         e.setCancelled(true);
 
         if (!e.getClickedInventory().equals(e.getView().getTopInventory())) return;
+
         Player player = (Player) e.getWhoClicked();
 
         Game game = Game.getGame(player);
         if (game == null) return;
         GamePlayer gp = game.getPlayer(player);
+
+        GameTrackerMenuClickEvent event = new GameTrackerMenuClickEvent(player, game, e.getClickedInventory(), e.getRawSlot(), e.getClick());
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+            return;
+        }
 
         if (e.getCurrentItem() == null) return;
         int i = e.getRawSlot();

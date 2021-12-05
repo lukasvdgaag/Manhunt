@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public class PlayerStat {
 
-    private UUID uuid;
+    private final UUID uuid;
     private long bestSpeedRunTime;
     private int hunterGamesPlayed;
     private int runnerGamesPlayed;
