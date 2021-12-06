@@ -253,10 +253,18 @@ public class GamePlayer {
     public void setTwistVoted(TwistVote twistVoted) {
         this.twistVoted = twistVoted;
         if (Manhunt.get().getCfg().announceTwistVoteToEntireGame) {
-            game.sendMessage(null, Util.c(Manhunt.get().getCfg().twistVotedMessage.replaceAll("%color%", getColor()).replaceAll("%player%", Bukkit.getPlayer(uuid).getName()).replaceAll("%twist%", twistVoted.getDisplayName())));
+            game.sendMessage(null, Util.c(Manhunt.get().getCfg().twistVotedMessage
+                    .replaceAll("%color%", getColor())
+                    .replaceAll("%player%", Bukkit.getPlayer(uuid).getName())
+                    .replaceAll("%twist%", twistVoted.getDisplayName())
+                    .replaceAll("%votes%", game.getTwistVotes(twistVoted) + "")));
         } else {
             Player p = Bukkit.getPlayer(uuid);
-            p.sendMessage(Util.c(Manhunt.get().getCfg().playerTwistVoteMessage.replaceAll("%color%", getColor()).replaceAll("%player%", p.getName()).replaceAll("%twist%", twistVoted.getDisplayName())));
+            p.sendMessage(Util.c(Manhunt.get().getCfg().playerTwistVoteMessage
+                    .replaceAll("%color%", getColor())
+                    .replaceAll("%player%", p.getName())
+                    .replaceAll("%twist%", twistVoted.getDisplayName())
+                    .replaceAll("%votes%", game.getTwistVotes(twistVoted) + "")));
         }
     }
 

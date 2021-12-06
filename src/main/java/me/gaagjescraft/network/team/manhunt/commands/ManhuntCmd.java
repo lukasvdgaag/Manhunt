@@ -147,7 +147,7 @@ public class ManhuntCmd implements CommandExecutor {
             if (extraLives - amount > 0) {
                 gp.setExtraLives(extraLives);
             } else {
-                gp.setDeaths(gp.getDeaths() - amount + 1);
+                gp.setDeaths(gp.getDeaths() + amount - 1);
                 target.setHealth(0);
             }
             sender.sendMessage(Util.c(Manhunt.get().getCfg().removeLifeMessage

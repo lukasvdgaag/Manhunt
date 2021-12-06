@@ -689,7 +689,7 @@ titles:
     lose-runner: '&c&lYOU LOST!\n&7You were eliminated by the hunters!'
     lose-hunter: '&c&lYOU LOST!\n&7You were beaten by the runners!'
   dragon-defeated: '&5&lDRAGON DEFEATED!\n&7%player% defeated the dragon and won!'
-  death: '&c&lYOU DIED!\n&7You have %lives% left.'
+  death: '&c&lYOU DIED!\n&7You have %lives% lives left.'
   runner-down: '&7&lSPEED RUNNER DOWN!\n&c%player% died!'
   player-entered-nether: '&c&lNETHER\n&7You have entered the nether!'
   player-entered-end: '&5&lTHE END\n&7You have entered the end!'
