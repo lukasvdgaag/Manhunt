@@ -109,5 +109,12 @@ public class GameSetup {
         }
     }
 
-
+    @Override
+    public String toString() {
+        return "'max_players': " + maxPlayers +
+                ", 'allow_twists': " + allowTwists +
+                ", 'daylight_cycle': " + doDaylightCycle +
+                ", 'friendly_fire': " + allowFriendlyFire +
+                ", 'headstart': '" + headstart + "'";
+    }
 }

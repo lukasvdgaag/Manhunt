@@ -11,11 +11,11 @@ import me.gaagjescraft.network.team.manhunt.events.custom.GameJoinEvent;
 import me.gaagjescraft.network.team.manhunt.events.custom.GameLeaveEvent;
 import me.gaagjescraft.network.team.manhunt.events.custom.GameRemovalEvent;
 import me.gaagjescraft.network.team.manhunt.menus.RunnerTrackerMenu;
+import me.gaagjescraft.network.team.manhunt.utils.FileUtils;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -40,6 +40,9 @@ public class Game {
     private final String worldIdentifier;
     private final List<GamePlayer> players;
     private final List<UUID> spectators;
+    private final GameSchematic schematic;
+    private final GameScheduler scheduler;
+    private final RunnerTrackerMenu runnerTrackerMenu;
     private boolean twistsAllowed;
     private boolean doDaylightCycle;
     private TwistVote selectedTwist;
@@ -47,10 +50,7 @@ public class Game {
     private PlayerType winningTeam;
     private GameStatus status;
     private int timer;
-    private final GameSchematic schematic;
-    private final GameScheduler scheduler;
     private boolean allowFriendlyFire;
-    private final RunnerTrackerMenu runnerTrackerMenu;
     private int nextEventTime;
     private boolean eventActive;
     private HeadstartType headStart;
@@ -62,7 +62,7 @@ public class Game {
     private UUID hostUUID;
     private boolean ready;
 
-    private Game(String id, boolean twistsAllowed, UUID host, int maxPlayers) {
+    public Game(String id, boolean twistsAllowed, UUID host, int maxPlayers) {
         this.identifier = id;
         this.worldIdentifier = "manhunt_" + (Manhunt.get().getCfg().useUuidsAsWorldNames ? host.toString() : id);
         this.twistsAllowed = twistsAllowed;
@@ -103,18 +103,8 @@ public class Game {
         if (!Manhunt.get().getCfg().bungeeMode || !Manhunt.get().getCfg().isLobbyServer) this.scheduler.start();
     }
 
-    public static Game createGame(boolean twistsAllowed, String host, UUID hostUUID, int maxPlayers) {
-        if (getGame(host) != null) return null;
-        return new Game(host, twistsAllowed, hostUUID, maxPlayers);
-    }
-
-    public static Game createGame(boolean twistsAllowed, Player host, int maxPlayers) {
-        if (getGame(host.getName()) != null || getGame(host) != null) return null;
-        return new Game(host.getName(), twistsAllowed, host.getUniqueId(), maxPlayers);
-    }
-
     public static Game getGame(UUID worldId) {
-        for (Game g : games) if (g.getWorldIdentifier().equals(worldId.toString())) return g;
+        for (Game g : games) if (g.getWorldIdentifier().equals(worldId.toString()) || (g.getHostUUID() != null && g.getHostUUID().equals(worldId))) return g;
         return null;
     }
 
@@ -182,7 +172,7 @@ public class Game {
 
     public void sendUpdate() {
         if (Manhunt.get().getBungeeSocketManager() == null) return;
-        Manhunt.get().getUtil().createUpdateGameMessage(this);
+        Manhunt.get().getBungeeMessenger().createUpdateGameMessage(this);
     }
 
     public boolean isReady() {
@@ -241,7 +231,7 @@ public class Game {
 
         if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) {
             if (gamePlayer.isSpectating()) {
-                Manhunt.get().getUtil().createAddSpectatorMessage(this, player.getUniqueId());
+                Manhunt.get().getBungeeMessenger().createAddSpectatorMessage(this, player.getUniqueId());
             }
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Connect");
@@ -572,10 +562,10 @@ public class Game {
                     if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(p);
                 }
             }
-            if (Manhunt.get().getCfg().bungeeMode) Manhunt.get().getUtil().createGameEndedMessage(this);
+            if (Manhunt.get().getCfg().bungeeMode) Manhunt.get().getBungeeMessenger().createGameEndedMessage(this);
         } else if (Manhunt.get().getCfg().bungeeMode) {
             // bungeemode is enabled, and server is lobby server.
-            Manhunt.get().getUtil().createEndGameMessage(this, true);
+            Manhunt.get().getBungeeMessenger().createEndGameMessage(this, true);
             this.players.clear();
             games.remove(this);
             return;
@@ -713,7 +703,7 @@ public class Game {
 
                 ready = true;
                 setStatus(GameStatus.WAITING);
-                Manhunt.get().getUtil().createGameReadyMessage(this);
+                Manhunt.get().getBungeeMessenger().createGameReadyMessage(this);
 
                 Bukkit.getPluginManager().callEvent(new GameCreationEvent(this));
 

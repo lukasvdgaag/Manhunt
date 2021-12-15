@@ -5,6 +5,7 @@ import me.gaagjescraft.network.team.manhunt.events.DeathEventHandler;
 import me.gaagjescraft.network.team.manhunt.events.GameEventsHandlers;
 import me.gaagjescraft.network.team.manhunt.events.GameWaitingEvents;
 import me.gaagjescraft.network.team.manhunt.events.LeaveEventHandler;
+import me.gaagjescraft.network.team.manhunt.events.bungee.BungeeMessenger;
 import me.gaagjescraft.network.team.manhunt.events.bungee.BungeeSocketManager;
 import me.gaagjescraft.network.team.manhunt.games.*;
 import me.gaagjescraft.network.team.manhunt.inst.storage.MongoStorage;
@@ -44,6 +45,7 @@ public class Manhunt extends JavaPlugin {
     private BungeeSocketManager bungeeSocketManager;
     private VaultEcoHook ecoHook;
     private ExodusCociteSupport exodusCociteSupport;
+    private BungeeMessenger bungeeMessenger;
 
     public static Manhunt get() {
         return instance;
@@ -123,6 +125,7 @@ public class Manhunt extends JavaPlugin {
             }
         }
         if (getCfg().bungeeMode) {
+            setBungeeMessenger(new BungeeMessenger());
             bungeeSocketManager = new BungeeSocketManager();
             if (getCfg().isLobbyServer) {
                 bungeeSocketManager.enableServer();
@@ -165,7 +168,7 @@ public class Manhunt extends JavaPlugin {
             game.delete();
         }
 
-        if (bungeeSocketManager != null && getCfg().isLobbyServer) getUtil().createDisconnectClientMessage();
+        if (bungeeSocketManager != null && getCfg().isLobbyServer) getBungeeMessenger().createDisconnectClientMessage();
         if (bungeeSocketManager != null) bungeeSocketManager.close();
     }
 
@@ -185,6 +188,14 @@ public class Manhunt extends JavaPlugin {
         }
 
         this.playerStorage.setup();
+    }
+
+    public BungeeMessenger getBungeeMessenger() {
+        return bungeeMessenger;
+    }
+
+    public void setBungeeMessenger(BungeeMessenger bungeeMessenger) {
+        this.bungeeMessenger = bungeeMessenger;
     }
 
     public TagUtils getTagUtils() {

@@ -15,7 +15,7 @@ public class GameSetupMenuClickEvent extends Event implements Cancellable {
 
     private final Player player;
     private final GameSetup gameSetup;
-    private final int slot;
+    private int slot;
     private final ClickType clickType;
     private final Inventory inventory;
 
@@ -53,6 +53,10 @@ public class GameSetupMenuClickEvent extends Event implements Cancellable {
 
     public int getSlot() {
         return slot;
+    }
+
+    public void setSlot(int slot) {
+        this.slot = slot;
     }
 
     public ClickType getClickType() {

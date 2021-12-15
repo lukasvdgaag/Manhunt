@@ -1,10 +1,12 @@
 package me.gaagjescraft.network.team.manhunt.utils;
 
-import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
-import me.gaagjescraft.network.team.manhunt.games.*;
+import me.gaagjescraft.network.team.manhunt.games.Game;
+import me.gaagjescraft.network.team.manhunt.games.GamePlayer;
+import me.gaagjescraft.network.team.manhunt.games.GameStatus;
+import me.gaagjescraft.network.team.manhunt.games.PlayerType;
 import me.gaagjescraft.network.team.manhunt.utils.centerText.DefaultFontInfo;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -123,64 +125,6 @@ public class Util {
         } catch (Exception e) {
             Manhunt.get().getLogger().severe("We failed to play the sound '" + soundString + " for player " + player.getName() + ". Does it exist?");
         }
-    }
-
-    public void createGameServer(GameSetup setup, String targetGameServer) {
-        if (Manhunt.get().getBungeeSocketManager() == null) return;
-        Player host = setup.getHost();
-        String json = "{'server_name': '" + Manhunt.get().getCfg().serverName + "', 'game_server':'" + targetGameServer + "', 'host':'" + host.getName() + "', 'host_uuid':'" + setup.getHost().getUniqueId() + "', " +
-                "'max_players':" + setup.getMaxPlayers() + ", 'headstart':'" + setup.getHeadstart().name() + "', " +
-                "'allow_twists':" + setup.isAllowTwists() + ", 'daylight_cycle':" + setup.isDoDaylightCycle() + ", 'friendly_fire':" + setup.isAllowFriendlyFire() + "}";
-
-        if (!Manhunt.get().getBungeeSocketManager().sendMessage("createGame", json)) {
-            setup.getHost().sendMessage(ChatColor.RED + "We had some trouble connecting to the other servers. Please inform a staff member.");
-        }
-    }
-
-    public void createAddSpectatorMessage(Game game, UUID player) {
-        if (Manhunt.get().getBungeeSocketManager() == null) return;
-        Manhunt.get().getBungeeSocketManager().sendMessage("addSpectator", "{'game':'" + game.getIdentifier() + "', 'player':'" + player.toString() + "'}");
-    }
-
-    public void createDisconnectClientMessage() {
-        if (Manhunt.get().getBungeeSocketManager() == null) return;
-        Manhunt.get().getBungeeSocketManager().sendMessage("disconnect", "");
-    }
-
-    public void createGameReadyMessage(Game game) {
-        if (Manhunt.get().getBungeeSocketManager() == null) return;
-        String json = "{'server_name': '" + Manhunt.get().getCfg().serverName + "', 'game':'" + game.getIdentifier() + "', 'host_uuid':'" + game.getHostUUID().toString() + "'}";
-        Manhunt.get().getBungeeSocketManager().sendMessage("gameReady", json);
-    }
-
-    public void createGameEndedMessage(Game game) {
-        if (Manhunt.get().getBungeeSocketManager() == null) return;
-        String json = "{'game':'" + game.getIdentifier() + "'}";
-        Manhunt.get().getBungeeSocketManager().sendMessage("gameEnded", json);
-    }
-
-    public void createEndGameMessage(Game game, boolean forceStop) {
-        if (Manhunt.get().getBungeeSocketManager() == null) return;
-        String json = "{'game':'" + game.getIdentifier() + "', 'force_stop':" + forceStop + "}";
-        Manhunt.get().getBungeeSocketManager().sendMessage("endGame", json);
-    }
-
-    public void createUpdateGameMessage(Game game) {
-        if (Manhunt.get().getBungeeSocketManager() == null) return;
-        JsonObject object = new JsonObject();
-        object.addProperty("server", Manhunt.get().getCfg().serverName);
-        object.addProperty("id", game.getIdentifier());
-        object.addProperty("host_uuid", game.getHostUUID().toString());
-        object.addProperty("allow_twists", game.isTwistsAllowed());
-        object.addProperty("max_players", game.getMaxPlayers());
-        object.addProperty("headstart", game.getHeadStart().name());
-        object.addProperty("daylight_cycle", game.isDoDaylightCycle());
-        object.addProperty("friendly_fire", game.isAllowFriendlyFire());
-        object.addProperty("status", game.getStatus().name());
-        object.addProperty("runner_count", game.getOnlinePlayers(PlayerType.RUNNER).size());
-        object.addProperty("hunter_count", game.getOnlinePlayers(PlayerType.HUNTER).size());
-
-        Manhunt.get().getBungeeSocketManager().sendMessage("updateGame", object.toString());
     }
 
     public void spawnAcidParticles(Location loc, boolean hit) {

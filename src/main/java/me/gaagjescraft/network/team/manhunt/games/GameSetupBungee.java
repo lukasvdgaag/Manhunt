@@ -102,7 +102,7 @@ public class GameSetupBungee {
         List<String> servers = Manhunt.get().getCfg().gameServers;
         for (String server : servers) {
             if (!serversChecked.contains(server)) {
-                Manhunt.get().getUtil().createGameServer(this.gameSetup, server);
+                Manhunt.get().getBungeeMessenger().createGameServer(this.gameSetup, server);
                 serversChecked.add(server);
                 currentServerChecking = server;
                 return;

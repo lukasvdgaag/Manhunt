@@ -76,7 +76,7 @@ public class GameScheduler {
         this.game.setTimer(10);
 
         if (Manhunt.get().getCfg().bungeeMode) {
-            Manhunt.get().getUtil().createEndGameMessage(this.game, false);
+            Manhunt.get().getBungeeMessenger().createEndGameMessage(this.game, false);
         }
 
         if (!Manhunt.get().getCfg().isLobbyServer) {
@@ -291,9 +291,7 @@ public class GameScheduler {
             int rand = random.nextInt(1, 4);
 
             StringBuilder a = new StringBuilder();
-            for (int i = 0; i < rand; i++) {
-                a.append("I");
-            }
+            a.append("I".repeat(Math.max(0, rand)));
 
             for (GamePlayer gp : game.getOnlinePlayers(null)) {
                 Player player = Bukkit.getPlayer(gp.getUuid());

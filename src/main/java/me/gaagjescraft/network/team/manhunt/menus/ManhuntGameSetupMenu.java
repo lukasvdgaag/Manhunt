@@ -36,15 +36,12 @@ public class ManhuntGameSetupMenu implements Listener {
         Inventory inventory = Bukkit.createInventory(null, 54, Util.c(Manhunt.get().getCfg().menuHostTitle));
         player.openInventory(inventory);
         updateItems(player, game);
-
-        GameSetupMenuOpenEvent event = new GameSetupMenuOpenEvent(player, gameSetups.get(player), inventory);
-        Manhunt.get().getServer().getPluginManager().callEvent(event);
     }
 
     public void updateItems(Player player, Game game) {
         if (player.getOpenInventory() == null || player.getOpenInventory().getTopInventory() == null) return;
 
-        GameSetup setup = gameSetups.getOrDefault(player, new GameSetup(player, Manhunt.get().getCfg().defaultOptionAllowTwists, Manhunt.get().getCfg().defaultOptionMaxPlayers,
+        GameSetup setup = gameSetups.getOrDefault(player, Manhunt.get().getPlatformUtils().initGameSetup(player, Manhunt.get().getCfg().defaultOptionAllowTwists, Manhunt.get().getCfg().defaultOptionMaxPlayers,
                 Manhunt.get().getCfg().defaultOptionDoDaylightCycle, Manhunt.get().getCfg().defaultOptionAllowFriendlyFire, Manhunt.get().getCfg().defaultOptionHeadstart));
         if (!gameSetups.containsKey(player)) {
             gameSetups.put(player, setup);
@@ -139,6 +136,8 @@ public class ManhuntGameSetupMenu implements Listener {
             inventory.setItem(53, Itemizer.GAME_START_ITEM);
         }
 
+        GameSetupMenuOpenEvent event = new GameSetupMenuOpenEvent(player, gameSetups.get(player), inventory);
+        Manhunt.get().getServer().getPluginManager().callEvent(event);
     }
 
     @EventHandler
@@ -160,114 +159,132 @@ public class ManhuntGameSetupMenu implements Listener {
 
         Player player = (Player) e.getWhoClicked();
 
-        GameSetup setup = gameSetups.getOrDefault(player, new GameSetup(player, true, 50, true, false, HeadstartType.HALF_MINUTE));
+        GameSetup setup = gameSetups.getOrDefault(player, Manhunt.get().getPlatformUtils().initGameSetup(player, true, 50, true, false, HeadstartType.HALF_MINUTE));
 
         GameSetupMenuClickEvent event = new GameSetupMenuClickEvent(player, setup, e.getClickedInventory(), e.getSlot(), e.getClick());
         Manhunt.get().getServer().getPluginManager().callEvent(event);
         if (!event.isCancelled()) {
-            if (e.getSlot() == 49) {
-                player.closeInventory();
-                if (setup.getGame() == null) {
-                    player.sendMessage(Util.c(Manhunt.get().getCfg().gameDiscardMessage));
-                }
-                gameSetups.remove(player);
-            } else if (e.getSlot() == 11 && !allowTwistsDelays.contains(player) && !Manhunt.get().getCfg().disableSettingsChanging) {
-                boolean nv = !setup.isAllowTwists();
-                Util.playSound(player, Manhunt.get().getCfg().menuHostToggleTwistSound, 1, nv ? 2 : 1);
-                setup.setAllowTwists(nv, true);
-                updateItems(player, Game.getGame(player));
-                allowTwistsDelays.add(player);
-                Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> allowTwistsDelays.remove(player), 20L);
-            } else if (e.getSlot() == 29 && !daylightDelays.contains(player) && !Manhunt.get().getCfg().disableSettingsChanging) {
-                boolean nv = !setup.isDoDaylightCycle();
-                Util.playSound(player, Manhunt.get().getCfg().menuHostToggleDaylightSound, 1, nv ? 2 : 1);
-                setup.setDoDaylightCycle(nv, true);
-                updateItems(player, Game.getGame(player));
-                daylightDelays.add(player);
-                Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> daylightDelays.remove(player), 20L);
-            } else if (e.getSlot() == 31 && !Manhunt.get().getCfg().disableSettingsChanging && (setup.getGame() == null || setup.getGame().getStatus() == GameStatus.WAITING || setup.getGame().getStatus() == GameStatus.STARTING)) {
-                player.closeInventory();
-                Manhunt.get().getManhuntHeadstartSetupMenu().openMenu(player, setup);
-            } else if (e.getSlot() == 15 && !allowFriendlyFireDelays.contains(player) && !Manhunt.get().getCfg().disableSettingsChanging) {
-                boolean nv = !setup.isAllowFriendlyFire();
-                Util.playSound(player, Manhunt.get().getCfg().menuHostToggleFriendlyFireSound, 1, nv ? 2 : 1);
-                setup.setAllowFriendlyFire(nv, true);
-                updateItems(player, Game.getGame(player));
-                allowFriendlyFireDelays.add(player);
-                Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> allowFriendlyFireDelays.remove(player), 20L);
-            } else if (e.getSlot() == 13 && setup.getGame() == null && !Manhunt.get().getCfg().disableSettingsChanging) {
-                player.closeInventory();
-                Manhunt.get().getManhuntPlayerAmountSetupMenu().openMenu(player, setup);
-            } else if (e.getSlot() == 45 && setup.getGame() == null) {
-                player.closeInventory();
-                Manhunt.get().getManhuntMainMenu().openMenu(player);
-                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
-            } else if (e.getSlot() == 33) {
-                if (setup.getGame() == null) {
-                    Util.playSound(player, Manhunt.get().getCfg().menuHostLockedSound, 1, 1);
-                } else {
+            switch (event.getSlot()) {
+                case 49 -> {
                     player.closeInventory();
-                    Manhunt.get().getManhuntRunnerManageMenu().open(player, setup.getGame());
+                    if (setup.getGame() == null) {
+                        player.sendMessage(Util.c(Manhunt.get().getCfg().gameDiscardMessage));
+                    }
+                    gameSetups.remove(player);
                 }
-            } else if (e.getSlot() == 53) {
-                // submitting the game.
-                if (setup.getGame() == null) {
-                    if (player.hasPermission("manhunt.hostgame")) {
-                        if (Manhunt.get().getCfg().pricePerGame > 0 && Manhunt.get().getEconomy() != null)
-                            player.sendMessage(Util.c(Manhunt.get().getCfg().freeGameHostedMessage));
-                    } else if (Manhunt.get().getCfg().pricePerGame > 0 && Manhunt.get().getEconomy() != null) {
-                        if (Manhunt.get().getEconomy().hasBalance(player, Manhunt.get().getCfg().pricePerGame)) {
-                            Manhunt.get().getEconomy().removeBalance(player, Manhunt.get().getCfg().pricePerGame);
-                            player.sendMessage(Util.c(Manhunt.get().getCfg().moneyPaidHostingGameMessage));
+                case (11) -> {
+                    if (allowTwistsDelays.contains(player) || !Manhunt.get().getCfg().disableSettingsChanging) return;
+                    boolean nv = !setup.isAllowTwists();
+                    Util.playSound(player, Manhunt.get().getCfg().menuHostToggleTwistSound, 1, nv ? 2 : 1);
+                    setup.setAllowTwists(nv, true);
+                    updateItems(player, Game.getGame(player));
+                    allowTwistsDelays.add(player);
+                    Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> allowTwistsDelays.remove(player), 20L);
+                }
+                case 13 -> {
+                    if (setup.getGame() != null || Manhunt.get().getCfg().disableSettingsChanging) return;
+                    player.closeInventory();
+                    Manhunt.get().getManhuntPlayerAmountSetupMenu().openMenu(player, setup);
+                }
+                case 15 -> {
+                    if (allowFriendlyFireDelays.contains(player) || Manhunt.get().getCfg().disableSettingsChanging) return;
+                    boolean nv = !setup.isAllowFriendlyFire();
+                    Util.playSound(player, Manhunt.get().getCfg().menuHostToggleFriendlyFireSound, 1, nv ? 2 : 1);
+                    setup.setAllowFriendlyFire(nv, true);
+                    updateItems(player, Game.getGame(player));
+                    allowFriendlyFireDelays.add(player);
+                    Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> allowFriendlyFireDelays.remove(player), 20L);
+                }
+                case 29 -> {
+                    if (daylightDelays.contains(player) || Manhunt.get().getCfg().disableSettingsChanging) return;
+                    boolean nv = !setup.isDoDaylightCycle();
+                    Util.playSound(player, Manhunt.get().getCfg().menuHostToggleDaylightSound, 1, nv ? 2 : 1);
+                    setup.setDoDaylightCycle(nv, true);
+                    updateItems(player, Game.getGame(player));
+                    daylightDelays.add(player);
+                    Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> daylightDelays.remove(player), 20L);
+                }
+                case 31 -> {
+                    if (Manhunt.get().getCfg().disableSettingsChanging || (setup.getGame() != null && setup.getGame().getStatus() != GameStatus.WAITING && setup.getGame().getStatus() != GameStatus.STARTING)) {
+                        return;
+                    }
+                    player.closeInventory();
+                    Manhunt.get().getManhuntHeadstartSetupMenu().openMenu(player, setup);
+                }
+                case 45 -> {
+                    if (setup.getGame() != null) return;
+                    player.closeInventory();
+                    Manhunt.get().getManhuntMainMenu().openMenu(player);
+                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
+                }
+                case 33 -> {
+                    if (setup.getGame() == null) {
+                        Util.playSound(player, Manhunt.get().getCfg().menuHostLockedSound, 1, 1);
+                    } else {
+                        player.closeInventory();
+                        Manhunt.get().getManhuntRunnerManageMenu().open(player, setup.getGame());
+                    }
+                }
+                case 53 -> {
+                    // submitting the game.
+                    if (setup.getGame() == null) {
+                        if (player.hasPermission("manhunt.hostgame")) {
+                            if (Manhunt.get().getCfg().pricePerGame > 0 && Manhunt.get().getEconomy() != null)
+                                player.sendMessage(Util.c(Manhunt.get().getCfg().freeGameHostedMessage));
+                        } else if (Manhunt.get().getCfg().pricePerGame > 0 && Manhunt.get().getEconomy() != null) {
+                            if (Manhunt.get().getEconomy().hasBalance(player, Manhunt.get().getCfg().pricePerGame)) {
+                                Manhunt.get().getEconomy().removeBalance(player, Manhunt.get().getCfg().pricePerGame);
+                                player.sendMessage(Util.c(Manhunt.get().getCfg().moneyPaidHostingGameMessage));
+                            } else {
+                                Util.playSound(player, Manhunt.get().getCfg().cantHostGameSound, 1, 1);
+                                player.sendMessage(Util.c(Manhunt.get().getCfg().notEnoughMoneyHostingGameMessage));
+                                return;
+                            }
                         } else {
+                            // no permission
                             Util.playSound(player, Manhunt.get().getCfg().cantHostGameSound, 1, 1);
-                            player.sendMessage(Util.c(Manhunt.get().getCfg().notEnoughMoneyHostingGameMessage));
+                            player.sendMessage(Util.c(Manhunt.get().getCfg().noPermissionHostingGameMessage));
                             return;
                         }
-                    } else {
-                        // no permission
-                        Util.playSound(player, Manhunt.get().getCfg().cantHostGameSound, 1, 1);
-                        player.sendMessage(Util.c(Manhunt.get().getCfg().noPermissionHostingGameMessage));
-                        return;
-                    }
 
-                    if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) {
-                        player.closeInventory();
-                        player.sendMessage(Util.c(Manhunt.get().getCfg().gameSubmittedMessage));
+                        if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) {
+                            player.closeInventory();
+                            player.sendMessage(Util.c(Manhunt.get().getCfg().gameSubmittedMessage));
 
-                        setup.getBungeeSetup().requestNextGameCreation();
-                    } else {
-                        Game game = Game.createGame(setup.isAllowTwists(), player, setup.getMaxPlayers());
+                            setup.getBungeeSetup().requestNextGameCreation();
+                        } else {
+                            Game game = Manhunt.get().getPlatformUtils().initGame(setup, player);
+                            if (game == null) {
+                                Util.playSound(player, Manhunt.get().getCfg().menuHostLockedSound, 1, 1);
+                                player.sendMessage(Util.c(Manhunt.get().getCfg().alreadyOwnGameMessage));
+                                return;
+                            }
+                            this.gameSetups.remove(player);
+
+                            player.closeInventory();
+                            player.sendMessage(Util.c(Manhunt.get().getCfg().gameCreatedMessage));
+                            game.create();
+                            game.setAllowFriendlyFire(setup.isAllowFriendlyFire());
+                            game.setHeadStart(setup.getHeadstart());
+                        }
+                    } else if (setup.getGame().getStatus() == GameStatus.WAITING) {
+                        Game game = setup.getGame();
                         if (game == null) {
-                            Util.playSound(player, Manhunt.get().getCfg().menuHostLockedSound, 1, 1);
-                            player.sendMessage(Util.c(Manhunt.get().getCfg().alreadyOwnGameMessage));
+                            player.sendMessage(Util.c(Manhunt.get().getCfg().somethingWentWrong));
                             return;
                         }
-                        this.gameSetups.remove(player);
-
-                        player.closeInventory();
-                        player.sendMessage(Util.c(Manhunt.get().getCfg().gameCreatedMessage));
-                        game.create();
-                        game.setAllowFriendlyFire(setup.isAllowFriendlyFire());
                         game.setHeadStart(setup.getHeadstart());
-                    }
-                } else if (setup.getGame().getStatus() == GameStatus.WAITING) {
-                    Game game = setup.getGame();
-                    if (game == null) {
-                        player.sendMessage(Util.c(Manhunt.get().getCfg().somethingWentWrong));
-                        return;
-                    }
-                    game.setHeadStart(setup.getHeadstart());
-                    this.gameSetups.remove(player);
-                    if (game.getStatus() != GameStatus.WAITING) {
-                        player.sendMessage(Util.c(Manhunt.get().getCfg().gameMustBeWaitingMessage));
-                        return;
-                    }
-                    game.start();
+                        this.gameSetups.remove(player);
+                        if (game.getStatus() != GameStatus.WAITING) {
+                            player.sendMessage(Util.c(Manhunt.get().getCfg().gameMustBeWaitingMessage));
+                            return;
+                        }
+                        game.start();
 
-                    player.sendMessage(Util.c(Manhunt.get().getCfg().startingGameMessage));
-                    Util.playSound(player, Manhunt.get().getCfg().menuHostGameStartedSound, 1, 1);
-                    player.closeInventory();
+                        player.sendMessage(Util.c(Manhunt.get().getCfg().startingGameMessage));
+                        Util.playSound(player, Manhunt.get().getCfg().menuHostGameStartedSound, 1, 1);
+                        player.closeInventory();
+                    }
                 }
             }
         }

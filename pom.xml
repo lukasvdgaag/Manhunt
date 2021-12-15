@@ -13,9 +13,16 @@
 
     <description>Manhunt for ExodusMC</description>
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>16</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven-snapshots</id>
+            <url>https://repository.apache.org/content/repositories/snapshots/</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <build>
         <plugins>
@@ -46,7 +53,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.3.0-SNAPSHOT</version>
                 <configuration>
                     <dependencyReducedPomLocation>${project.basedir}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
                     <relocations>
@@ -70,8 +77,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>16</source>
+                    <target>16</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -99,7 +106,7 @@
         </repository>
         <repository>
             <id>gaagjescraft</id>
-            <url>http://nexus.gaagjescraft.net/repository/bukkit/</url>
+            <url>https://nexus.gaagjescraft.net/repository/bukkit/</url>
         </repository>
         <repository>
             <id>enginehub-maven</id>
@@ -157,7 +164,7 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver</artifactId>
-            <version>3.4.3</version>
+            <version>3.12.10</version>
         </dependency>
         <dependency>
             <groupId>me.clip</groupId>
@@ -187,7 +194,7 @@
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>4.0.3</version>
+            <version>5.0.0</version>
         </dependency>
         <dependency>
             <groupId>net.gcnt</groupId>
