@@ -6,7 +6,7 @@
 
     <groupId>me.gaagjescraft.network.team</groupId>
     <artifactId>Manhunt</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.3.0</version>
     <packaging>jar</packaging>
 
     <name>Manhunt</name>
@@ -93,20 +93,26 @@
             <resource>
                 <directory>${project.basedir}/src/main/resources</directory>
                 <filtering>false</filtering>
+                <excludes>
+                    <exclude>plugin.yml</exclude>
+                </excludes>
             </resource>
         </resources>
     </build>
 
 
     <repositories>
-
         <repository>
-            <id>upstream</id>
-            <url>https://ci.nametagedit.com/job/NametagEdit</url>
+            <id>gcnt-self</id>
+            <url>https://nexus.gcnt.net/repository/gaagjescraft</url>
         </repository>
         <repository>
-            <id>gaagjescraft</id>
-            <url>https://nexus.gaagjescraft.net/repository/bukkit/</url>
+            <id>gcnt-bukkit</id>
+            <url>https://nexus.gcnt.net/repository/bukkit</url>
+        </repository>
+        <repository>
+            <id>nametagedit</id>
+            <url>https://ci.nametagedit.com/plugin/repository/everything/</url>
         </repository>
         <repository>
             <id>enginehub-maven</id>
@@ -137,11 +143,10 @@
 
     <dependencies>
         <dependency>
-            <groupId>net.gaagjescraft</groupId>
-            <artifactId>CociteSupport</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>C:/Users/gaagj/OneDrive/CociteSupport/target/CociteSupport-1.0-SNAPSHOT.jar</systemPath>
+            <groupId>net.exodus</groupId>
+            <artifactId>cocitesupport</artifactId>
+            <version>1.1.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.bukkit</groupId>
@@ -175,9 +180,7 @@
         <dependency>
             <groupId>com.nametagedit</groupId>
             <artifactId>nametagedit</artifactId>
-            <version>4.4.16</version>
-            <scope>system</scope>
-            <systemPath>C:/Users/gaagj/Downloads/NametagEdit.jar</systemPath>
+            <version>4.5.0</version>
         </dependency>
         <dependency>
             <groupId>com.viaversion</groupId>
