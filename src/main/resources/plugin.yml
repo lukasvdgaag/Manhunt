@@ -1,6 +1,6 @@
 name: Manhunt
 main: me.gaagjescraft.network.team.manhunt.Manhunt
-version: 1.3.0
+version: ${project.version}
 description: Twisted Manhunt plugin.
 author: GaagjesCraft Network Team (GCNT)
 api-version: 1.16
