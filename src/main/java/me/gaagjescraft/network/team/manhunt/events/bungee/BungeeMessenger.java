@@ -237,7 +237,7 @@ public class BungeeMessenger {
     }
 
     public String createGameResponse(String host, String response, UUID hostUUID, boolean allowTwists, int maxPlayers, String headstart, boolean daylight, boolean friendlyfire) {
-        return String.format("{'server': '%s', 'host': '%s', 'response': '%s', 'host_uuid': '%s', 'allow_twists': %b, 'max_players': %d, 'headstart': %b, 'daylight_cycle': %b, 'friendly_fire': %b}",
+        return String.format("{'server': '%s', 'host': '%s', 'response': '%s', 'host_uuid': '%s', 'allow_twists': %b, 'max_players': %d, 'headstart': %s, 'daylight_cycle': %b, 'friendly_fire': %b}",
                 Manhunt.get().getCfg().serverName, host, response, hostUUID.toString(), allowTwists, maxPlayers, headstart, daylight, friendlyfire);
     }
 

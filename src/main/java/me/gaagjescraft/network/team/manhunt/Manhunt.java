@@ -124,8 +124,8 @@ public class Manhunt extends JavaPlugin {
                 getLogger().info("Found vault! You can now charge money for hosting games.");
             }
         }
+        setBungeeMessenger(new BungeeMessenger());
         if (getCfg().bungeeMode) {
-            setBungeeMessenger(new BungeeMessenger());
             bungeeSocketManager = new BungeeSocketManager();
             if (getCfg().isLobbyServer) {
                 bungeeSocketManager.enableServer();
