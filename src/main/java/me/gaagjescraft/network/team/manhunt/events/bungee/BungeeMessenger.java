@@ -20,7 +20,7 @@ import java.util.UUID;
 public class BungeeMessenger {
 
     public void serverProcessGameEnded(String json) {
-        JsonObject ob = JsonParser.parseString(json).getAsJsonObject();
+        JsonObject ob = new JsonParser().parse(json).getAsJsonObject();
         String gameName = ob.getAsJsonPrimitive("game").getAsString();
 
         Game game = Game.getGame(gameName);
@@ -30,7 +30,7 @@ public class BungeeMessenger {
     }
 
     public void serverProcessUpdateGame(String json) {
-        JsonObject ob = JsonParser.parseString(json).getAsJsonObject();
+        JsonObject ob = new JsonParser().parse(json).getAsJsonObject();
         String gameName = ob.getAsJsonPrimitive("id").getAsString();
         String serverName = ob.getAsJsonPrimitive("server").getAsString();
         String hostUuid = ob.getAsJsonPrimitive("host_uuid").getAsString();
@@ -62,7 +62,7 @@ public class BungeeMessenger {
     }
 
     public void serverProcessEndGame(String json) {
-        JsonObject ob = JsonParser.parseString(json).getAsJsonObject();
+        JsonObject ob = new JsonParser().parse(json).getAsJsonObject();
         String gameName = ob.getAsJsonPrimitive("game").getAsString();
 
         Game game = Game.getGame(gameName);
@@ -72,7 +72,7 @@ public class BungeeMessenger {
     }
 
     public void clientProcessAddSpectator(String json) {
-        JsonObject ob = JsonParser.parseString(json).getAsJsonObject();
+        JsonObject ob = new JsonParser().parse(json).getAsJsonObject();
         String gameName = ob.getAsJsonPrimitive("game").getAsString();
 
         Game game = Game.getGame(gameName);
@@ -92,7 +92,7 @@ public class BungeeMessenger {
     }
 
     public void clientProcessEndGame(String json) {
-        JsonObject ob = JsonParser.parseString(json).getAsJsonObject();
+        JsonObject ob = new JsonParser().parse(json).getAsJsonObject();
         String gameName = ob.getAsJsonPrimitive("game").getAsString();
 
         Game game = Game.getGame(gameName);
@@ -107,7 +107,7 @@ public class BungeeMessenger {
     }
 
     public Game clientProcessCreateGame(String json) {
-        JsonObject ob = JsonParser.parseString(json).getAsJsonObject();
+        JsonObject ob = new JsonParser().parse(json).getAsJsonObject();
         String host = ob.getAsJsonPrimitive("host").getAsString();
         // request for creating a game to a game server.
 
@@ -150,7 +150,7 @@ public class BungeeMessenger {
     }
 
     public Game serverProcessCreateGameResponse(String json) {
-        JsonObject ob = JsonParser.parseString(json).getAsJsonObject();
+        JsonObject ob = new JsonParser().parse(json).getAsJsonObject();
         if (!ob.getAsJsonPrimitive("response").getAsString().equals("created")) {
             // failed to create the game.
             Player p = Bukkit.getPlayer(UUID.fromString(ob.getAsJsonPrimitive("host_uuid").getAsString()));
@@ -204,7 +204,7 @@ public class BungeeMessenger {
     }
 
     public void serverProcessDeleteGame(String json) {
-        JsonObject ob = JsonParser.parseString(json).getAsJsonObject();
+        JsonObject ob = new JsonParser().parse(json).getAsJsonObject();
         Game game = Game.getGame(ob.getAsJsonPrimitive("game").getAsString());
         if (game != null) {
             game.delete();
@@ -212,7 +212,7 @@ public class BungeeMessenger {
     }
 
     public void serverProcessGameReady(String json) {
-        JsonObject ob = JsonParser.parseString(json).getAsJsonObject();
+        JsonObject ob = new JsonParser().parse(json).getAsJsonObject();
 
         Player p = Bukkit.getPlayer(UUID.fromString(ob.getAsJsonPrimitive("host_uuid").getAsString()));
         Game game = Game.getGame(ob.getAsJsonPrimitive("game").getAsString());

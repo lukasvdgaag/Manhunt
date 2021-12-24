@@ -296,6 +296,10 @@ public class GamePlayer {
         return deaths;
     }
 
+    public void setDeaths(int deaths) {
+        this.deaths = deaths;
+    }
+
     public void addDeath() {
         deaths++;
     }
@@ -308,20 +312,8 @@ public class GamePlayer {
         kills++;
 
         Player player = Bukkit.getPlayer(uuid);
-        if (Manhunt.get().getExodusCociteSupport() != null) {
-            int exp = playerType == PlayerType.HUNTER ? 8 : 5;
-            int credits = playerType == PlayerType.HUNTER ? 15 : 10;
-            if (player != null && player.isOnline()) {
-                player.playSound(player.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 1, 1.5f);
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§d⚔ §e§lKILL: §b+" + credits + " credits §d⚔"));
-                player.sendMessage("§b+" + exp + " experience §6[kill]");
-                // todo make this configurable.
-            }
-            Bukkit.getScheduler().runTaskAsynchronously(Manhunt.get(), () -> {
-                Manhunt.get().getExodusCociteSupport().addCredits(uuid, credits);
-                Manhunt.get().getExodusCociteSupport().addExp(uuid, exp);
-            });
-        }
+        // player.playSound(player.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 1, 1.5f);
+        // player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§d⚔ §e§lKILL: §b+" + credits + " credits §d⚔"));
 
         Manhunt.get().getUtil().performRewardActions(player, game, Manhunt.get().getUtil().replace(Manhunt.get().getCfg().killRewards, "%kills%", kills + ""));
 
@@ -333,19 +325,6 @@ public class GamePlayer {
 
     public void addLose() {
         Player player = Bukkit.getPlayer(uuid);
-        if (Manhunt.get().getExodusCociteSupport() != null) {
-            int exp = playerType == PlayerType.HUNTER ? 10 : 15;
-            int credits = playerType == PlayerType.HUNTER ? 10 : 15;
-            if (player != null && player.isOnline()) {
-                player.sendMessage("§d+" + credits + " credits §6[participation reward]");
-                player.sendMessage("§b+" + exp + " experience §6[participation reward]");
-            }
-            Bukkit.getScheduler().runTaskAsynchronously(Manhunt.get(), () -> {
-                Manhunt.get().getExodusCociteSupport().addCredits(uuid, credits);
-                Manhunt.get().getExodusCociteSupport().addExp(uuid, exp);
-            });
-        }
-
         Manhunt.get().getUtil().performRewardActions(player, game, (Manhunt.get().getCfg().loseRewards));
     }
 
@@ -354,18 +333,6 @@ public class GamePlayer {
             if (game.getPlayers().get(i).getUuid().equals(this.uuid)) {
                 // player is on the top 3 of the kills.
                 Player player = Bukkit.getPlayer(uuid);
-                if (Manhunt.get().getExodusCociteSupport() != null) {
-                    int exp = 5;
-                    int credits = 3;
-                    if (player != null && player.isOnline()) {
-                        player.sendMessage("§b+" + exp + " experience §d+" + credits + " credits §6[top 3 bonus]");
-                    }
-                    Bukkit.getScheduler().runTaskAsynchronously(Manhunt.get(), () -> {
-                        Manhunt.get().getExodusCociteSupport().addExp(uuid, exp);
-                        Manhunt.get().getExodusCociteSupport().addCredits(uuid, credits);
-                    });
-                }
-
                 Manhunt.get().getUtil().performRewardActions(player, game, Manhunt.get().getUtil().replace(Manhunt.get().getUtil().replace(Manhunt.get().getCfg().topThreeRewards, "%kills%", kills + ""), "%place%", (i + 1) + ""));
                 break;
             }
@@ -377,17 +344,6 @@ public class GamePlayer {
         int credits = playerType == PlayerType.HUNTER ? 150 : 250;
 
         Player player = Bukkit.getPlayer(uuid);
-        if (Manhunt.get().getExodusCociteSupport() != null) {
-            if (player != null && player.isOnline()) {
-                player.sendMessage("§d+" + credits + " credits §6[win]");
-                player.sendMessage("§b+" + exp + " experience §6[win]");
-            }
-            Bukkit.getScheduler().runTaskAsynchronously(Manhunt.get(), () -> {
-                Manhunt.get().getExodusCociteSupport().addCredits(uuid, credits);
-                Manhunt.get().getExodusCociteSupport().addExp(uuid, exp);
-            });
-        }
-
         Manhunt.get().getUtil().performRewardActions(player, game, Manhunt.get().getCfg().winRewards);
 
         PlayerStat stat = Manhunt.get().getPlayerStorage().getUser(uuid);
@@ -558,7 +514,7 @@ public class GamePlayer {
                 HashMap<Integer, ItemStack> failedItems = player.getInventory().addItem(Itemizer.MANHUNT_RUNNER_TRACKER);
                 // Successfully added the compass
                 if (failedItems.isEmpty()) player.sendMessage(Manhunt.get().getCfg().compassGivenMessage);
-                // Failed to add the compass
+                    // Failed to add the compass
                 else player.sendMessage(Manhunt.get().getCfg().compassUnavailableMessage);
             }
         }
@@ -683,10 +639,6 @@ public class GamePlayer {
 
     public void setBedSpawn(Location bedSpawn) {
         this.bedSpawn = bedSpawn;
-    }
-
-    public void setDeaths(int deaths) {
-        this.deaths = deaths;
     }
 
     public boolean isFullyDead() {

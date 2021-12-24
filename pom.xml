@@ -11,7 +11,7 @@
 
     <name>Manhunt</name>
 
-    <description>Manhunt for ExodusMC</description>
+    <description>Manhunt by GCNT</description>
     <properties>
         <java.version>16</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -142,12 +142,6 @@
 
 
     <dependencies>
-        <dependency>
-            <groupId>net.exodus</groupId>
-            <artifactId>cocitesupport</artifactId>
-            <version>1.1.0</version>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>

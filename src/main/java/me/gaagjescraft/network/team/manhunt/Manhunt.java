@@ -15,7 +15,6 @@ import me.gaagjescraft.network.team.manhunt.inst.storage.YamlStorage;
 import me.gaagjescraft.network.team.manhunt.menus.*;
 import me.gaagjescraft.network.team.manhunt.menus.handlers.RunnerTrackerMenuHandler;
 import me.gaagjescraft.network.team.manhunt.utils.*;
-import me.gaagjescraft.network.team.manhunt.utils.exodus.ExodusCociteSupport;
 import me.gaagjescraft.network.team.manhunt.utils.platform.OriginalPlatformUtils;
 import me.gaagjescraft.network.team.manhunt.utils.platform.PlatformUtils;
 import org.bukkit.Bukkit;
@@ -44,7 +43,6 @@ public class Manhunt extends JavaPlugin {
     private TagUtils tagUtils;
     private BungeeSocketManager bungeeSocketManager;
     private VaultEcoHook ecoHook;
-    private ExodusCociteSupport exodusCociteSupport;
     private BungeeMessenger bungeeMessenger;
 
     public static Manhunt get() {
@@ -135,9 +133,6 @@ public class Manhunt extends JavaPlugin {
             Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
             getLogger().info("BungeeCord support was enabled in the config, so we started the socket. Waiting for a connection...");
         }
-        if (Bukkit.getPluginManager().isPluginEnabled("CociteSupport")) {
-            exodusCociteSupport = new ExodusCociteSupport();
-        }
         getLogger().info("");
 
         try {
@@ -147,7 +142,6 @@ public class Manhunt extends JavaPlugin {
             e.printStackTrace();
         }
 
-        getLogger().info("This plugin was created in collaboration with ExodusMC.");
         getLogger().info("Do not claim this project as yours.");
         getLogger().info("----------------------------------");
 
@@ -248,10 +242,6 @@ public class Manhunt extends JavaPlugin {
 
     public VaultEcoHook getEconomy() {
         return ecoHook;
-    }
-
-    public ExodusCociteSupport getExodusCociteSupport() {
-        return exodusCociteSupport;
     }
 
     private void loadSchedulers() {

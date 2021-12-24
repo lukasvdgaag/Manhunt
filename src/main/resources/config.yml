@@ -387,7 +387,7 @@ items:
     host-game-displayname: '&aHost a new game'
     host-game-lore:
       - ''
-      - '&bThanks for choosing ExodusMC!'
+      - '&bThanks for choosing GCNT!'
       - '&7As a sign of appreciation, we allow'
       - '&7certain people to host custom events.'
       - '&7Simply click this item to get started.'
@@ -397,7 +397,7 @@ items:
     host-game-unsupported-protocol-displayname: '&aHost a new game &c(Unavailable)'
     host-game-unsupported-protocol-lore:
       - ''
-      - '&bThanks for choosing ExodusMC!'
+      - '&bThanks for choosing GCNT!'
       - '&7As a sign of appreciation, we allow'
       - '&7certain people to host custom events.'
       - '&7Simply click this item to get started.'
@@ -803,7 +803,7 @@ messages:
     - '&cThe hunters have been released from the sky!'
     - '&8&m--------------------------'
   hunter-release-countdown: '&7Hunters will be released in &e%time%&7!'
-  thanks-for-playing: '&bThanks for playing Manhunt on ExodusMC!'
+  thanks-for-playing: '&bThanks for playing Manhunt by GCNT!'
   respawned-bed: '&aYou respawned at your bed location because you set your spawnpoint!'
   runner-added: '&e%player% &ais now a speed runner!'
   runner-removed: '&e%player% &cis no longer a speed runner!'

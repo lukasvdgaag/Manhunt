@@ -228,16 +228,22 @@ public class ManhuntGameSetupMenu implements Listener {
                 case 53 -> {
                     // submitting the game.
                     if (setup.getGame() == null) {
+                        final int pricePerGame = Manhunt.get().getCfg().pricePerGame;
                         if (player.hasPermission("manhunt.hostgame")) {
-                            if (Manhunt.get().getCfg().pricePerGame > 0 && Manhunt.get().getEconomy() != null)
+                            if (pricePerGame > 0 && Manhunt.get().getEconomy() != null)
                                 player.sendMessage(Util.c(Manhunt.get().getCfg().freeGameHostedMessage));
-                        } else if (Manhunt.get().getCfg().pricePerGame > 0 && Manhunt.get().getEconomy() != null) {
-                            if (Manhunt.get().getEconomy().hasBalance(player, Manhunt.get().getCfg().pricePerGame)) {
-                                Manhunt.get().getEconomy().removeBalance(player, Manhunt.get().getCfg().pricePerGame);
-                                player.sendMessage(Util.c(Manhunt.get().getCfg().moneyPaidHostingGameMessage));
+                        } else if (pricePerGame > 0 && Manhunt.get().getEconomy() != null) {
+                            if (Manhunt.get().getEconomy().hasBalance(player, pricePerGame)) {
+                                Manhunt.get().getEconomy().removeBalance(player, pricePerGame);
+                                player.sendMessage(Util.c(Manhunt.get().getCfg().moneyPaidHostingGameMessage)
+                                        .replace("%money%", pricePerGame + "")
+                                        .replace("%balance%", Manhunt.get().getEconomy().getBalance(player) + "")
+                                );
                             } else {
                                 Util.playSound(player, Manhunt.get().getCfg().cantHostGameSound, 1, 1);
-                                player.sendMessage(Util.c(Manhunt.get().getCfg().notEnoughMoneyHostingGameMessage));
+                                player.sendMessage(Util.c(Manhunt.get().getCfg().notEnoughMoneyHostingGameMessage)
+                                        .replace("%money%", pricePerGame + "")
+                                        .replace("%balance%", Manhunt.get().getEconomy().getBalance(player) + ""));
                                 return;
                             }
                         } else {

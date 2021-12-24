@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import io.papermc.lib.PaperLib;
-import me.clip.placeholderapi.PlaceholderAPI;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.events.custom.GameCreationEvent;
 import me.gaagjescraft.network.team.manhunt.events.custom.GameJoinEvent;
@@ -445,25 +444,6 @@ public class Game {
                 int secondKillerNumber = players.size() >= 2 ? players.get(1).getKills() : 0;
                 int thirdKillerNumber = players.size() >= 3 ? players.get(2).getKills() : 0;
 
-                if (Manhunt.get().getExodusCociteSupport() != null) {
-                    // is exodus
-                    if (players.size() >= 1) {
-                        OfflinePlayer op = Bukkit.getOfflinePlayer(players.get(0).getUuid());
-                        if (op.getName() != null && !op.getName().isEmpty())
-                            firstKillerName = PlaceholderAPI.setPlaceholders(op, "%luckperms_prefix%") + players.get(0).getUsername();
-                    }
-                    if (players.size() >= 2) {
-                        OfflinePlayer op = Bukkit.getOfflinePlayer(players.get(1).getUuid());
-                        if (op.getName() != null && !op.getName().isEmpty())
-                            secondKillerName = PlaceholderAPI.setPlaceholders(op, "%luckperms_prefix%") + players.get(1).getUsername();
-                    }
-                    if (players.size() >= 3) {
-                        OfflinePlayer op = Bukkit.getOfflinePlayer(players.get(2).getUuid());
-                        if (op.getName() != null && !op.getName().isEmpty())
-                            thirdKillerName = PlaceholderAPI.setPlaceholders(op, "%luckperms_prefix%") + players.get(2).getUsername();
-                    }
-                }
-
                 for (String s : msgs) {
 
                     if (s.contains("%first_killer%") && firstKillerName == null) continue;
@@ -518,13 +498,11 @@ public class Game {
             OfflinePlayer p = Bukkit.getPlayer(hostUUID);
             if (p != null && p.getName() != null && p.getName().equalsIgnoreCase(this.identifier)) {
                 if (p.isOnline() && p.getPlayer() != null) {
-                    p.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().moneyRefundedMessage.replaceAll("%price%", Manhunt.get().getCfg().pricePerGame + "")));
-                }
-
-                if (Manhunt.get().getExodusCociteSupport() != null) {
-                    Bukkit.getScheduler().runTaskAsynchronously(Manhunt.get(), () -> Manhunt.get().getExodusCociteSupport().addToken(hostUUID, 1));
-                } else if (Manhunt.get().getEconomy() != null) {
-                    Manhunt.get().getEconomy().addBalance(p.getPlayer(), 1);
+                    if (Manhunt.get().getEconomy() != null && p.getPlayer().getUniqueId().equals(hostUUID)) {
+                        // refunding spent money
+                        Manhunt.get().getEconomy().addBalance(p.getPlayer(), Manhunt.get().getCfg().pricePerGame);
+                        p.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().moneyRefundedMessage.replaceAll("%price%", Manhunt.get().getCfg().pricePerGame + "")));
+                    }
                 }
             }
         }
@@ -562,13 +540,8 @@ public class Game {
                     p.setFlying(false);
                     p.setAllowFlight(false);
 
-                    Bukkit.getScheduler().runTaskAsynchronously(Manhunt.get(), () -> {
-                        for (GamePlayer gp1 : players) {
-                            Player p1 = Bukkit.getPlayer(gp1.getUuid());
-                            if (p1 == null) continue;
-                            p.showPlayer(Manhunt.get(), p1);
-                            p1.showPlayer(Manhunt.get(), p);
-                        }
+                    p.spigot().getHiddenPlayers().forEach(p1 -> {
+                        p.showPlayer(Manhunt.get(), p1);
                     });
 
                     if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(p);

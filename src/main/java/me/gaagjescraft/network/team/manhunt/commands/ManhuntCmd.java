@@ -283,7 +283,7 @@ public class ManhuntCmd implements CommandExecutor {
         else p.sendMessage("§b/manhunt stop §f> §7Stop your current manhunt game.");
 
         if (p.hasPermission("manhunt.admin")) p.sendMessage("§b/manhunt start [player] §f> §7Start a manhunt game.");
-        else p.sendMessage("§b/manhunt stop §f> §7Start your current manhunt game.");
+        else p.sendMessage("§b/manhunt start §f> §7Start your current manhunt game.");
 
         p.sendMessage("§b/manhunt addrunner <player> §f> §7Make a player a runner.");
         p.sendMessage("§b/manhunt removerunner <player> §f> §7Demote a runner to a hunter.");

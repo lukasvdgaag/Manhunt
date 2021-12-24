@@ -24,7 +24,7 @@ public class AdditionsBoard {
         this.player = player;
         this.linecount = linecount;
         this.board = Manhunt.get().getServer().getScoreboardManager().getNewScoreboard();
-        this.objective = this.board.registerNewObjective("ExodusMC", "dummy", "§6§lMANHUNT");
+        this.objective = this.board.registerNewObjective("test", "dummy", "§6§lMANHUNT");
         this.objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         int score = linecount;
