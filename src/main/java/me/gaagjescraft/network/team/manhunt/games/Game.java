@@ -227,6 +227,12 @@ public class Game {
         gamePlayer.setOnline(true);
         if (spectators.contains(player.getUniqueId())) {
             gamePlayer.setSpectating(true);
+            // Verify players not invisible to spec
+            player.spigot().getHiddenPlayers().forEach(p -> {
+                if (!getPlayer(p).isSpectating()) {
+                    player.showPlayer(Manhunt.get(), p);
+                }
+            });
         }
 
         if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) {
@@ -245,9 +251,15 @@ public class Game {
 
         if (!gamePlayer.isFullyDead()) {
             List<GamePlayer> online = getOnlinePlayers(null);
+            // Save the instance for performance
+            Manhunt manhuntInstance = Manhunt.get();
             for (GamePlayer gp : online) {
                 Player p = Bukkit.getPlayer(gp.getUuid());
                 if (p == null) continue;
+                // Verify that players can see each other if not in spec
+                p.showPlayer(manhuntInstance, player);
+                if (!gp.isSpectating()) player.showPlayer(manhuntInstance, p);
+                // Send join msg
                 p.sendMessage(Util.c(Manhunt.get().getCfg().gameJoinMessage
                         .replaceAll("%prefix%", gamePlayer.getPrefix())
                         .replaceAll("%color%", gamePlayer.getColor())

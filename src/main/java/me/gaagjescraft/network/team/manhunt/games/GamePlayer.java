@@ -11,11 +11,13 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -527,11 +529,13 @@ public class GamePlayer {
 
     }
 
-    public void prepareForGame(GameStatus stat) {
+    public void prepareForGame(GameStatus status) {
         if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) return;
         Player player = Bukkit.getPlayer(uuid);
         if (player == null) return;
-        if (stat != GameStatus.PLAYING) reset(player, false);
+        if (status != GameStatus.PLAYING) reset(player, false);
+        // Debug game status
+        if (Manhunt.get().getCfg().debug) Manhunt.get().getLogger().info("Debug: Current state of the game: " + status.name());
         updateScoreboard();
 
         if (isSpectating() || isFullyDead()) {
@@ -539,7 +543,7 @@ public class GamePlayer {
             return;
         }
 
-        if (stat == GameStatus.WAITING || stat == GameStatus.LOADING || stat == GameStatus.STARTING) {
+        if (status == GameStatus.WAITING || status == GameStatus.LOADING || status == GameStatus.STARTING) {
             player.setGameMode(GameMode.ADVENTURE);
             if (game.isTwistsAllowed()) player.getInventory().setItem(0, Itemizer.MANHUNT_VOTE_ITEM);
             player.getInventory().setItem(8, Itemizer.MANHUNT_LEAVE_ITEM);
@@ -547,10 +551,15 @@ public class GamePlayer {
             if (isHost) {
                 player.getInventory().setItem(4, Itemizer.MANHUNT_HOST_SETTINGS_ITEM);
             }
-        } else if (stat == GameStatus.PLAYING) {
+        } else if (status == GameStatus.PLAYING) {
             player.setGameMode(GameMode.SURVIVAL);
-            if ((getPlayerType() == PlayerType.HUNTER && game.getTimer() >= game.getHeadStart().getSeconds()) || (getPlayerType() == PlayerType.RUNNER && game.getPlayers(PlayerType.RUNNER).size() > 1)) {
-                player.getInventory().setItem(8, Itemizer.MANHUNT_RUNNER_TRACKER);
+            if ((getPlayerType() == PlayerType.HUNTER && game.getTimer() >= game.getHeadStart().getSeconds()) ||
+                    (getPlayerType() == PlayerType.RUNNER && game.getPlayers(PlayerType.RUNNER).size() > 1)) {
+                HashMap<Integer, ItemStack> failedItems = player.getInventory().addItem(Itemizer.MANHUNT_RUNNER_TRACKER);
+                // Successfully added the compass
+                if (failedItems.isEmpty()) player.sendMessage(Manhunt.get().getCfg().compassGivenMessage);
+                // Failed to add the compass
+                else player.sendMessage(Manhunt.get().getCfg().compassUnavailableMessage);
             }
         }
     }
