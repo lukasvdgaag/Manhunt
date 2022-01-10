@@ -237,18 +237,43 @@ public class BungeeMessenger {
     }
 
     public String createGameResponse(String host, String response, UUID hostUUID, boolean allowTwists, int maxPlayers, String headstart, boolean daylight, boolean friendlyfire) {
-        return String.format("{'server': '%s', 'host': '%s', 'response': '%s', 'host_uuid': '%s', 'allow_twists': %b, 'max_players': %d, 'headstart': %s, 'daylight_cycle': %b, 'friendly_fire': %b}",
-                Manhunt.get().getCfg().serverName, host, response, hostUUID.toString(), allowTwists, maxPlayers, headstart, daylight, friendlyfire);
+        return String.format(
+                "{'server': '%s', " +
+                "'host': '%s', " +
+                "'response': '%s', " +
+                "'host_uuid': '%s', " +
+                "'allow_twists': %b, " +
+                "'max_players': %d, " +
+                "'headstart': %s, " +
+                "'daylight_cycle': %b, " +
+                "'friendly_fire': %b}",
+                Manhunt.get().getCfg().serverName,
+                host,
+                response,
+                hostUUID.toString(),
+                allowTwists,
+                maxPlayers,
+                headstart,
+                daylight,
+                friendlyfire
+        );
     }
 
     public void createGameServer(GameSetup setup, String targetGameServer) {
         if (Manhunt.get().getBungeeSocketManager() == null) return;
         Player host = setup.getHost();
-        String json = "{'server_name': '" + Manhunt.get().getCfg().serverName + "', 'game_server':'" + targetGameServer + "', 'host':'" + host.getName() + "', 'host_uuid':'" + setup.getHost().getUniqueId() + "', " +
-                "'max_players':" + setup.getMaxPlayers() + ", 'headstart':'" + setup.getHeadstart().name() + "', " +
-                "'allow_twists':" + setup.isAllowTwists() + ", 'daylight_cycle':" + setup.isDoDaylightCycle() + ", 'friendly_fire':" + setup.isAllowFriendlyFire() + "}";
+        JsonObject jsonReqData = new JsonObject();
+        jsonReqData.addProperty("server_name", Manhunt.get().getCfg().serverName);
+        jsonReqData.addProperty("game_server", targetGameServer);
+        jsonReqData.addProperty("host", host.getName());
+        jsonReqData.addProperty("host_uuid", host.getUniqueId().toString());
+        jsonReqData.addProperty("max_players", setup.getMaxPlayers());
+        jsonReqData.addProperty("headstart", setup.getHeadStart().name());
+        jsonReqData.addProperty("allow_twists", setup.isAllowTwists());
+        jsonReqData.addProperty("daylight_cycle", setup.isDoDaylightCycle());
+        jsonReqData.addProperty("friendly_fire", setup.isAllowFriendlyFire());
 
-        if (!Manhunt.get().getBungeeSocketManager().sendMessage("createGame", json)) {
+        if (!Manhunt.get().getBungeeSocketManager().sendMessage("createGame", jsonReqData.toString())) {
             setup.getHost().sendMessage(ChatColor.RED + "We had some trouble connecting to the other servers. Please inform a staff member.");
         }
     }

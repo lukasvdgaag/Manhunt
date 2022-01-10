@@ -82,7 +82,7 @@ public class ManhuntGameSetupMenu implements Listener {
 
         ItemStack headstart = new ItemStack(Material.valueOf(Manhunt.get().getCfg().hostMenuHeadstartMaterial));
         ItemMeta hmeta = headstart.getItemMeta();
-        String headstartTime = Manhunt.get().getUtil().secondsToTimeString(setup.getHeadstart().getSeconds(), "string");
+        String headstartTime = Manhunt.get().getUtil().secondsToTimeString(setup.getHeadStart().getSeconds(), "string");
         hmeta.setDisplayName(Util.c(Manhunt.get().getCfg().hostMenuHeadstartDisplayname).replaceAll("%time%", headstartTime));
         List<String> hlore;
         if (setup.getGame() == null || setup.getGame().getStatus() == GameStatus.WAITING) {
@@ -271,7 +271,7 @@ public class ManhuntGameSetupMenu implements Listener {
                             player.sendMessage(Util.c(Manhunt.get().getCfg().gameCreatedMessage));
                             game.create();
                             game.setAllowFriendlyFire(setup.isAllowFriendlyFire());
-                            game.setHeadStart(setup.getHeadstart());
+                            game.setHeadStart(setup.getHeadStart());
                         }
                     } else if (setup.getGame().getStatus() == GameStatus.WAITING) {
                         Game game = setup.getGame();
@@ -279,7 +279,7 @@ public class ManhuntGameSetupMenu implements Listener {
                             player.sendMessage(Util.c(Manhunt.get().getCfg().somethingWentWrong));
                             return;
                         }
-                        game.setHeadStart(setup.getHeadstart());
+                        game.setHeadStart(setup.getHeadStart());
                         this.gameSetups.remove(player);
                         if (game.getStatus() != GameStatus.WAITING) {
                             player.sendMessage(Util.c(Manhunt.get().getCfg().gameMustBeWaitingMessage));

@@ -38,7 +38,7 @@ public class GameSetup {
         this.game = game;
     }
 
-    public HeadstartType getHeadstart() {
+    public HeadstartType getHeadStart() {
         return headstart;
     }
 
@@ -115,6 +115,6 @@ public class GameSetup {
                 ", 'allow_twists': " + allowTwists +
                 ", 'daylight_cycle': " + doDaylightCycle +
                 ", 'friendly_fire': " + allowFriendlyFire +
-                ", 'headstart': '" + headstart + "'";
+                ", 'headstart': '" + headstart.name() + "'";
     }
 }

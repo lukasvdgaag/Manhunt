@@ -28,7 +28,7 @@ public class OriginalPlatformUtils implements PlatformUtils {
         Game game = new Game(host, setup.isAllowTwists(), hostUUID, setup.getMaxPlayers());
         game.setAllowFriendlyFire(setup.isAllowFriendlyFire());
         game.setDoDaylightCycle(setup.isDoDaylightCycle());
-        game.setHeadStart(setup.getHeadstart());
+        game.setHeadStart(setup.getHeadStart());
         return game;
     }
 
