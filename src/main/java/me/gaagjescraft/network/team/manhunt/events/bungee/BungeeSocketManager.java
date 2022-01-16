@@ -14,9 +14,9 @@ import java.util.List;
 
 public class BungeeSocketManager {
 
-    private final List<Socket> socketsConnected = new ArrayList<>();
+    public final List<Socket> socketsConnected = new ArrayList<>();
     private ServerSocket ss = null;
-    private Socket s = null;
+    public Socket s = null;
     private DataInputStream din = null;
     private DataOutputStream dout = null;
     private Thread thread = null;
@@ -28,6 +28,13 @@ public class BungeeSocketManager {
     public boolean sendMessage(String... msg) {
         int count = 0;
 
+        if (Manhunt.get().getCfg().debug) {
+            Bukkit.getLogger().info("Sending a message: ");
+            for (String s : msg) {
+                Bukkit.getLogger().info("value = " + s);
+            }
+        }
+
         if (Manhunt.get().getCfg().isLobbyServer) {
             socketsConnected.removeIf((socket -> socket.isClosed() || !socket.isConnected() || socket.isOutputShutdown()));
             for (Socket socket : socketsConnected) {
@@ -38,6 +45,7 @@ public class BungeeSocketManager {
                             socketDout.writeUTF(s);
                         }
                         socketDout.flush();
+                        if (Manhunt.get().getCfg().debug) Bukkit.getLogger().info("message sent.");
                         count++;
                     } catch (Exception ignored) {
                     }
@@ -56,6 +64,7 @@ public class BungeeSocketManager {
                     socketDout.writeUTF(s);
                 }
                 socketDout.flush();
+                if (Manhunt.get().getCfg().debug) Bukkit.getLogger().info("message sent.");
             } catch (Exception e) {
                 Bukkit.getLogger().severe("Failed to send a message to another server because the output stream returned an error:");
                 e.printStackTrace();

@@ -673,18 +673,23 @@ public class Game {
                 e.printStackTrace();
             }
 
-            CompletableFuture<Chunk> chunkFuture = PaperLib.getChunkAtAsync(
-                    world.get(), world.get().getSpawnLocation().getBlockX(), world.get().getSpawnLocation().getBlockZ());
+            System.out.println("loading chunk or smt idk");
+            CompletableFuture<Chunk> chunkFuture = PaperLib.getChunkAtAsyncUrgently(
+                    world.get(), world.get().getSpawnLocation().getBlockX(), world.get().getSpawnLocation().getBlockZ(), true);
             try {
                 Chunk chunk = chunkFuture.get();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
 
+            System.out.println("Done loading chunk stuff");
+
             // Done loading chunk
 
             Future<Object> part2 = Bukkit.getScheduler().callSyncMethod(Manhunt.get(), () -> {
+                System.out.println("loading up the schematicz");
                 this.schematic.load();
+                System.out.println("Done loading up the schematicz");
 
                 ready = true;
                 setStatus(GameStatus.WAITING);
@@ -712,6 +717,7 @@ public class Game {
             });
 
             try {
+                System.out.println("Getting part 2");
                 part2.get();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
