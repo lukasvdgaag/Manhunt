@@ -10,6 +10,7 @@ import me.gaagjescraft.network.team.manhunt.utils.Util;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -475,11 +476,11 @@ public class GamePlayer {
             }
         }
 
-        if (player.getMaxHealth() > maxHealth) {
+        if (player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() > maxHealth) {
             player.setHealth(health);
-            player.setMaxHealth(maxHealth);
+            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHealth);
         } else {
-            player.setMaxHealth(maxHealth);
+            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHealth);
             player.setHealth(health);
         }
 
@@ -509,6 +510,7 @@ public class GamePlayer {
             }
         } else if (status == GameStatus.PLAYING) {
             player.setGameMode(GameMode.SURVIVAL);
+            player.getInventory().clear();
             if ((getPlayerType() == PlayerType.HUNTER && game.getTimer() >= game.getHeadStart().getSeconds()) ||
                     (getPlayerType() == PlayerType.RUNNER && game.getPlayers(PlayerType.RUNNER).size() > 1)) {
                 HashMap<Integer, ItemStack> failedItems = player.getInventory().addItem(Itemizer.MANHUNT_RUNNER_TRACKER);
@@ -538,7 +540,7 @@ public class GamePlayer {
         player.setAllowFlight(false);
         player.setGameMode(GameMode.SURVIVAL);
         player.setHealth(20);
-        player.setMaxHealth(20);
+        player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
     }
 
     public void updateScoreboard() {

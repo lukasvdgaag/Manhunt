@@ -16,6 +16,7 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -688,6 +689,7 @@ public class Game {
 
             Future<Object> part2 = Bukkit.getScheduler().callSyncMethod(Manhunt.get(), () -> {
                 System.out.println("loading up the schematicz");
+
                 this.schematic.load();
                 System.out.println("Done loading up the schematicz");
 
