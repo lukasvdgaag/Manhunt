@@ -1,7 +1,5 @@
 package me.gaagjescraft.network.team.manhunt;
 
-import com.onarandombox.MultiverseCore.MultiverseCore;
-import com.onarandombox.MultiverseCore.api.MVWorldManager;
 import me.gaagjescraft.network.team.manhunt.commands.*;
 import me.gaagjescraft.network.team.manhunt.events.DeathEventHandler;
 import me.gaagjescraft.network.team.manhunt.events.GameEventsHandlers;

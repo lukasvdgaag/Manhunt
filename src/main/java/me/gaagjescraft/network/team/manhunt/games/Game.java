@@ -29,7 +29,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.onarandombox.MultiverseCore.enums.AllowedPortalType.ALL;
 
 public class Game {
 
