@@ -138,6 +138,14 @@
             <id>papermc</id>
             <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>OnARandomBox</id>
+            <url>https://repo.onarandombox.com/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>CodeMC</id>
+            <url>https://repo.codemc.io/repository/maven-public/</url>
+        </repository>
     </repositories>
 
 
@@ -146,6 +154,30 @@
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
             <version>1.16.4</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.onarandombox.multiversecore</groupId>
+            <artifactId>Multiverse-Core</artifactId>
+            <version>4.3.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.onarandombox.multiversenetherportals</groupId>
+            <artifactId>Multiverse-NetherPortals</artifactId>
+            <version>4.2.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.popcraft</groupId>
+            <artifactId>chunky-bukkit</artifactId>
+            <version>1.2.173</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.popcraft</groupId>
+            <artifactId>chunky-common</artifactId>
+            <version>1.2.173</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -200,7 +232,6 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/AdditionsPlus_2.6.2.jar</systemPath>
         </dependency>
-
         <dependency>
             <groupId>io.papermc</groupId>
             <artifactId>paperlib</artifactId>

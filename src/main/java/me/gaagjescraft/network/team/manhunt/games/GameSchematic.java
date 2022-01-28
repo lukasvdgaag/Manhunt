@@ -57,10 +57,7 @@ public class GameSchematic {
         }
 
         try {
-            if (Bukkit.getPluginManager().isPluginEnabled("FastAsyncWorldEdit")) {
-                this.editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(new BukkitWorld(world), -1);
-                //this.editSession = ClipboardFormats.findByFile(file).load(file).paste(new BukkitWorld(world), to, true, true, false, null);
-            } else if (Bukkit.getPluginManager().isPluginEnabled("WorldEdit")) {
+            if (Bukkit.getPluginManager().isPluginEnabled("WorldEdit")) {
                 Clipboard clipboard;
 
                 try (ClipboardReader reader = format.getReader(new FileInputStream(file))) {

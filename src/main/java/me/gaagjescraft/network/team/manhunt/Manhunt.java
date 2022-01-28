@@ -1,5 +1,7 @@
 package me.gaagjescraft.network.team.manhunt;
 
+import com.onarandombox.MultiverseCore.MultiverseCore;
+import com.onarandombox.MultiverseCore.api.MVWorldManager;
 import me.gaagjescraft.network.team.manhunt.commands.*;
 import me.gaagjescraft.network.team.manhunt.events.DeathEventHandler;
 import me.gaagjescraft.network.team.manhunt.events.GameEventsHandlers;
@@ -44,6 +46,8 @@ public class Manhunt extends JavaPlugin {
     private BungeeSocketManager bungeeSocketManager;
     private VaultEcoHook ecoHook;
     private BungeeMessenger bungeeMessenger;
+    private Multiversehook multicreate;
+    private ChunkyHook chunkgen;
 
     public static Manhunt get() {
         return instance;
@@ -97,10 +101,15 @@ public class Manhunt extends JavaPlugin {
         getLogger().info("This is a premium plugin and is licensed to GCNT.");
         getLogger().info("It is not allowed to resell or redistribute the plugin.");
         if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core")) {
-            getLogger().info("Found Multiverse-Core! We will register the Manhunt worlds so everything will work smoothly. Please know that in order for portals to work, you need to have Multiverse Portals installed too.");
+            getLogger().info("Found Multiverse-Core! We will register and create Manhunt worlds with Multiverse so everything will work smoothly.");
+            multicreate = new Multiversehook();
         }
         if (Bukkit.getPluginManager().isPluginEnabled("WorldEdit")) {
             getLogger().info("Found WorldEdit! This is used to handle the waiting lobby schematic pasting and removing.");
+        }
+        if (Bukkit.getPluginManager().isPluginEnabled("Chunky")){
+            getLogger().info("Chunky Pregenerator found we will pregen some blocks around spawn before player is teleported");
+            chunkgen = new ChunkyHook();
         }
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             new PAPIHook().register();
@@ -146,6 +155,13 @@ public class Manhunt extends JavaPlugin {
         getLogger().info("----------------------------------");
 
         Bukkit.getOnlinePlayers().forEach(player -> getPlayerStorage().loadUser(player.getUniqueId()));
+        /*
+        MultiverseCore core = (MultiverseCore) Bukkit.getServer().getPluginManager().getPlugin("Multiverse-Core");
+        MVWorldManager worldManager = core.getMVWorldManager();
+        worldManager.deleteWorld("world_nether");
+        worldManager.deleteWorld("world_the_end");
+
+         */
     }
 
     public PlatformUtils getPlatformUtils() {
@@ -243,6 +259,11 @@ public class Manhunt extends JavaPlugin {
     public VaultEcoHook getEconomy() {
         return ecoHook;
     }
+
+    public Multiversehook getMultiversehook() {return multicreate;}
+
+    public ChunkyHook getChunkHook() {return chunkgen;}
+
 
     private void loadSchedulers() {
         getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
