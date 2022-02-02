@@ -88,7 +88,7 @@ public class GameSetupBungee {
                             Util.sendTitle(gameSetup.getHost(), Util.c(Manhunt.get().getCfg().noServersAvailableTitle), 10, 50, 10);
                             gameSetup.getHost().sendMessage(Util.c(Manhunt.get().getCfg().noServersAvailableMessage));
 
-                            if (Manhunt.get().getEconomy().getBalance(gameSetup.getHost()) != -1 && !gameSetup.getHost().hasPermission("manhunt.hostgame")) {
+                            if (Manhunt.get().getEconomy() != null && Manhunt.get().getEconomy().getBalance(gameSetup.getHost()) != -1 && !gameSetup.getHost().hasPermission("manhunt.hostgame")) {
                                 Manhunt.get().getEconomy().addBalance(gameSetup.getHost(), Manhunt.get().getCfg().pricePerGame);
                                 gameSetup.getHost().sendMessage(Util.c(Manhunt.get().getCfg().moneyRefundedNoServersMessage).replace("%money%", Manhunt.get().getCfg().pricePerGame + ""));
                             }
