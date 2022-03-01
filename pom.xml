@@ -108,7 +108,11 @@
         </repository>
         <repository>
             <id>gcnt-bukkit</id>
-            <url>https://nexus.gcnt.net/repository/bukkit</url>
+            <url>https://nexuslite.gcnt.net/repos/bukkit/</url>
+        </repository>
+        <repository>
+            <id>gcnt</id>
+            <url>https://nexuslite.gcnt.net/repos/gcnt/</url>
         </repository>
         <repository>
             <id>nametagedit</id>
@@ -211,7 +215,7 @@
         <dependency>
             <groupId>com.viaversion</groupId>
             <artifactId>viaversion-api</artifactId>
-            <version>4.1.1</version>
+            <version>4.2.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -227,15 +231,14 @@
         </dependency>
         <dependency>
             <groupId>net.gcnt</groupId>
-            <artifactId>AdditionsPlus</artifactId>
-            <version>2.6.2</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/AdditionsPlus_2.6.2.jar</systemPath>
+            <artifactId>additionsplus</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.papermc</groupId>
             <artifactId>paperlib</artifactId>
-            <version>1.0.7</version>
+            <version>1.0.8-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
