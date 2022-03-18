@@ -2,7 +2,6 @@ package me.gaagjescraft.network.team.manhunt.utils;
 
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.popcraft.chunky.ChunkyBukkit;
 import org.popcraft.chunky.GenerationTask;
 import org.popcraft.chunky.Selection;
@@ -26,6 +25,5 @@ public class ChunkyHook {
         GenerationTask task = new GenerationTask(chunk.getChunky(), selection.build());
         chunk.getChunky().getGenerationTasks().put(worldidentifer, task);
         chunk.getChunky().getScheduler().runTask(task);
-
     }
 }
