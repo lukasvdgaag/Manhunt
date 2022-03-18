@@ -8,6 +8,8 @@ import me.gaagjescraft.network.team.manhunt.games.GamePlayer;
 import me.gaagjescraft.network.team.manhunt.games.GameStatus;
 import me.gaagjescraft.network.team.manhunt.games.PlayerType;
 import me.gaagjescraft.network.team.manhunt.utils.centerText.DefaultFontInfo;
+import net.gcnt.additionsplus.api.AdditionsPlugin;
+import net.gcnt.additionsplus.api.actions.ActionSender;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -210,7 +212,7 @@ public class Util {
         SkullMeta meta = (SkullMeta) head.getItemMeta();
         GameProfile profile = new GameProfile(UUID.randomUUID(), "");
         profile.getProperties().put("textures", new Property("textures", value));
-        Field profileField = null;
+        Field profileField;
         try {
             profileField = meta.getClass().getDeclaredField("profile");
             profileField.setAccessible(true);
@@ -270,7 +272,9 @@ public class Util {
 
     public void performRewardActions(Player p, Game game, List<String> actions) {
         if (Bukkit.getPluginManager().isPluginEnabled("Additions")) {
-            net.gcnt.additionsplus.AdditionsPlus.getAPI().performActions(new net.gcnt.additionsplus.main.ActionSender(p), actions);
+            AdditionsPlugin additions = (AdditionsPlugin) Bukkit.getPluginManager().getPlugin("Additions");
+            ActionSender sender = additions.getAPI().getActionSender(p);
+            additions.getAPI().performActions(sender, actions);
         } else {
             for (String s : actions) {
                 if (s.startsWith("[message]")) {
