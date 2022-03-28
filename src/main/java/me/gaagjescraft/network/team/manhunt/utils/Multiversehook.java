@@ -25,6 +25,7 @@ public class Multiversehook implements Listener {
             String seedstr = String.valueOf(seed);
             worldManager.addWorld(worldidentifer, World.Environment.NORMAL, seedstr, WorldType.NORMAL, true, null);
             MultiverseWorld wworld = worldManager.getMVWorld(worldidentifer);
+            wworld.setKeepSpawnInMemory(true);
             wworld.allowPortalMaking(ALL);
             wworld.getCBWorld().setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
             wworld.getCBWorld().setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
@@ -71,13 +72,13 @@ public class Multiversehook implements Listener {
     }
 
 
-    public void multiverseworldremoval(String Worldidentifier){
+    public void multiverseworldremoval(Game g1){
         MultiverseCore core = (MultiverseCore) Bukkit.getServer().getPluginManager().getPlugin("Multiverse-Core");
         MVWorldManager worldManager = core.getMVWorldManager();
-        if (Bukkit.getWorld(Worldidentifier)  != null){
-            worldManager.deleteWorld(Worldidentifier + "_nether");
-            worldManager.deleteWorld(Worldidentifier + "_the_end");
-            worldManager.deleteWorld(Worldidentifier);
+        if (Bukkit.getWorld(g1.getWorld().getUID())  != null){
+            worldManager.deleteWorld(g1.getWorld().getName());
+            worldManager.deleteWorld(g1.getNether().getName());
+            worldManager.deleteWorld(g1.getEnd().getName());
         }
     }
 }

@@ -3,7 +3,6 @@ package me.gaagjescraft.network.team.manhunt.games;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import io.papermc.lib.PaperLib;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.events.custom.GameCreationEvent;
 import me.gaagjescraft.network.team.manhunt.events.custom.GameJoinEvent;
@@ -11,23 +10,18 @@ import me.gaagjescraft.network.team.manhunt.events.custom.GameLeaveEvent;
 import me.gaagjescraft.network.team.manhunt.events.custom.GameRemovalEvent;
 import me.gaagjescraft.network.team.manhunt.menus.RunnerTrackerMenu;
 import me.gaagjescraft.network.team.manhunt.utils.FileUtils;
-import me.gaagjescraft.network.team.manhunt.utils.Multiversehook;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicReference;
 
 
 public class Game {
@@ -561,7 +555,7 @@ public class Game {
 
         if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core") && (Bukkit.getPluginManager().isPluginEnabled("Multiverse-NetherPortals"))) {
             //use multiverse hook for removal
-            Manhunt.get().getMultiversehook().multiverseworldremoval(getWorldIdentifier());
+            Manhunt.get().getMultiversehook().multiverseworldremoval(this);
         }
         else {
             //default bukkit world removal
@@ -610,7 +604,6 @@ public class Game {
             Manhunt.get().getMultiversehook().multicreate(getWorldIdentifier(), seed, this);
         }
         else {
-
             //Default Bukkit World creation
             WorldCreator creator = new WorldCreator(getWorldIdentifier());
             creator.environment(World.Environment.NORMAL);
@@ -631,15 +624,10 @@ public class Game {
                 border.setWarningTime(Manhunt.get().getCfg().worldBorderWarningTime);
             }
 
-            WorldCreator creatorNether = new WorldCreator(getWorldIdentifier() + "_nether");
-            creatorNether.environment(World.Environment.NETHER);
-            creatorNether.seed(seed);
-
-            WorldCreator creatorEnd = new WorldCreator(getWorldIdentifier() + "_the_end");
-            creatorEnd.environment(World.Environment.THE_END);
-            creatorEnd.seed(seed);
-
             Bukkit.getScheduler().scheduleSyncDelayedTask(Manhunt.get(), () -> {
+                WorldCreator creatorNether = new WorldCreator(getWorldIdentifier() + "_nether");
+                creatorNether.environment(World.Environment.NETHER);
+                creatorNether.seed(seed);
                 World w = creatorNether.createWorld();
                 w.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
                 w.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
@@ -647,11 +635,18 @@ public class Game {
             }, 60L);
 
             Bukkit.getScheduler().scheduleSyncDelayedTask(Manhunt.get(), () -> {
+                WorldCreator creatorEnd = new WorldCreator(getWorldIdentifier() + "_the_end");
+                creatorEnd.environment(World.Environment.THE_END);
+                creatorEnd.seed(seed);
                 World w = creatorEnd.createWorld();
                 w.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
                 w.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
                 w.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
             }, 120L);
+            //create worlds but unload to save resources till needed
+            //Bukkit.unloadWorld(getEnd(), true);
+            //Bukkit.unloadWorld(getNether(), true);
+
 
 
         }
@@ -665,10 +660,9 @@ public class Game {
 
         //load schematic and prepare game
         Future<Object> part2 = Bukkit.getScheduler().callSyncMethod(Manhunt.get(), () -> {
-            System.out.println("loading up the schematicz");
-
+            Bukkit.getServer().getLogger().info("loading up the schematicz;");
             this.schematic.load();
-            System.out.println("Done loading up the schematicz");
+            Bukkit.getServer().getLogger().info("Done loading up the schematicz");
 
             ready = true;
             setStatus(GameStatus.WAITING);
@@ -793,6 +787,14 @@ public class Game {
 
     public World getWorld() {
         return Bukkit.getWorld(getWorldIdentifier());
+    }
+
+    public World getNether(){
+        return Bukkit.getWorld(getWorldIdentifier() + "_nether");
+    }
+
+    public World getEnd(){
+        return Bukkit.getWorld(getWorldIdentifier() + "_the_end");
     }
 
     public GameScheduler getScheduler() {

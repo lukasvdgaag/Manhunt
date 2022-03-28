@@ -9,9 +9,14 @@ import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.minecraft.server.v1_16_R3.Advancements;
 import org.bukkit.*;
+import org.bukkit.advancement.Advancement;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -22,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-public class GamePlayer {
+public class GamePlayer{
 
     private final CompassTracker compassTracker;
     private final Game game;

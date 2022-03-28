@@ -171,11 +171,37 @@ public class Manhunt extends JavaPlugin {
         this.platformUtils = platformUtils;
     }
 
+    public boolean deleteWorld(File path) {
+        if(path.exists()) {
+            File files[] = path.listFiles();
+            for(int i=0; i<files.length; i++) {
+                if(files[i].isDirectory()) {
+                    deleteWorld(files[i]);
+                } else {
+                    files[i].delete();
+                }
+            }
+        }
+        return(path.delete());
+    }
+
     @Override
     public void onDisable() {
         for (Game game : Game.getGames()) {
             if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core")){
-                getMultiversehook().multiverseworldremoval(game.getWorldIdentifier());
+                getMultiversehook().multiverseworldremoval(game);
+            }
+            else
+            {
+                //Bukkit world removal
+                if (Bukkit.getWorlds().contains(game.getWorld())){
+                    Bukkit.getServer().unloadWorld(game.getWorld(), true);
+                    deleteWorld(game.getWorld().getWorldFolder());
+                    Bukkit.getServer().unloadWorld(game.getNether(), true);
+                    deleteWorld(game.getNether().getWorldFolder());
+                    Bukkit.getServer().unloadWorld(game.getEnd(), true);
+                    deleteWorld(game.getEnd().getWorldFolder());
+                }
             }
             game.delete();
         }
