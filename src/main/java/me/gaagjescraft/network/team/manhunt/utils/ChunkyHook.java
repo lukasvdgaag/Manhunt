@@ -14,16 +14,18 @@ import java.util.Optional;
 public class ChunkyHook {
 
     public void chunkgen(double x,  double z, String worldidentifer){
-        ChunkyBukkit chunk = (ChunkyBukkit) Bukkit.getPluginManager().getPlugin("Chunky");
-        Selection.Builder selection = chunk.getChunky().getSelection();
-        selection.centerX(x);
-        selection.centerZ(z);
-        Optional<World> world = Input.tryWorld(chunk.getChunky(), worldidentifer);
-        selection.world(world.get());
-        selection.shape(ShapeType.CIRCLE);
-        selection.radius(Manhunt.get().getCfg().gensizechunks);
-        GenerationTask task = new GenerationTask(chunk.getChunky(), selection.build());
-        chunk.getChunky().getGenerationTasks().put(worldidentifer, task);
-        chunk.getChunky().getScheduler().runTask(task);
+        Bukkit.getScheduler().runTaskAsynchronously(Manhunt.get(), () -> {
+            ChunkyBukkit chunk = (ChunkyBukkit) Bukkit.getPluginManager().getPlugin("Chunky");
+            Selection.Builder selection = chunk.getChunky().getSelection();
+            selection.centerX(x);
+            selection.centerZ(z);
+            Optional<World> world = Input.tryWorld(chunk.getChunky(), worldidentifer);
+            selection.world(world.get());
+            selection.shape(ShapeType.CIRCLE);
+            selection.radius(Manhunt.get().getCfg().gensizechunks);
+            GenerationTask task = new GenerationTask(chunk.getChunky(), selection.build());
+            chunk.getChunky().getGenerationTasks().put(worldidentifer, task);
+            chunk.getChunky().getScheduler().runTask(task);
+        });
     }
 }
