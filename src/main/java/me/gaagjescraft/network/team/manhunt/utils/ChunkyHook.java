@@ -14,7 +14,7 @@ import java.util.Optional;
 public class ChunkyHook {
 
     public void chunkgen(double x,  double z, String worldidentifer){
-        Bukkit.getScheduler().runTaskAsynchronously(Manhunt.get(), () -> {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(Manhunt.get(), () -> {
             ChunkyBukkit chunk = (ChunkyBukkit) Bukkit.getPluginManager().getPlugin("Chunky");
             Selection.Builder selection = chunk.getChunky().getSelection();
             selection.centerX(x);
@@ -26,6 +26,6 @@ public class ChunkyHook {
             GenerationTask task = new GenerationTask(chunk.getChunky(), selection.build());
             chunk.getChunky().getGenerationTasks().put(worldidentifer, task);
             chunk.getChunky().getScheduler().runTask(task);
-        });
+        }, 600L);
     }
 }

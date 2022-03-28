@@ -631,8 +631,6 @@ public class Game {
                 border.setWarningTime(Manhunt.get().getCfg().worldBorderWarningTime);
             }
 
-
-
             WorldCreator creatorNether = new WorldCreator(getWorldIdentifier() + "_nether");
             creatorNether.environment(World.Environment.NETHER);
             creatorNether.seed(seed);

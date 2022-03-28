@@ -101,6 +101,7 @@ public class Manhunt extends JavaPlugin {
         if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core")) {
             getLogger().info("Found Multiverse-Core! We will register and create Manhunt worlds with Multiverse so everything will work smoothly.");
             multicreate = new Multiversehook();
+            Bukkit.getPluginManager().registerEvents(new Multiversehook(), this);
         }
         if (Bukkit.getPluginManager().isPluginEnabled("WorldEdit")) {
             getLogger().info("Found WorldEdit! This is used to handle the waiting lobby schematic pasting and removing.");
@@ -153,12 +154,12 @@ public class Manhunt extends JavaPlugin {
         getLogger().info("----------------------------------");
 
         Bukkit.getOnlinePlayers().forEach(player -> getPlayerStorage().loadUser(player.getUniqueId()));
+
         /*
         MultiverseCore core = (MultiverseCore) Bukkit.getServer().getPluginManager().getPlugin("Multiverse-Core");
         MVWorldManager worldManager = core.getMVWorldManager();
         worldManager.deleteWorld("world_nether");
         worldManager.deleteWorld("world_the_end");
-
          */
     }
 
@@ -173,9 +174,11 @@ public class Manhunt extends JavaPlugin {
     @Override
     public void onDisable() {
         for (Game game : Game.getGames()) {
+            if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core")){
+                getMultiversehook().multiverseworldremoval(game.getWorldIdentifier());
+            }
             game.delete();
         }
-
         if (bungeeSocketManager != null && getCfg().isLobbyServer) getBungeeMessenger().createDisconnectClientMessage();
         if (bungeeSocketManager != null) bungeeSocketManager.close();
     }
@@ -317,9 +320,6 @@ public class Manhunt extends JavaPlugin {
         getServer().getPluginManager().registerEvents(manhuntRunnerManageMenu, this);
         getServer().getPluginManager().registerEvents(manhuntMainMenu, this);
         getServer().getPluginManager().registerEvents(new RunnerTrackerMenuHandler(), this);
-        //getServer().getMessenger().registerIncomingPluginChannel(this, "exodus:manhunt", pluginMessageHandler);
-        //getServer().getMessenger().registerOutgoingPluginChannel(this, "exodus:manhunt");
-
         getServer().getPluginManager().registerEvents(new DeathEventHandler(), this);
         getServer().getPluginManager().registerEvents(new GameWaitingEvents(), this);
         getServer().getPluginManager().registerEvents(new LeaveEventHandler(), this);
