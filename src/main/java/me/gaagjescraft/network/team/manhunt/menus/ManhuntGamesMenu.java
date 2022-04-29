@@ -22,6 +22,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ManhuntGamesMenu implements Listener {
 
@@ -44,7 +45,7 @@ public class ManhuntGamesMenu implements Listener {
         List<Game> games = Game.getGames();
         if (games.isEmpty()) {
             for (int i = 0; i < inventory.getSize(); i++)
-                if (inventory.getItem(i) == null || inventory.getItem(i).getType() == Material.AIR)
+                if (inventory.getItem(i) == null || Objects.requireNonNull(inventory.getItem(i)).getType() == Material.AIR)
                     inventory.setItem(i, Itemizer.FILL_NO_GAMES);
 
             player.openInventory(inventory);
@@ -70,6 +71,7 @@ public class ManhuntGamesMenu implements Listener {
             int onlineHunters = (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) ? g.getBungeeHunterCount() : g.getOnlinePlayers(PlayerType.HUNTER).size();
             int onlineRunners = (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) ? g.getBungeeRunnerCount() : g.getOnlinePlayers(PlayerType.RUNNER).size();
 
+            assert meta != null;
             meta.setDisplayName(Util.c(Manhunt.get().getCfg().gamesMenuGameHostDisplayname).replaceAll("%host%", g.getIdentifier()));
             List<String> lore = (onlineHunters < g.getMaxPlayers() && (g.getStatus() != GameStatus.STOPPING && g.getStatus() != GameStatus.LOADING)) ?
                     Manhunt.get().getCfg().gamesMenuGameHostLore : Manhunt.get().getCfg().gamesMenuGameHostLockedLore;
@@ -93,7 +95,7 @@ public class ManhuntGamesMenu implements Listener {
         }
 
         for (int i = 0; i < inventory.getSize(); i++) {
-            if (inventory.getItem(i) == null || inventory.getItem(i).getType() == Material.AIR)
+            if (inventory.getItem(i) == null || Objects.requireNonNull(inventory.getItem(i)).getType() == Material.AIR)
                 inventory.setItem(i, Itemizer.FILL_ITEM);
         }
 

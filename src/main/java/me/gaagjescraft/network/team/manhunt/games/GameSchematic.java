@@ -35,6 +35,7 @@ public class GameSchematic {
 
     public void load() {
         org.bukkit.World world = Bukkit.getWorld(game.getWorldIdentifier());
+        assert world != null;
         Location spawn = world.getSpawnLocation();
         spawn.setY(150);
         spawn.setYaw(180);
@@ -82,6 +83,7 @@ public class GameSchematic {
 
     public void unload() {
         World world = Bukkit.getWorld(game.getWorldIdentifier());
+        assert world != null;
         Location spawn = world.getSpawnLocation();
         spawn.setY(150);
 

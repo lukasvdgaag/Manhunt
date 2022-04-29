@@ -378,6 +378,7 @@ public class GameScheduler {
             for (GamePlayer gp : game.getOnlinePlayers(null)) {
                 if (gp.isDead()) continue;
                 Player player = Bukkit.getPlayer(gp.getUuid());
+                assert player != null;
                 if (player.getWorld().getEnvironment() != World.Environment.NORMAL) continue;
 
                 if (!gp.isFullyDead() && player.getLocation().getY() + 1 > player.getWorld().getHighestBlockYAt(player.getLocation())) {

@@ -270,7 +270,7 @@ public class Game {
         if (getStatus() == GameStatus.WAITING || getStatus() == GameStatus.STARTING ||
                 (getStatus() == GameStatus.PLAYING && gamePlayer.getPlayerType() == PlayerType.HUNTER && getTimer() <= getHeadStart().getSeconds()))
             player.teleport(this.schematic.getSpawnLocation());
-        else player.teleport(Bukkit.getWorld(getWorldIdentifier()).getSpawnLocation());
+        else player.teleport(Objects.requireNonNull(Bukkit.getWorld(getWorldIdentifier())).getSpawnLocation());
 
         this.getRunnerTeleporterMenu().update();
         sendUpdate();
@@ -537,9 +537,7 @@ public class Game {
                     p.setFlying(false);
                     p.setAllowFlight(false);
 
-                    p.spigot().getHiddenPlayers().forEach(p1 -> {
-                        p.showPlayer(Manhunt.get(), p1);
-                    });
+                    p.spigot().getHiddenPlayers().forEach(p1 -> p.showPlayer(Manhunt.get(), p1));
 
                     if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(p);
                 }
@@ -610,6 +608,7 @@ public class Game {
             creator.seed(seed);
             World wworld = creator.createWorld();
 
+            assert wworld != null;
             wworld.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
             wworld.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
             wworld.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
@@ -629,6 +628,7 @@ public class Game {
                 creatorNether.environment(World.Environment.NETHER);
                 creatorNether.seed(seed);
                 World w = creatorNether.createWorld();
+                assert w != null;
                 w.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
                 w.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
                 w.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
@@ -639,6 +639,7 @@ public class Game {
                 creatorEnd.environment(World.Environment.THE_END);
                 creatorEnd.seed(seed);
                 World w = creatorEnd.createWorld();
+                assert w != null;
                 w.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
                 w.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
                 w.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
@@ -652,10 +653,10 @@ public class Game {
         }
 
         if (Bukkit.getPluginManager().isPluginEnabled("Chunky")){
-            Location spawn = Bukkit.getWorld(getWorldIdentifier()).getSpawnLocation();
+            Location spawn = Objects.requireNonNull(Bukkit.getWorld(getWorldIdentifier())).getSpawnLocation();
             double x = spawn.getBlockX();
             double z = spawn.getBlockZ();
-            Manhunt.get().getChunkHook().chunkgen(x, z, Bukkit.getWorld(getWorldIdentifier()).getName());
+            Manhunt.get().getChunkHook().chunkgen(x, z, Objects.requireNonNull(Bukkit.getWorld(getWorldIdentifier())).getName());
         }
 
         //load schematic and prepare game
@@ -896,7 +897,7 @@ public class Game {
 
     public void sendGameAnnouncement() {
         if (Manhunt.get().getCfg().isLobbyServer && Manhunt.get().getCfg().sendGameHostAnnouncement) {
-            List<Player> players = Manhunt.get().getCfg().sendGameHostAnnouncementToLobbyOnly ? Manhunt.get().getCfg().lobby.getWorld().getPlayers() : new ArrayList<>(Bukkit.getOnlinePlayers());
+            List<Player> players = Manhunt.get().getCfg().sendGameHostAnnouncementToLobbyOnly ? Objects.requireNonNull(Manhunt.get().getCfg().lobby.getWorld()).getPlayers() : new ArrayList<>(Bukkit.getOnlinePlayers());
 
             for (Player p : players) {
                 Util.playSound(p, Manhunt.get().getCfg().gameHostAnnouncementSound, 3, 1);

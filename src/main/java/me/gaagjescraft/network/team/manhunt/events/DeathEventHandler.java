@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -18,6 +19,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 public class DeathEventHandler implements Listener {
 
@@ -30,7 +32,7 @@ public class DeathEventHandler implements Listener {
         if (game == null) return;
         e.setDeathMessage(null);
         GamePlayer gp = game.getPlayer(player);
-        doCheckThingForDeath(player, game, gp, player.getLastDamageCause().getCause(), null);
+        doCheckThingForDeath(player, game, gp, Objects.requireNonNull(player.getLastDamageCause()).getCause(), null);
         e.getDrops().clear();
     }
 
@@ -50,7 +52,7 @@ public class DeathEventHandler implements Listener {
                 } else if (dgp.getPlayerType() == PlayerType.RUNNER) {
                     EnderDragon dragon = ((EnderDragon) e.getEntity());
                     if (dragon.getHealth() - e.getFinalDamage() <= 0) {
-                        dragon.getBossBar().removeAll();
+                        Objects.requireNonNull(dragon.getBossBar()).removeAll();
                         game.sendMessage(null, Util.c(Manhunt.get().getCfg().dragonDefeatedMessage).replaceAll("%prefix%", dgp.getPrefix()).replaceAll("%player%", damager.getName()));
                         for (GamePlayer gp : game.getPlayers(null)) {
                             Player p = Bukkit.getPlayer(gp.getUuid());
@@ -143,7 +145,7 @@ public class DeathEventHandler implements Listener {
                 (game.getStatus() == GameStatus.PLAYING && gp.getPlayerType() == PlayerType.RUNNER && game.getTimer() <= 20) || gp.isFullyDead()) {
             e.setCancelled(true);
             player.setHealth(20);
-            player.setMaxHealth(20);
+            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20);
             player.setFoodLevel(20);
             e.setDamage(0);
             return;
@@ -165,13 +167,13 @@ public class DeathEventHandler implements Listener {
         for (int i = 0; i < player.getInventory().getSize(); i++) {
             ItemStack item = player.getInventory().getItem(i);
             if (item == null || item.getType() == Material.AIR) continue;
-            if (item.getType() == Material.COMPASS && item.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname)))
+            if (item.getType() == Material.COMPASS && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname)))
                 continue;
             player.getWorld().dropItemNaturally(player.getLocation(), item);
         }
 
         player.setHealth(20);
-        player.setMaxHealth(20);
+        Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20);
         player.setFireTicks(0);
         player.setFoodLevel(20);
 
@@ -254,7 +256,7 @@ public class DeathEventHandler implements Listener {
                             prefix = gp.getPrefix() + " " + player.getName() + " §cwas shot to death.";
                         }
                     } else {
-                        prefix = gp.getPrefix() + " " + player.getName() + " §cwas shot to death by a " + ((Entity) arrow.getShooter()).getType().getName();
+                        prefix = gp.getPrefix() + " " + player.getName() + " §cwas shot to death by a " + ((Entity) arrow.getShooter()).getType().name();
                     }
                 } else {
                     prefix = gp.getPrefix() + " " + player.getName() + " §cwas shot to death.";
@@ -294,7 +296,7 @@ public class DeathEventHandler implements Listener {
             } else if (killer.getType() == EntityType.FOX) {
                 prefix = gp.getPrefix() + " " + player.getName() + " §cwoke up daddy fox and got bitten to death.";
             } else {
-                prefix = gp.getPrefix() + " " + player.getName() + " §cwas killed by a " + killer.getType().getName();
+                prefix = gp.getPrefix() + " " + player.getName() + " §cwas killed by a " + killer.getType().name();
             }
         } else {
             // no killer

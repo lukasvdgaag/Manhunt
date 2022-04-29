@@ -28,7 +28,8 @@ public class ManhuntPlayerAmountSetupMenu implements Listener {
     }
 
     public void updateItems(Player player, GameSetup setup) {
-        if (player.getOpenInventory() == null || player.getOpenInventory().getTopInventory() == null) return;
+        player.getOpenInventory();
+        player.getOpenInventory().getTopInventory();
         Inventory inventory = player.getOpenInventory().getTopInventory();
 
         inventory.setItem(9, getLoredItem(false, 25, setup.getMaxPlayers()));
@@ -51,6 +52,7 @@ public class ManhuntPlayerAmountSetupMenu implements Listener {
         ItemStack item = plus ? Itemizer.HEAD_PLUS : Itemizer.HEAD_MINUS;
         item.setAmount(number);
         ItemMeta meta = item.getItemMeta();
+        assert meta != null;
         meta.setDisplayName(Util.c(
                 plus ? Manhunt.get().getCfg().maxHuntersMenuAddDisplayname : Manhunt.get().getCfg().maxHuntersMenuRemoveDisplayname
         ).replaceAll("%number%", number + "").replaceAll("%amount%", currentSize + ""));

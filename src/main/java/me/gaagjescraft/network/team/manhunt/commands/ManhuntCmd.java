@@ -12,18 +12,18 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class ManhuntCmd implements CommandExecutor {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (!(sender instanceof Player)) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, String[] args) {
+        if (!(sender instanceof Player p)) {
             sender.sendMessage(ChatColor.RED + "You must be a player to perform this command");
             return true;
         }
-        Player p = (Player) sender;
 
         if (args.length >= 1 && args[0].equalsIgnoreCase("setspawn") && p.hasPermission("manhunt.setspawn")) {
             Manhunt.get().getCfg().lobby = p.getLocation();
@@ -263,6 +263,7 @@ public class ManhuntCmd implements CommandExecutor {
                 p.sendMessage("§bRunners:");
                 for (GamePlayer gps : game.getPlayers(PlayerType.RUNNER)) {
                     Player pp = Bukkit.getPlayer(gps.getUuid());
+                    assert pp != null;
                     p.sendMessage("§7- §e" + pp.getName());
                 }
                 p.sendMessage("§7§m---------------------------------------");

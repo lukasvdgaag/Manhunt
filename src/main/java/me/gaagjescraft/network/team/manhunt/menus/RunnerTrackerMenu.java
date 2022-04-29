@@ -54,7 +54,9 @@ public class RunnerTrackerMenu {
 
             ItemStack item = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta) item.getItemMeta();
+            assert meta != null;
             meta.setOwningPlayer(Bukkit.getOfflinePlayer(runner.getUuid()));
+            assert player != null;
             meta.setDisplayName(Util.c(Manhunt.get().getCfg().teleporterMenuPlayerDisplayname.replaceAll("%player%", player.getName())));
             List<String> lore = Manhunt.get().getCfg().teleporterMenuPlayerLore;
             lore = new ArrayList<>(lore);
@@ -68,6 +70,7 @@ public class RunnerTrackerMenu {
 
             ItemStack item1 = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta1 = (SkullMeta) item1.getItemMeta();
+            assert meta1 != null;
             meta1.setOwningPlayer(Bukkit.getOfflinePlayer(runner.getUuid()));
             meta1.setDisplayName(Util.c(Manhunt.get().getCfg().trackerMenuPlayerDisplayname.replaceAll("%player%", player.getName())));
             List<String> lore1 = Manhunt.get().getCfg().trackerMenuPlayerLore;

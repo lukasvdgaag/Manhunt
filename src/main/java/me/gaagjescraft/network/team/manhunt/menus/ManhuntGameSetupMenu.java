@@ -39,7 +39,8 @@ public class ManhuntGameSetupMenu implements Listener {
     }
 
     public void updateItems(Player player, Game game) {
-        if (player.getOpenInventory() == null || player.getOpenInventory().getTopInventory() == null) return;
+        player.getOpenInventory();
+        player.getOpenInventory().getTopInventory();
 
         GameSetup setup = gameSetups.getOrDefault(player, Manhunt.get().getPlatformUtils().initGameSetup(player, Manhunt.get().getCfg().defaultOptionAllowTwists, Manhunt.get().getCfg().defaultOptionMaxPlayers,
                 Manhunt.get().getCfg().defaultOptionDoDaylightCycle, Manhunt.get().getCfg().defaultOptionAllowFriendlyFire, Manhunt.get().getCfg().defaultOptionHeadstart));
@@ -83,6 +84,7 @@ public class ManhuntGameSetupMenu implements Listener {
         ItemStack headstart = new ItemStack(Material.valueOf(Manhunt.get().getCfg().hostMenuHeadstartMaterial));
         ItemMeta hmeta = headstart.getItemMeta();
         String headstartTime = Manhunt.get().getUtil().secondsToTimeString(setup.getHeadStart().getSeconds(), "string");
+        assert hmeta != null;
         hmeta.setDisplayName(Util.c(Manhunt.get().getCfg().hostMenuHeadstartDisplayname).replaceAll("%time%", headstartTime));
         List<String> hlore;
         if (setup.getGame() == null || setup.getGame().getStatus() == GameStatus.WAITING) {
@@ -114,6 +116,7 @@ public class ManhuntGameSetupMenu implements Listener {
         int players = setup.getGame() == null ? setup.getMaxPlayers() : setup.getGame().getMaxPlayers();
         ItemStack playerAmount = new ItemStack(Material.valueOf(Manhunt.get().getCfg().hostMenuPlayerAmountMaterial));
         ItemMeta pameta = playerAmount.getItemMeta();
+        assert pameta != null;
         pameta.setDisplayName(Util.c(Manhunt.get().getCfg().hostMenuPlayerAmountDisplayname).replaceAll("%amount%", players + ""));
         List<String> palore;
         if (setup.getGame() == null) {

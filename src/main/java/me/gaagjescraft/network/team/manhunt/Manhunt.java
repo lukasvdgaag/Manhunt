@@ -25,6 +25,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Objects;
 
 public class Manhunt extends JavaPlugin {
 
@@ -173,12 +174,13 @@ public class Manhunt extends JavaPlugin {
 
     public boolean deleteWorld(File path) {
         if(path.exists()) {
-            File files[] = path.listFiles();
-            for(int i=0; i<files.length; i++) {
-                if(files[i].isDirectory()) {
-                    deleteWorld(files[i]);
+            File[] files = path.listFiles();
+            assert files != null;
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteWorld(file);
                 } else {
-                    files[i].delete();
+                    file.delete();
                 }
             }
         }
@@ -295,7 +297,7 @@ public class Manhunt extends JavaPlugin {
     private void loadSchedulers() {
         getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
             if (Manhunt.get().getCfg().teleportPlayersToLobbyInVoid && getCfg().lobby != null) {
-                for (Player p : getCfg().lobby.getWorld().getPlayers()) {
+                for (Player p : Objects.requireNonNull(getCfg().lobby.getWorld()).getPlayers()) {
                     if (p.getLocation().getBlockY() < Manhunt.get().getCfg().lobbyTeleportYCoord) {
                         p.teleport(getCfg().lobby);
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
@@ -333,11 +335,11 @@ public class Manhunt extends JavaPlugin {
     }
 
     private void loadCAE() {
-        getCommand("manhunt").setExecutor(new ManhuntCmd());
-        getCommand("leave").setExecutor(new LeaveCmd());
-        getCommand("compass").setExecutor(new CompassCmd());
-        getCommand("rejoin").setExecutor(new RejoinCmd());
-        getCommand("manhuntstats").setExecutor(new StatsCmd());
+        Objects.requireNonNull(getCommand("manhunt")).setExecutor(new ManhuntCmd());
+        Objects.requireNonNull(getCommand("leave")).setExecutor(new LeaveCmd());
+        Objects.requireNonNull(getCommand("compass")).setExecutor(new CompassCmd());
+        Objects.requireNonNull(getCommand("rejoin")).setExecutor(new RejoinCmd());
+        Objects.requireNonNull(getCommand("manhuntstats")).setExecutor(new StatsCmd());
         getServer().getPluginManager().registerEvents(manhuntGamesMenu, this);
         getServer().getPluginManager().registerEvents(manhuntGameSetupMenu, this);
         getServer().getPluginManager().registerEvents(manhuntPlayerAmountSetupMenu, this);

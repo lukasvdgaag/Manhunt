@@ -104,7 +104,7 @@
     <repositories>
         <repository>
             <id>gcnt-self</id>
-            <url>https://nexus.gcnt.net/repository/gaagjescraft</url>
+            <url>https://nexuslite.gcnt.net/repos/gcnt/</url>
         </repository>
         <repository>
             <id>gcnt-bukkit</id>
@@ -112,7 +112,7 @@
         </repository>
         <repository>
             <id>gcnt</id>
-            <url>https://nexuslite.gcnt.net/repos/gcnt/</url>
+            <url>https://nexuslite.gcnt.net/repos/other/</url>
         </repository>
         <repository>
             <id>nametagedit</id>
@@ -164,12 +164,6 @@
             <groupId>com.onarandombox.multiversecore</groupId>
             <artifactId>Multiverse-Core</artifactId>
             <version>4.3.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.onarandombox.multiversenetherportals</groupId>
-            <artifactId>Multiverse-NetherPortals</artifactId>
-            <version>4.2.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -232,7 +226,7 @@
         <dependency>
             <groupId>net.gcnt</groupId>
             <artifactId>additionsplus</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

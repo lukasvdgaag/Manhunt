@@ -24,6 +24,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ManhuntRunnerManageMenu implements Listener {
 
@@ -41,7 +42,8 @@ public class ManhuntRunnerManageMenu implements Listener {
     }
 
     public void updateItems(Player player, Game game) {
-        if (player.getOpenInventory() == null || player.getOpenInventory().getTopInventory() == null) return;
+        player.getOpenInventory();
+        player.getOpenInventory().getTopInventory();
         Inventory menu = player.getOpenInventory().getTopInventory();
 
         for (int i = 0; i < menu.getSize(); i++) {
@@ -53,10 +55,11 @@ public class ManhuntRunnerManageMenu implements Listener {
             OfflinePlayer op = Bukkit.getOfflinePlayer(gp.getUuid());
             ItemStack item = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta) item.getItemMeta();
+            assert meta != null;
             meta.setOwningPlayer(op);
             meta.setDisplayName(Util.c(
                     gp.isHost() ? Manhunt.get().getCfg().runnerManagerMenuHostRunnerDisplayname : Manhunt.get().getCfg().runnerManagerMenuGeneralRunnerDisplayname
-            ).replaceAll("%player%", op.getName()));
+            ).replaceAll("%player%", Objects.requireNonNull(op.getName())));
             List<String> lore = gp.isHost() ? Manhunt.get().getCfg().runnerManagerMenuHostRunnerLore : Manhunt.get().getCfg().runnerManagerMenuGeneralRunnerLore;
             lore = new ArrayList<>(lore);
             for (int i = 0; i < lore.size(); i++) {
@@ -106,7 +109,7 @@ public class ManhuntRunnerManageMenu implements Listener {
 
                         if (runners.size() > 1) {
                             // can remove host because there are multiple hunters.
-                            player.sendMessage(Util.c(Manhunt.get().getCfg().playerRemoveRunnerMessage.replaceAll("%player%", target.getName())));
+                            player.sendMessage(Util.c(Manhunt.get().getCfg().playerRemoveRunnerMessage.replaceAll("%player%", Objects.requireNonNull(target.getName()))));
                             gp.setPlayerType(PlayerType.HUNTER);
                             game.getRunnerTeleporterMenu().update();
                             Util.playSound(player, Manhunt.get().getCfg().runnerRemovedSound, 1, 1);
@@ -115,7 +118,7 @@ public class ManhuntRunnerManageMenu implements Listener {
                             open(player, game);
                         } else {
                             // cannot remove any runners because there must be at least one in the game.
-                            player.sendMessage(Util.c(Manhunt.get().getCfg().menuRunnerManagerCannotRemoveRunnerMessage.replaceAll("%player%", target.getName())));
+                            player.sendMessage(Util.c(Manhunt.get().getCfg().menuRunnerManagerCannotRemoveRunnerMessage.replaceAll("%player%", Objects.requireNonNull(target.getName()))));
                             Util.playSound(player, Manhunt.get().getCfg().menuRunnerManagerCannotRemoveRunnerSound, 1, 1);
                         }
                     }

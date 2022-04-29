@@ -53,6 +53,7 @@ public class YamlStorage implements PlayerStorage {
 
         if (conf.contains(uuid.toString())) {
             ConfigurationSection res = conf.getConfigurationSection(uuid.toString());
+            assert res != null;
             ps.setBestSpeedRunTime(res.getLong("best_speedrun_time"));
             ps.setHunterKills(res.getInt("hunter_kills"));
             ps.setRunnerKills(res.getInt("runner_kills"));
