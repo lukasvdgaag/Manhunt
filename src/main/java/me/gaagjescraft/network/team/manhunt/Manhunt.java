@@ -15,6 +15,7 @@ import me.gaagjescraft.network.team.manhunt.inst.storage.YamlStorage;
 import me.gaagjescraft.network.team.manhunt.menus.*;
 import me.gaagjescraft.network.team.manhunt.menus.handlers.RunnerTrackerMenuHandler;
 import me.gaagjescraft.network.team.manhunt.utils.*;
+import me.gaagjescraft.network.team.manhunt.utils.party.*;
 import me.gaagjescraft.network.team.manhunt.utils.platform.OriginalPlatformUtils;
 import me.gaagjescraft.network.team.manhunt.utils.platform.PlatformUtils;
 import org.bukkit.Bukkit;
@@ -47,6 +48,8 @@ public class Manhunt extends JavaPlugin {
     private BungeeMessenger bungeeMessenger;
     private Multiversehook multicreate;
     private ChunkyHook chunkgen;
+
+    private Party party = new NoParty();
 
     public static Manhunt get() {
         return instance;
@@ -131,6 +134,18 @@ public class Manhunt extends JavaPlugin {
                 getLogger().info("Found vault! You can now charge money for hosting games.");
             }
         }
+
+        if (getServer().getPluginManager().isPluginEnabled("Spigot-Party-API-PAF")){
+            getLogger().info("Hook into Spigot Party API for Party and Friends Extended (by Simonsator) support!");
+            party = new PAFBungee();
+        } else if (getServer().getPluginManager().isPluginEnabled("PartyAndFriends")) {
+            getLogger().info("Hook into Party and Friends for Spigot (by Simonsator) support!");
+            party = new PAFSpigot();
+        } else if (getServer().getPluginManager().isPluginEnabled("Parties")) {
+            getLogger().info("Hook into Parties (by AlessioDP) support!");
+            party = new Parties();
+        }
+
         setBungeeMessenger(new BungeeMessenger());
         if (getCfg().bungeeMode) {
             bungeeSocketManager = new BungeeSocketManager();

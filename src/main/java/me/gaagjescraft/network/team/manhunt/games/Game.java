@@ -52,6 +52,7 @@ public class Game {
     private HeadstartType headStart;
     private boolean dragonDefeated;
 
+    private long seed;
     private int bungeeHunterCount;
     private int bungeeRunnerCount;
     private String bungeeServer;
@@ -596,6 +597,7 @@ public class Game {
     public void create() {
         int random = ThreadLocalRandom.current().nextInt(Manhunt.get().getCfg().seeds.size());
         long seed = Manhunt.get().getCfg().seeds.get(random);
+        this.seed = seed;
 
         if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core") && (Bukkit.getPluginManager().isPluginEnabled("Multiverse-NetherPortals"))) {
             //use multiverse hook
@@ -645,10 +647,6 @@ public class Game {
                 w.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
             }, 120L);
             //create worlds but unload to save resources till needed
-            //Bukkit.unloadWorld(getEnd(), true);
-            //Bukkit.unloadWorld(getNether(), true);
-
-
 
         }
 
@@ -913,4 +911,6 @@ public class Game {
     public String getWorldIdentifier() {
         return worldIdentifier;
     }
+
+    public long getSeed(){return seed;}
 }
