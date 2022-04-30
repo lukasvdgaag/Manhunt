@@ -13,6 +13,7 @@ softdepend:
   - NametagEdit
   - Multiverse-Core
   - PlaceholderAPI
+  - Chunky
 load: POSTWORLD
 
 commands:

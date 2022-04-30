@@ -42,7 +42,8 @@ public class ManhuntTwistVoteMenu implements Listener {
     }
 
     public void updateItems(Player player, Game game) {
-        if (player.getOpenInventory() == null || player.getOpenInventory().getTopInventory() == null) return;
+        player.getOpenInventory();
+        player.getOpenInventory().getTopInventory();
         Inventory teleportMenu = player.getOpenInventory().getTopInventory();
 
         int hardcoreVotes = game.getTwistVotes(TwistVote.HARDCORE);
@@ -82,8 +83,10 @@ public class ManhuntTwistVoteMenu implements Listener {
         item.setAmount(Math.max(acidRainVotes, 1));
         ItemMeta meta = item.getItemMeta();
         if (item.getType() == Material.TIPPED_ARROW || item.getType() == Material.POTION || item.getType() == Material.SPLASH_POTION || item.getType() == Material.LINGERING_POTION) {
+            assert meta != null;
             ((PotionMeta) meta).setBasePotionData(new PotionData(PotionType.POISON));
         }
+        assert meta != null;
         meta.setDisplayName(Util.c(Manhunt.get().getCfg().twistVoteMenuAcidRainDisplayname));
         List<String> lore = Manhunt.get().getCfg().twistvoteMenuAcidRainLore;
         lore = new ArrayList<>(lore);
@@ -98,7 +101,8 @@ public class ManhuntTwistVoteMenu implements Listener {
     }
 
     private void applyEnchants(Player player) {
-        if (player.getOpenInventory() == null || player.getOpenInventory().getTopInventory() == null) return;
+        player.getOpenInventory();
+        player.getOpenInventory().getTopInventory();
         Inventory inventory = player.getOpenInventory().getTopInventory();
 
         Game game = Game.getGame(player);
@@ -106,35 +110,21 @@ public class ManhuntTwistVoteMenu implements Listener {
         GamePlayer gp = game.getPlayer(player);
         if (gp.getTwistVoted() == null) return;
 
-        int slot = 0;
-        switch (gp.getTwistVoted()) {
-            case HARDCORE:
-                slot = 10;
-                break;
-            case EXTRA_HEALTH:
-                slot = 12;
-                break;
-            case BLINDNESS:
-                slot = 14;
-                break;
-            case RANDOM_YEET:
-                slot = 16;
-                break;
-            case SPEED_BOOST:
-                slot = 29;
-                break;
-            case NONE:
-                slot = 31;
-                break;
-            case ACID_RAIN:
-                slot = 33;
-                break;
-        }
+        int slot = switch (gp.getTwistVoted()) {
+            case HARDCORE -> 10;
+            case EXTRA_HEALTH -> 12;
+            case BLINDNESS -> 14;
+            case RANDOM_YEET -> 16;
+            case SPEED_BOOST -> 29;
+            case NONE -> 31;
+            case ACID_RAIN -> 33;
+        };
 
         ItemStack item = inventory.getItem(slot);
         if (item == null) return;
 
         ItemMeta meta = item.getItemMeta();
+        assert meta != null;
         meta.addEnchant(Enchantment.DURABILITY, 1, true);
         item.setItemMeta(meta);
     }

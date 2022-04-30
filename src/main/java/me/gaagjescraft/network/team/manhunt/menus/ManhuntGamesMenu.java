@@ -22,6 +22,8 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 public class ManhuntGamesMenu implements Listener {
 
@@ -33,18 +35,10 @@ public class ManhuntGamesMenu implements Listener {
         inventory.setItem(22, Itemizer.CLOSE_ITEM);
         inventory.setItem(18, Itemizer.GO_BACK_ITEM);
 
-        /*if (player.hasPermission("manhunt.hostgame") || Manhunt.get().getCfg().pricePerGame <= 0 || (Manhunt.get().getEconomy() != null && Manhunt.get().getEconomy().hasBalance(player, 1))) {
-            int protocol = Manhunt.get().getUtil().getProtocol(player);
-
-            if (protocol == -1 || protocol >= Manhunt.get().getCfg().minimumClientProtocolVersion)
-                inventory.setItem(26, Itemizer.NEW_GAME_ITEM);
-            else inventory.setItem(26, Itemizer.NEW_GAME_ITEM_UNSUPPORTED_PROTOCOL);
-        }*/
-
         List<Game> games = Game.getGames();
         if (games.isEmpty()) {
             for (int i = 0; i < inventory.getSize(); i++)
-                if (inventory.getItem(i) == null || inventory.getItem(i).getType() == Material.AIR)
+                if (inventory.getItem(i) == null || Objects.requireNonNull(inventory.getItem(i)).getType() == Material.AIR)
                     inventory.setItem(i, Itemizer.FILL_NO_GAMES);
 
             player.openInventory(inventory);
@@ -70,6 +64,7 @@ public class ManhuntGamesMenu implements Listener {
             int onlineHunters = (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) ? g.getBungeeHunterCount() : g.getOnlinePlayers(PlayerType.HUNTER).size();
             int onlineRunners = (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) ? g.getBungeeRunnerCount() : g.getOnlinePlayers(PlayerType.RUNNER).size();
 
+            assert meta != null;
             meta.setDisplayName(Util.c(Manhunt.get().getCfg().gamesMenuGameHostDisplayname).replaceAll("%host%", g.getIdentifier()));
             List<String> lore = (onlineHunters < g.getMaxPlayers() && (g.getStatus() != GameStatus.STOPPING && g.getStatus() != GameStatus.LOADING)) ?
                     Manhunt.get().getCfg().gamesMenuGameHostLore : Manhunt.get().getCfg().gamesMenuGameHostLockedLore;
@@ -93,7 +88,7 @@ public class ManhuntGamesMenu implements Listener {
         }
 
         for (int i = 0; i < inventory.getSize(); i++) {
-            if (inventory.getItem(i) == null || inventory.getItem(i).getType() == Material.AIR)
+            if (inventory.getItem(i) == null || Objects.requireNonNull(inventory.getItem(i)).getType() == Material.AIR)
                 inventory.setItem(i, Itemizer.FILL_ITEM);
         }
 
@@ -117,17 +112,9 @@ public class ManhuntGamesMenu implements Listener {
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
             return;
         } else if (e.getSlot() == 22) {
-            e.getWhoClicked().closeInventory();
+            p.closeInventory();
             return;
-        } /*else if (e.getSlot() == 26 && e.getWhoClicked().hasPermission("manhunt.hostgame")) {
-            int protocol = Manhunt.get().getUtil().getProtocol(p);
-
-            if (protocol == -1 || protocol >= Manhunt.get().getCfg().minimumClientProtocolVersion)
-                Manhunt.get().getManhuntGameSetupMenu().openMenu(p, null);
-            else
-                p.playSound(p.getLocation(), Sound.valueOf(Manhunt.get().getCfg().menuHostLockedSound), 1, 1);
-            return;
-        }*/
+        }
 
         List<Game> games = Game.getGames();
         if (e.getSlot() >= games.size()) return;
@@ -136,22 +123,37 @@ public class ManhuntGamesMenu implements Listener {
         if (g == null) return;
 
         int playercount = Manhunt.get().getCfg().bungeeMode ? g.getBungeeHunterCount() : g.getOnlinePlayers(PlayerType.HUNTER).size();
-        if (playercount >= g.getMaxPlayers() || e.getClick() == ClickType.RIGHT) {
-            if (!g.getSpectators().contains(e.getWhoClicked().getUniqueId()))
-                g.addSpectator(e.getWhoClicked().getUniqueId());
 
-            if (e.getClick() == ClickType.RIGHT) {
-                e.getWhoClicked().sendMessage("§eThis game currently not accepting any more players, so will try to add you as a spectator");
-            } else {
-                e.getWhoClicked().sendMessage("§eAttempting to add you to this game as a spectator...");
-            }
+        if (Manhunt.getParty().hasParty(p)  && Manhunt.getParty().isOwner(p)){
+            playercount = Manhunt.getParty().getMembers(p).size();
+        } else if (Manhunt.getParty().hasParty(p)) {
+            p.sendMessage("You are not party leader you cannot create a game or join a game");
+            p.closeInventory();
+            return;
         }
 
-        boolean result = g.addPlayer((Player) e.getWhoClicked());
-        if (!result)
-            e.getWhoClicked().sendMessage(Util.c(Manhunt.get().getCfg().gameUnavailableMessage.replaceAll("%host%", g.getIdentifier())));
-
-        e.getWhoClicked().closeInventory();
+        if (playercount >= g.getMaxPlayers() || e.getClick() == ClickType.RIGHT) {
+            for (Player player : Manhunt.getParty().getMembers(p)) { //add party as spectators
+                UUID uuid = player.getUniqueId();
+                if (!g.getSpectators().contains(e.getWhoClicked().getUniqueId()))
+                    g.addSpectator(uuid);
+            }
+            //send message to owner if in party
+            if (e.getClick() == ClickType.RIGHT) {
+                p.sendMessage("§eThis game currently not accepting any more players, so will try to add you as a spectator");
+            } else {
+                p.sendMessage("§eAttempting to add you to this game as a spectator...");
+            }
+        }
+        else
+        {
+            for (Player player : Manhunt.getParty().getMembers(p)) {
+                boolean result = g.addPlayer(player);
+                if (!result)
+                    p.sendMessage(Util.c(Manhunt.get().getCfg().gameUnavailableMessage.replaceAll("%host%", g.getIdentifier())));
+            }
+        }
+        p.closeInventory();
     }
 
     @EventHandler

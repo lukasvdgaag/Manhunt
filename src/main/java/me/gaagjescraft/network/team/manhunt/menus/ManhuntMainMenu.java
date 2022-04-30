@@ -21,7 +21,7 @@ public class ManhuntMainMenu implements Listener {
 
     public void updateSlot(int slot, Player player) {
         InventoryView view = player.getOpenInventory();
-        if (view == null || view.getTopInventory() == null) return;
+        view.getTopInventory();
 
         Inventory gui = view.getTopInventory();
         int tokenCount = Manhunt.get().getEconomy() == null ? 0 : (int) Manhunt.get().getEconomy().getBalance(player);
@@ -48,6 +48,7 @@ public class ManhuntMainMenu implements Listener {
                     tokens = Itemizer.createItem(Manhunt.get().getCfg().mainMenuHostGameCanHostMaterial, 1,
                             Util.c(Manhunt.get().getCfg().mainMenuHostGameCanHostDisplayname), Manhunt.get().getUtil().replace(Manhunt.get().getUtil().replace(Manhunt.get().getCfg().mainMenuHostGameCanHostLore, "%balance%", tokenCount + ""), "%price%", Manhunt.get().getCfg().pricePerGame + ""));
                     tokensMeta = tokens.getItemMeta();
+                    assert tokensMeta != null;
                     tokensMeta.addEnchant(Enchantment.DURABILITY, 1, true);
                 } else {
                     tokens = Itemizer.createItem(Manhunt.get().getCfg().mainMenuHostGameCannotHostMaterial, 1,

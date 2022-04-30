@@ -3,30 +3,24 @@ package me.gaagjescraft.network.team.manhunt.games;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import io.papermc.lib.PaperLib;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.events.custom.GameCreationEvent;
 import me.gaagjescraft.network.team.manhunt.events.custom.GameJoinEvent;
 import me.gaagjescraft.network.team.manhunt.events.custom.GameLeaveEvent;
 import me.gaagjescraft.network.team.manhunt.events.custom.GameRemovalEvent;
 import me.gaagjescraft.network.team.manhunt.menus.RunnerTrackerMenu;
-import me.gaagjescraft.network.team.manhunt.utils.FileUtils;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicReference;
+
 
 public class Game {
 
@@ -40,7 +34,7 @@ public class Game {
     private final String worldIdentifier;
     private final List<GamePlayer> players;
     private final List<UUID> spectators;
-    private final GameSchematic schematic;
+    private GameSchematic schematic;
     private final GameScheduler scheduler;
     private final RunnerTrackerMenu runnerTrackerMenu;
     private boolean twistsAllowed;
@@ -56,6 +50,7 @@ public class Game {
     private HeadstartType headStart;
     private boolean dragonDefeated;
 
+    private long seed;
     private int bungeeHunterCount;
     private int bungeeRunnerCount;
     private String bungeeServer;
@@ -274,7 +269,7 @@ public class Game {
         if (getStatus() == GameStatus.WAITING || getStatus() == GameStatus.STARTING ||
                 (getStatus() == GameStatus.PLAYING && gamePlayer.getPlayerType() == PlayerType.HUNTER && getTimer() <= getHeadStart().getSeconds()))
             player.teleport(this.schematic.getSpawnLocation());
-        else player.teleport(Bukkit.getWorld(getWorldIdentifier()).getSpawnLocation());
+        else player.teleport(Objects.requireNonNull(Bukkit.getWorld(getWorldIdentifier())).getSpawnLocation());
 
         this.getRunnerTeleporterMenu().update();
         sendUpdate();
@@ -541,9 +536,7 @@ public class Game {
                     p.setFlying(false);
                     p.setAllowFlight(false);
 
-                    p.spigot().getHiddenPlayers().forEach(p1 -> {
-                        p.showPlayer(Manhunt.get(), p1);
-                    });
+                    p.spigot().getHiddenPlayers().forEach(p1 -> p.showPlayer(Manhunt.get(), p1));
 
                     if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(p);
                 }
@@ -557,36 +550,10 @@ public class Game {
             return;
         }
 
-        World w = Bukkit.getWorld(getWorldIdentifier());
-        World w1 = Bukkit.getWorld(getWorldIdentifier() + "_nether");
-        World w2 = Bukkit.getWorld(getWorldIdentifier() + "_the_end");
-        if (w != null) {
-            Bukkit.unloadWorld(w, false);
-            try {
-                FileUtils.deleteDirectory(w.getWorldFolder());
-            } catch (IOException ignored) {
-            }
-            if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove " + getWorldIdentifier());
-        }
-        if (w1 != null) {
-            Bukkit.unloadWorld(w1, false);
-            try {
-                FileUtils.deleteDirectory(w1.getWorldFolder());
-            } catch (IOException ignored) {
-            }
-            if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove " + getWorldIdentifier() + "_nether");
-        }
-        if (w2 != null) {
-            Bukkit.unloadWorld(w2, false);
-            try {
-                FileUtils.deleteDirectory(w2.getWorldFolder());
-            } catch (IOException ignored) {
-            }
-            if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv remove " + getWorldIdentifier() + "_the_end");
-        }
+        //new method
+        Manhunt.getWorldUtil().delete(getWorldIdentifier());
+        Manhunt.getWorldUtil().delete(getWorldIdentifier()+ "_nether");
+        Manhunt.getWorldUtil().delete(getWorldIdentifier() + "_the_end");
 
         this.players.clear();
         games.remove(this);
@@ -599,133 +566,60 @@ public class Game {
     public void create() {
         int random = ThreadLocalRandom.current().nextInt(Manhunt.get().getCfg().seeds.size());
         long seed = Manhunt.get().getCfg().seeds.get(random);
+        this.seed = seed;
 
-        WorldCreator creator = new WorldCreator(getWorldIdentifier());
-        creator.environment(World.Environment.NORMAL);
-        creator.seed(seed);
-        World wworld = creator.createWorld();
+        World w = Manhunt.getWorldUtil().create(seed, getWorldIdentifier(), World.Environment.NORMAL);
 
-        wworld.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
-        wworld.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
-        wworld.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
+            Bukkit.getScheduler().scheduleSyncDelayedTask(Manhunt.get(), () -> {
+                World wnet = Manhunt.getWorldUtil().create(seed, getWorldIdentifier() + "_nether", World.Environment.NETHER);
+            }, 60L);
 
-        if (Manhunt.get().getCfg().enableWorldBorder) {
-            WorldBorder border = wworld.getWorldBorder();
-            border.setSize(Manhunt.get().getCfg().worldBorderSize);
-            border.setCenter(wworld.getSpawnLocation());
-            border.setDamageAmount(Manhunt.get().getCfg().worldBorderDamage);
-            border.setDamageBuffer(Manhunt.get().getCfg().worldBorderDamageBuffer);
-            border.setWarningDistance(Manhunt.get().getCfg().worldBorderWarningDistance);
-            border.setWarningTime(Manhunt.get().getCfg().worldBorderWarningTime);
+            Bukkit.getScheduler().scheduleSyncDelayedTask(Manhunt.get(), () -> {
+                World wend = Manhunt.getWorldUtil().create(seed, getWorldIdentifier() + "_the_end", World.Environment.THE_END);
+            }, 120L);
+
+
+
+        if(Bukkit.getPluginManager().isPluginEnabled("Chunky")){
+            Location spawn = Objects.requireNonNull(Bukkit.getWorld(getWorldIdentifier())).getSpawnLocation();
+            double x = spawn.getBlockX();
+            double z = spawn.getBlockZ();
+            Manhunt.get().getChunkHook().chunkgen(x, z, Objects.requireNonNull(Bukkit.getWorld(getWorldIdentifier())).getName());
         }
 
-        if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import " + getWorldIdentifier() + " NORMAL");
+        //load schematic and prepare game
+        Future<Object> part2 = Bukkit.getScheduler().callSyncMethod(Manhunt.get(), () -> {
+            Bukkit.getServer().getLogger().info("loading up the schematicz;");
+            this.schematic.load();
+            Bukkit.getServer().getLogger().info("Done loading up the schematicz");
 
-        WorldCreator creatorNether = new WorldCreator(getWorldIdentifier() + "_nether");
-        creatorNether.environment(World.Environment.NETHER);
-        creatorNether.seed(seed);
+            ready = true;
+            setStatus(GameStatus.WAITING);
+            Manhunt.get().getBungeeMessenger().createGameReadyMessage(this);
 
-        WorldCreator creatorEnd = new WorldCreator(getWorldIdentifier() + "_the_end");
-        creatorEnd.environment(World.Environment.THE_END);
-        creatorEnd.seed(seed);
+            Bukkit.getPluginManager().callEvent(new GameCreationEvent(this));
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Manhunt.get(), () -> {
-            World w = creatorNether.createWorld();
-            w.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
-            w.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
-            w.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
-            if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import " + getWorldIdentifier() + "_nether NETHER");
-        }, 60L);
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Manhunt.get(), () -> {
-            World w = creatorEnd.createWorld();
-            w.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
-            w.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
-            w.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
-            if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core"))
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import " + getWorldIdentifier() + "_the_end THE_END");
-        }, 120L);
+            for (GamePlayer gp : getOnlinePlayers(null)) {
+                Player p = Bukkit.getPlayer(gp.getUuid());
+                if (p == null) continue;
+                p.teleport(this.schematic.getSpawnLocation());
+                gp.prepareForGame(getStatus());
+                gp.updateScoreboard();
 
-        Bukkit.getScheduler().runTaskLaterAsynchronously(Manhunt.get(), () -> {
-            AtomicReference<World> world = new AtomicReference<>();
-            Future<Object> setGameRulesFuture = Bukkit.getScheduler().callSyncMethod(Manhunt.get(), () -> {
-                World tmpWorld = Bukkit.getWorld(getWorldIdentifier());
-                world.set(tmpWorld);
-                if (world.get() == null) {
-                    Bukkit.getLogger().severe("Something went wrong whilst creating the manhunt world with id " + identifier);
-                    return null;
-                }
-                tmpWorld.setGameRule(GameRule.DO_FIRE_TICK, false);
-                tmpWorld.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, !Manhunt.get().getCfg().disableAdvancementAnnouncing);
-                tmpWorld.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
-                tmpWorld.setGameRule(GameRule.SPAWN_RADIUS, 0);
-                tmpWorld.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
-                tmpWorld.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
-                tmpWorld.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
-                tmpWorld.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, isDoDaylightCycle());
-                tmpWorld.setTime(6000);
-                return null;
-            });
-
-            try {
-                setGameRulesFuture.get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(p);
             }
-
-            System.out.println("loading chunk or smt idk");
-            CompletableFuture<Chunk> chunkFuture = PaperLib.getChunkAtAsyncUrgently(
-                    world.get(), world.get().getSpawnLocation().getBlockX(), world.get().getSpawnLocation().getBlockZ(), true);
-            try {
-                Chunk chunk = chunkFuture.get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-
-            System.out.println("Done loading chunk stuff");
-
-            // Done loading chunk
-
-            Future<Object> part2 = Bukkit.getScheduler().callSyncMethod(Manhunt.get(), () -> {
-                System.out.println("loading up the schematicz");
-
-                this.schematic.load();
-                System.out.println("Done loading up the schematicz");
-
-                ready = true;
-                setStatus(GameStatus.WAITING);
-                Manhunt.get().getBungeeMessenger().createGameReadyMessage(this);
-
-                Bukkit.getPluginManager().callEvent(new GameCreationEvent(this));
-
-                for (GamePlayer gp : getOnlinePlayers(null)) {
-                    Player p = Bukkit.getPlayer(gp.getUuid());
-                    if (p == null) continue;
-                    p.teleport(this.schematic.getSpawnLocation());
-                    gp.prepareForGame(getStatus());
-                    gp.updateScoreboard();
-
-                    if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(p);
-                }
-                if (Manhunt.get().getCfg().autoJoinOnlinePlayersWhenGameCreated) {
-                    for (Player player : Bukkit.getOnlinePlayers()) {
-                        if (Game.getGame(player) == null) {
-                            addPlayer(player);
-                        }
+            if (Manhunt.get().getCfg().autoJoinOnlinePlayersWhenGameCreated) {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    if (Game.getGame(player) == null) {
+                        addPlayer(player);
                     }
                 }
-                return null;
-            });
-
-            try {
-                System.out.println("Getting part 2");
-                part2.get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
             }
-        }, 60L);
+            return null;
+        });
+
     }
+
 
     public List<GamePlayer> getPlayers() {
         return players;
@@ -823,6 +717,14 @@ public class Game {
 
     public World getWorld() {
         return Bukkit.getWorld(getWorldIdentifier());
+    }
+
+    public World getNether(){
+        return Bukkit.getWorld(getWorldIdentifier() + "_nether");
+    }
+
+    public World getEnd(){
+        return Bukkit.getWorld(getWorldIdentifier() + "_the_end");
     }
 
     public GameScheduler getScheduler() {
@@ -924,7 +826,7 @@ public class Game {
 
     public void sendGameAnnouncement() {
         if (Manhunt.get().getCfg().isLobbyServer && Manhunt.get().getCfg().sendGameHostAnnouncement) {
-            List<Player> players = Manhunt.get().getCfg().sendGameHostAnnouncementToLobbyOnly ? Manhunt.get().getCfg().lobby.getWorld().getPlayers() : new ArrayList<>(Bukkit.getOnlinePlayers());
+            List<Player> players = Manhunt.get().getCfg().sendGameHostAnnouncementToLobbyOnly ? Objects.requireNonNull(Manhunt.get().getCfg().lobby.getWorld()).getPlayers() : new ArrayList<>(Bukkit.getOnlinePlayers());
 
             for (Player p : players) {
                 Util.playSound(p, Manhunt.get().getCfg().gameHostAnnouncementSound, 3, 1);
@@ -940,4 +842,6 @@ public class Game {
     public String getWorldIdentifier() {
         return worldIdentifier;
     }
+
+    public long getSeed(){return seed;}
 }

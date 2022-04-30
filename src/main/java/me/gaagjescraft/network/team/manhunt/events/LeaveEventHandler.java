@@ -11,6 +11,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.Objects;
+
 public class LeaveEventHandler implements Listener {
 
     @EventHandler
@@ -23,7 +25,7 @@ public class LeaveEventHandler implements Listener {
         if (!gp.isOnline()) return; // already removed the player (or they're just not in the game).
 
         game.removePlayer(e.getPlayer());
-        e.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+        e.getPlayer().setScoreboard(Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard());
 
         Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> {
             // removing the user after 5 minutes if they haven't rejoined yet.
@@ -60,7 +62,6 @@ public class LeaveEventHandler implements Listener {
                         if (!game.getPlayer(e.getPlayer()).isOnline()) {
                             if (game.addPlayer(e.getPlayer()) && game.getPlayer(e.getPlayer()).isJoinedBefore()) {
                                 e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().playerRejoinedMessage));
-                                return;
                             }
                         }
                     }

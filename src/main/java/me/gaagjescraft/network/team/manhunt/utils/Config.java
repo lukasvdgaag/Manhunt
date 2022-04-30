@@ -328,6 +328,7 @@ public class Config {
     public String cannotLeaveLobbyMessage;
     public List<String> autoRejoinMessage;
     public boolean autoJoinOnlinePlayersWhenGameCreated;
+    public int gensizechunks;
     public String runnerNametagPrefix;
     public String hunterNametagPrefix;
     public List<String> statsMessage;
@@ -472,6 +473,7 @@ public class Config {
         this.teleportPlayersToLobbyInVoid = conf.getBoolean("teleport-players-to-lobby-in-void");
         this.lobbyTeleportYCoord = conf.getInt("lobby-teleport-void-y-coord");
         this.autoJoinOnlinePlayersWhenGameCreated = conf.getBoolean("auto-join-online-players-when-game-created");
+        this.gensizechunks = conf.getInt("chunky-generation-size");
         this.minimumClientProtocolVersion = conf.getInt("minimum_client_protocol_version");
         this.debug = conf.getBoolean("debug");
         this.pricePerGame = conf.getInt("price-per-game");
@@ -917,6 +919,7 @@ public class Config {
         conf.set("teleport-players-to-lobby-in-void", teleportPlayersToLobbyInVoid);
         conf.set("lobby-teleport-void-y-coord", lobbyTeleportYCoord);
         conf.set("auto-join-online-players-when-game-created", autoJoinOnlinePlayersWhenGameCreated);
+        conf.set("chunky-generation-size", gensizechunks);
         conf.set("minimum_client_protocol_version", minimumClientProtocolVersion);
         conf.set("price-per-game", pricePerGame);
         conf.set("send-game-host-announcement", sendGameHostAnnouncement);

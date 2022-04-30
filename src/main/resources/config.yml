@@ -57,6 +57,7 @@ announce-twist-vote-to-entire-game: false
 teleport-players-to-lobby-in-void: true
 lobby-teleport-void-y-coord: 0
 auto-join-online-players-when-game-created: true
+chunky-generation-size: 100
 seeds:
   - -160637833670189439
   - -421128817952592172

@@ -30,6 +30,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class GameWaitingEvents implements Listener {
 
@@ -72,7 +73,7 @@ public class GameWaitingEvents implements Listener {
 
     @EventHandler
     public void onMobSpawn(EntitySpawnEvent e) {
-        if (e.getLocation().getWorld().getName().startsWith("manhunt_") && (e.getEntityType() == EntityType.BAT || e.getEntityType() == EntityType.SQUID)) {
+        if (Objects.requireNonNull(e.getLocation().getWorld()).getName().startsWith("manhunt_") && (e.getEntityType() == EntityType.BAT || e.getEntityType() == EntityType.SQUID)) {
             e.setCancelled(true);
             return;
         }
@@ -98,7 +99,7 @@ public class GameWaitingEvents implements Listener {
         Player player = (Player) e.getEntity();
 
         if (Manhunt.get().getCfg().lobby != null) {
-            if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+            if (player.getWorld().getName().equals(Objects.requireNonNull(Manhunt.get().getCfg().lobby.getWorld()).getName())) {
                 e.setCancelled(true);
                 return;
             }
@@ -134,7 +135,7 @@ public class GameWaitingEvents implements Listener {
 
         if (game.getStatus() == GameStatus.PLAYING) {
             if (e.getItem() == null) return;
-            if (e.getItem().getType() == Material.COMPASS && e.getItem().getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname))) {
+            if (e.getItem().getType() == Material.COMPASS && Objects.requireNonNull(e.getItem().getItemMeta()).getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname))) {
                 game.getRunnerTeleporterMenu().open(e.getPlayer(), gp.isDead());
                 return;
             }
@@ -172,7 +173,7 @@ public class GameWaitingEvents implements Listener {
         Player player = e.getPlayer();
         if (Manhunt.get().getCfg().cancelLobbyInteractions) {
             if (Manhunt.get().getCfg().lobby != null) {
-                if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+                if (player.getWorld().getName().equals(Objects.requireNonNull(Manhunt.get().getCfg().lobby.getWorld()).getName())) {
                     e.setBuild(false);
                     e.setCancelled(true);
                     return;
@@ -202,7 +203,7 @@ public class GameWaitingEvents implements Listener {
         Player player = e.getPlayer();
         if (Manhunt.get().getCfg().cancelLobbyInteractions) {
             if (Manhunt.get().getCfg().lobby != null) {
-                if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+                if (player.getWorld().getName().equals(Objects.requireNonNull(Manhunt.get().getCfg().lobby.getWorld()).getName())) {
                     e.setCancelled(true);
                     return;
                 }
@@ -230,7 +231,7 @@ public class GameWaitingEvents implements Listener {
         Player player = (Player) e.getEntity();
         if (Manhunt.get().getCfg().cancelLobbyInteractions) {
             if (Manhunt.get().getCfg().lobby != null) {
-                if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+                if (player.getWorld().getName().equals(Objects.requireNonNull(Manhunt.get().getCfg().lobby.getWorld()).getName())) {
                     e.setCancelled(true);
                     return;
                 }
@@ -260,7 +261,7 @@ public class GameWaitingEvents implements Listener {
         Player player = e.getPlayer();
         if (Manhunt.get().getCfg().cancelLobbyInteractions) {
             if (Manhunt.get().getCfg().lobby != null) {
-                if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+                if (player.getWorld().getName().equals(Objects.requireNonNull(Manhunt.get().getCfg().lobby.getWorld()).getName())) {
                     e.setCancelled(true);
                     return;
                 }
@@ -272,7 +273,7 @@ public class GameWaitingEvents implements Listener {
 
         ItemStack item = e.getItemDrop().getItemStack();
 
-        if ((item.getType() == Material.COMPASS && item.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname))) || gp.isDead()) {
+        if ((item.getType() == Material.COMPASS && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname))) || gp.isDead()) {
             e.setCancelled(true);
             return;
         }
@@ -297,7 +298,7 @@ public class GameWaitingEvents implements Listener {
                 gp.leaveGameDelayed(false);
                 leaveDelays.add(player);
                 Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> leaveDelays.remove(player), 20L);
-            } else if (e.getCurrentItem() != null && e.getCurrentItem().getType() == Material.COMPASS && e.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname))) {
+            } else if (e.getCurrentItem() != null && e.getCurrentItem().getType() == Material.COMPASS && Objects.requireNonNull(e.getCurrentItem().getItemMeta()).getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname))) {
                 game.getRunnerTeleporterMenu().open(player, true);
             }
             return;
@@ -314,7 +315,7 @@ public class GameWaitingEvents implements Listener {
         Player player = (Player) e.getEntity();
         if (Manhunt.get().getCfg().cancelLobbyInteractions) {
             if (Manhunt.get().getCfg().lobby != null) {
-                if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+                if (player.getWorld().getName().equals(Objects.requireNonNull(Manhunt.get().getCfg().lobby.getWorld()).getName())) {
                     e.setCancelled(true);
                     return;
                 }
@@ -344,7 +345,7 @@ public class GameWaitingEvents implements Listener {
         GamePlayer gp = game.getPlayer(player);
         if (gp.isDead() || gp.getPlayerType() != PlayerType.RUNNER) return;
 
-        String worldName = e.getTo().getWorld().getName();
+        String worldName = Objects.requireNonNull(Objects.requireNonNull(e.getTo()).getWorld()).getName();
 
         if (gp.isDead()) {
             return;
@@ -352,7 +353,7 @@ public class GameWaitingEvents implements Listener {
 
         if (worldName.endsWith("_nether")) {
             gp.setNetherPortal(e.getFrom());
-        } else if (e.getFrom().getWorld().getName().endsWith("_nether")) {
+        } else if (Objects.requireNonNull(e.getFrom().getWorld()).getName().endsWith("_nether")) {
             gp.setOverworldPortal(e.getFrom());
         } else if (worldName.endsWith("_the_end")) {
             gp.setEndPortal(e.getFrom());
@@ -386,7 +387,7 @@ public class GameWaitingEvents implements Listener {
     public void onHandSwitch(PlayerSwapHandItemsEvent e) {
         Player player = e.getPlayer();
         if (Manhunt.get().getCfg().lobby != null) {
-            if (player.getWorld().getName().equals(Manhunt.get().getCfg().lobby.getWorld().getName())) {
+            if (player.getWorld().getName().equals(Objects.requireNonNull(Manhunt.get().getCfg().lobby.getWorld()).getName())) {
                 e.setCancelled(true);
                 return;
             }

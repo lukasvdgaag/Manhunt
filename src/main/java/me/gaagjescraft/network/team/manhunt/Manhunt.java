@@ -15,8 +15,13 @@ import me.gaagjescraft.network.team.manhunt.inst.storage.YamlStorage;
 import me.gaagjescraft.network.team.manhunt.menus.*;
 import me.gaagjescraft.network.team.manhunt.menus.handlers.RunnerTrackerMenuHandler;
 import me.gaagjescraft.network.team.manhunt.utils.*;
+import me.gaagjescraft.network.team.manhunt.utils.party.*;
 import me.gaagjescraft.network.team.manhunt.utils.platform.OriginalPlatformUtils;
 import me.gaagjescraft.network.team.manhunt.utils.platform.PlatformUtils;
+import me.gaagjescraft.network.team.manhunt.world.DefaultBukkit;
+import me.gaagjescraft.network.team.manhunt.world.Multiverse;
+import me.gaagjescraft.network.team.manhunt.world.Slime;
+import me.gaagjescraft.network.team.manhunt.world.WorldUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -25,6 +30,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Objects;
 
 public class Manhunt extends JavaPlugin {
 
@@ -44,6 +50,11 @@ public class Manhunt extends JavaPlugin {
     private BungeeSocketManager bungeeSocketManager;
     private VaultEcoHook ecoHook;
     private BungeeMessenger bungeeMessenger;
+    private ChunkyHook chunkgen;
+
+    private static WorldUtil worldUtil = new DefaultBukkit();
+
+    private static Party party = new NoParty();
 
     public static Manhunt get() {
         return instance;
@@ -97,10 +108,21 @@ public class Manhunt extends JavaPlugin {
         getLogger().info("This is a premium plugin and is licensed to GCNT.");
         getLogger().info("It is not allowed to resell or redistribute the plugin.");
         if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core")) {
-            getLogger().info("Found Multiverse-Core! We will register the Manhunt worlds so everything will work smoothly. Please know that in order for portals to work, you need to have Multiverse Portals installed too.");
+            getLogger().info("Found Multiverse-Core! We will register and create Manhunt worlds with Multiverse so everything will work smoothly.");
+            worldUtil = new Multiverse();
+            //Bukkit.getPluginManager().registerEvents(new Multiversehook(), this);
+        } else if (Bukkit.getPluginManager().isPluginEnabled("SlimeWorldManager")) {
+            getLogger().info("Found SlimeWorldManager! We will register and create Manhunt worlds with SlimeWorldManager so everything will work smoothly.");
+            worldUtil = new Slime();
         }
+
+
         if (Bukkit.getPluginManager().isPluginEnabled("WorldEdit")) {
             getLogger().info("Found WorldEdit! This is used to handle the waiting lobby schematic pasting and removing.");
+        }
+        if (Bukkit.getPluginManager().isPluginEnabled("Chunky")){
+            getLogger().info("Chunky Pregenerator found we will pregen some blocks around spawn before player is teleported");
+            chunkgen = new ChunkyHook();
         }
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             new PAPIHook().register();
@@ -122,6 +144,18 @@ public class Manhunt extends JavaPlugin {
                 getLogger().info("Found vault! You can now charge money for hosting games.");
             }
         }
+
+        if (getServer().getPluginManager().isPluginEnabled("Spigot-Party-API-PAF")){
+            getLogger().info("Hook into Spigot Party API for Party and Friends Extended (by Simonsator) support!");
+            party = new PAFBungee();
+        } else if (getServer().getPluginManager().isPluginEnabled("PartyAndFriends")) {
+            getLogger().info("Hook into Party and Friends for Spigot (by Simonsator) support!");
+            party = new PAFSpigot();
+        } else if (getServer().getPluginManager().isPluginEnabled("Parties")) {
+            getLogger().info("Hook into Parties (by AlessioDP) support!");
+            party = new Parties();
+        }
+
         setBungeeMessenger(new BungeeMessenger());
         if (getCfg().bungeeMode) {
             bungeeSocketManager = new BungeeSocketManager();
@@ -146,6 +180,13 @@ public class Manhunt extends JavaPlugin {
         getLogger().info("----------------------------------");
 
         Bukkit.getOnlinePlayers().forEach(player -> getPlayerStorage().loadUser(player.getUniqueId()));
+
+        /*
+        MultiverseCore core = (MultiverseCore) Bukkit.getServer().getPluginManager().getPlugin("Multiverse-Core");
+        MVWorldManager worldManager = core.getMVWorldManager();
+        worldManager.deleteWorld("world_nether");
+        worldManager.deleteWorld("world_the_end");
+         */
     }
 
     public PlatformUtils getPlatformUtils() {
@@ -156,11 +197,30 @@ public class Manhunt extends JavaPlugin {
         this.platformUtils = platformUtils;
     }
 
+    public void deleteWorld(File path) {
+        if(path.exists()) {
+            File[] files = path.listFiles();
+            assert files != null;
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteWorld(file);
+                } else {
+                    file.delete();
+                }
+            }
+        }
+        path.delete();
+    }
+
     @Override
     public void onDisable() {
-        for (Game game : Game.getGames()) {
-            game.delete();
-        }
+        if (!Game.getGames().isEmpty())
+            for (Game game : Game.getGames()) {
+                worldUtil.delete(game.getWorldIdentifier());
+                worldUtil.delete(game.getEnd().getName());
+                worldUtil.delete(game.getNether().getName());
+                game.delete();
+            }
 
         if (bungeeSocketManager != null && getCfg().isLobbyServer) getBungeeMessenger().createDisconnectClientMessage();
         if (bungeeSocketManager != null) bungeeSocketManager.close();
@@ -244,10 +304,13 @@ public class Manhunt extends JavaPlugin {
         return ecoHook;
     }
 
+    public ChunkyHook getChunkHook() {return chunkgen;}
+
+
     private void loadSchedulers() {
         getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
             if (Manhunt.get().getCfg().teleportPlayersToLobbyInVoid && getCfg().lobby != null) {
-                for (Player p : getCfg().lobby.getWorld().getPlayers()) {
+                for (Player p : Objects.requireNonNull(getCfg().lobby.getWorld()).getPlayers()) {
                     if (p.getLocation().getBlockY() < Manhunt.get().getCfg().lobbyTeleportYCoord) {
                         p.teleport(getCfg().lobby);
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
@@ -284,12 +347,18 @@ public class Manhunt extends JavaPlugin {
         }
     }
 
+    public static WorldUtil getWorldUtil(){
+        return worldUtil;
+    }
+
+    public static Party getParty() {return party;}
+
     private void loadCAE() {
-        getCommand("manhunt").setExecutor(new ManhuntCmd());
-        getCommand("leave").setExecutor(new LeaveCmd());
-        getCommand("compass").setExecutor(new CompassCmd());
-        getCommand("rejoin").setExecutor(new RejoinCmd());
-        getCommand("manhuntstats").setExecutor(new StatsCmd());
+        Objects.requireNonNull(getCommand("manhunt")).setExecutor(new ManhuntCmd());
+        Objects.requireNonNull(getCommand("leave")).setExecutor(new LeaveCmd());
+        Objects.requireNonNull(getCommand("compass")).setExecutor(new CompassCmd());
+        Objects.requireNonNull(getCommand("rejoin")).setExecutor(new RejoinCmd());
+        Objects.requireNonNull(getCommand("manhuntstats")).setExecutor(new StatsCmd());
         getServer().getPluginManager().registerEvents(manhuntGamesMenu, this);
         getServer().getPluginManager().registerEvents(manhuntGameSetupMenu, this);
         getServer().getPluginManager().registerEvents(manhuntPlayerAmountSetupMenu, this);
@@ -298,9 +367,6 @@ public class Manhunt extends JavaPlugin {
         getServer().getPluginManager().registerEvents(manhuntRunnerManageMenu, this);
         getServer().getPluginManager().registerEvents(manhuntMainMenu, this);
         getServer().getPluginManager().registerEvents(new RunnerTrackerMenuHandler(), this);
-        //getServer().getMessenger().registerIncomingPluginChannel(this, "exodus:manhunt", pluginMessageHandler);
-        //getServer().getMessenger().registerOutgoingPluginChannel(this, "exodus:manhunt");
-
         getServer().getPluginManager().registerEvents(new DeathEventHandler(), this);
         getServer().getPluginManager().registerEvents(new GameWaitingEvents(), this);
         getServer().getPluginManager().registerEvents(new LeaveEventHandler(), this);

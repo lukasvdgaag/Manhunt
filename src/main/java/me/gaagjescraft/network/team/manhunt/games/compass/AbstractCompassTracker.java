@@ -10,6 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CompassMeta;
 
+import java.util.Objects;
+
 public abstract class AbstractCompassTracker implements CompassTracker {
 
     public final GamePlayer gamePlayer;
@@ -31,7 +33,7 @@ public abstract class AbstractCompassTracker implements CompassTracker {
         for (int i = 0; i < player.getInventory().getSize(); i++) {
             ItemStack item = player.getInventory().getItem(i);
             if (item == null || item.getType() == Material.AIR) continue;
-            if (item.getType() == Material.COMPASS && item.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname))) {
+            if (item.getType() == Material.COMPASS && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname))) {
                 CompassMeta meta = (CompassMeta) item.getItemMeta();
                 if (player.getWorld().getEnvironment() != World.Environment.NORMAL) {
                     meta.setLodestone(location);
@@ -49,7 +51,7 @@ public abstract class AbstractCompassTracker implements CompassTracker {
 
         if (trackingPlayer != null) {
             int distance = (int) player.getLocation().distance(location);
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingActionbar.replaceAll("%player%", Bukkit.getPlayer(trackingPlayer.getUuid()).getName()).replaceAll("%color%", trackingPlayer.getColor()).replaceAll("%distance%", distance + ""))));
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingActionbar.replaceAll("%player%", Objects.requireNonNull(Bukkit.getPlayer(trackingPlayer.getUuid())).getName()).replaceAll("%color%", trackingPlayer.getColor()).replaceAll("%distance%", distance + ""))));
         }
     }
 

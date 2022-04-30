@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 public class MongoStorage implements PlayerStorage {
@@ -27,7 +28,7 @@ public class MongoStorage implements PlayerStorage {
     }
 
     private String enc(String s) throws UnsupportedEncodingException {
-        return URLEncoder.encode(s, "UTF-8");
+        return URLEncoder.encode(s, StandardCharsets.UTF_8);
     }
 
     @Override

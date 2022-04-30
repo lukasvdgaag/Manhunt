@@ -17,12 +17,9 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
-public class GamePlayer {
+public class GamePlayer{
 
     private final CompassTracker compassTracker;
     private final Game game;
@@ -146,6 +143,7 @@ public class GamePlayer {
                 leaveTask.cancel();
                 if (!forceStopScheduler) {
                     Util.playSound(player, Manhunt.get().getCfg().delayedLeaveCancelSound, 1, .5f);
+                    assert player != null;
                     player.sendMessage(Util.c(Manhunt.get().getCfg().delayedLeaveCancelMessage));
                 }
             }
@@ -153,6 +151,7 @@ public class GamePlayer {
         }
         setLeavingGame(true);
         Util.playSound(player, Manhunt.get().getCfg().delayedLeaveStartSound, 1, 2);
+        assert player != null;
         player.sendMessage(Util.c(Manhunt.get().getCfg().delayedLeaveStartMessage));
         leaveTask = new BukkitRunnable() {
             @Override
@@ -258,11 +257,12 @@ public class GamePlayer {
         if (Manhunt.get().getCfg().announceTwistVoteToEntireGame) {
             game.sendMessage(null, Util.c(Manhunt.get().getCfg().twistVotedMessage
                     .replaceAll("%color%", getColor())
-                    .replaceAll("%player%", Bukkit.getPlayer(uuid).getName())
+                    .replaceAll("%player%", Objects.requireNonNull(Bukkit.getPlayer(uuid)).getName())
                     .replaceAll("%twist%", twistVoted.getDisplayName())
                     .replaceAll("%votes%", game.getTwistVotes(twistVoted) + "")));
         } else {
             Player p = Bukkit.getPlayer(uuid);
+            assert p != null;
             p.sendMessage(Util.c(Manhunt.get().getCfg().playerTwistVoteMessage
                     .replaceAll("%color%", getColor())
                     .replaceAll("%player%", p.getName())
@@ -363,6 +363,7 @@ public class GamePlayer {
     public void prepareForSpectate() {
         if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) return;
         Player player = Bukkit.getPlayer(uuid);
+        assert player != null;
         player.setInvisible(true);
         reset(player, false);
         player.setGameMode(GameMode.SURVIVAL);
@@ -419,7 +420,7 @@ public class GamePlayer {
                         }
                     }
 
-                    if (getBedSpawn() != null && getBedSpawn().getBlock() != null && getBedSpawn().getBlock().getType().name().endsWith("BED")) {
+                    if (getBedSpawn() != null && getBedSpawn().getBlock().getType().name().endsWith("BED")) {
                         // player has bed spawn set.
                         player.setGameMode(GameMode.SURVIVAL);
                         player.teleport(getBedSpawn());
@@ -455,7 +456,7 @@ public class GamePlayer {
 
         if (removeScoreboard) {
             this.scoreboard = null;
-            player.setScoreboard(Manhunt.get().getServer().getScoreboardManager().getNewScoreboard());
+            player.setScoreboard(Objects.requireNonNull(Manhunt.get().getServer().getScoreboardManager()).getNewScoreboard());
         }
     }
 
@@ -476,11 +477,11 @@ public class GamePlayer {
             }
         }
 
-        if (player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() > maxHealth) {
+        if (Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue() > maxHealth) {
             player.setHealth(health);
-            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHealth);
+            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(maxHealth);
         } else {
-            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHealth);
+            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(maxHealth);
             player.setHealth(health);
         }
 
@@ -540,7 +541,7 @@ public class GamePlayer {
         player.setAllowFlight(false);
         player.setGameMode(GameMode.SURVIVAL);
         player.setHealth(20);
-        player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
+        Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20);
     }
 
     public void updateScoreboard() {
