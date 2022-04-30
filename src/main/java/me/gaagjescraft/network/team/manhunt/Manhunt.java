@@ -18,6 +18,10 @@ import me.gaagjescraft.network.team.manhunt.utils.*;
 import me.gaagjescraft.network.team.manhunt.utils.party.*;
 import me.gaagjescraft.network.team.manhunt.utils.platform.OriginalPlatformUtils;
 import me.gaagjescraft.network.team.manhunt.utils.platform.PlatformUtils;
+import me.gaagjescraft.network.team.manhunt.world.DefaultBukkit;
+import me.gaagjescraft.network.team.manhunt.world.Multiverse;
+import me.gaagjescraft.network.team.manhunt.world.Slime;
+import me.gaagjescraft.network.team.manhunt.world.WorldUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -46,8 +50,9 @@ public class Manhunt extends JavaPlugin {
     private BungeeSocketManager bungeeSocketManager;
     private VaultEcoHook ecoHook;
     private BungeeMessenger bungeeMessenger;
-    private Multiversehook multicreate;
     private ChunkyHook chunkgen;
+
+    private static WorldUtil worldUtil = new DefaultBukkit();
 
     private Party party = new NoParty();
 
@@ -104,9 +109,14 @@ public class Manhunt extends JavaPlugin {
         getLogger().info("It is not allowed to resell or redistribute the plugin.");
         if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core")) {
             getLogger().info("Found Multiverse-Core! We will register and create Manhunt worlds with Multiverse so everything will work smoothly.");
-            multicreate = new Multiversehook();
-            Bukkit.getPluginManager().registerEvents(new Multiversehook(), this);
+            worldUtil = new Multiverse();
+            //Bukkit.getPluginManager().registerEvents(new Multiversehook(), this);
+        } else if (Bukkit.getPluginManager().isPluginEnabled("SlimeWorldManager")) {
+            getLogger().info("Found SlimeWorldManager! We will register and create Manhunt worlds with SlimeWorldManager so everything will work smoothly.");
+            worldUtil = new Slime();
         }
+
+
         if (Bukkit.getPluginManager().isPluginEnabled("WorldEdit")) {
             getLogger().info("Found WorldEdit! This is used to handle the waiting lobby schematic pasting and removing.");
         }
@@ -204,6 +214,7 @@ public class Manhunt extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        /*
         for (Game game : Game.getGames()) {
             if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core")){
                 getMultiversehook().multiverseworldremoval(game);
@@ -222,6 +233,8 @@ public class Manhunt extends JavaPlugin {
             }
             game.delete();
         }
+
+         */
         if (bungeeSocketManager != null && getCfg().isLobbyServer) getBungeeMessenger().createDisconnectClientMessage();
         if (bungeeSocketManager != null) bungeeSocketManager.close();
     }
@@ -304,8 +317,6 @@ public class Manhunt extends JavaPlugin {
         return ecoHook;
     }
 
-    public Multiversehook getMultiversehook() {return multicreate;}
-
     public ChunkyHook getChunkHook() {return chunkgen;}
 
 
@@ -347,6 +358,10 @@ public class Manhunt extends JavaPlugin {
                 }
             }, 5, 5);
         }
+    }
+
+    public static  WorldUtil getWorldUtil(){
+        return worldUtil;
     }
 
     private void loadCAE() {
