@@ -54,7 +54,7 @@ public class Manhunt extends JavaPlugin {
 
     private static WorldUtil worldUtil = new DefaultBukkit();
 
-    private Party party = new NoParty();
+    private static Party party = new NoParty();
 
     public static Manhunt get() {
         return instance;
@@ -197,7 +197,7 @@ public class Manhunt extends JavaPlugin {
         this.platformUtils = platformUtils;
     }
 
-    public boolean deleteWorld(File path) {
+    public void deleteWorld(File path) {
         if(path.exists()) {
             File[] files = path.listFiles();
             assert files != null;
@@ -209,32 +209,19 @@ public class Manhunt extends JavaPlugin {
                 }
             }
         }
-        return(path.delete());
+        path.delete();
     }
 
     @Override
     public void onDisable() {
-        /*
-        for (Game game : Game.getGames()) {
-            if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core")){
-                getMultiversehook().multiverseworldremoval(game);
+        if (!Game.getGames().isEmpty())
+            for (Game game : Game.getGames()) {
+                worldUtil.delete(game.getWorldIdentifier());
+                worldUtil.delete(game.getEnd().getName());
+                worldUtil.delete(game.getNether().getName());
+                game.delete();
             }
-            else
-            {
-                //Bukkit world removal
-                if (Bukkit.getWorlds().contains(game.getWorld())){
-                    Bukkit.getServer().unloadWorld(game.getWorld(), true);
-                    deleteWorld(game.getWorld().getWorldFolder());
-                    Bukkit.getServer().unloadWorld(game.getNether(), true);
-                    deleteWorld(game.getNether().getWorldFolder());
-                    Bukkit.getServer().unloadWorld(game.getEnd(), true);
-                    deleteWorld(game.getEnd().getWorldFolder());
-                }
-            }
-            game.delete();
-        }
 
-         */
         if (bungeeSocketManager != null && getCfg().isLobbyServer) getBungeeMessenger().createDisconnectClientMessage();
         if (bungeeSocketManager != null) bungeeSocketManager.close();
     }
@@ -360,9 +347,11 @@ public class Manhunt extends JavaPlugin {
         }
     }
 
-    public static  WorldUtil getWorldUtil(){
+    public static WorldUtil getWorldUtil(){
         return worldUtil;
     }
+
+    public static Party getParty() {return party;}
 
     private void loadCAE() {
         Objects.requireNonNull(getCommand("manhunt")).setExecutor(new ManhuntCmd());

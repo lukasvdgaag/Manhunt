@@ -579,14 +579,14 @@ public class Game {
             }, 120L);
 
 
-        /*
+
         if(Bukkit.getPluginManager().isPluginEnabled("Chunky")){
             Location spawn = Objects.requireNonNull(Bukkit.getWorld(getWorldIdentifier())).getSpawnLocation();
             double x = spawn.getBlockX();
             double z = spawn.getBlockZ();
             Manhunt.get().getChunkHook().chunkgen(x, z, Objects.requireNonNull(Bukkit.getWorld(getWorldIdentifier())).getName());
         }
-         */
+
         //load schematic and prepare game
         Future<Object> part2 = Bukkit.getScheduler().callSyncMethod(Manhunt.get(), () -> {
             Bukkit.getServer().getLogger().info("loading up the schematicz;");
