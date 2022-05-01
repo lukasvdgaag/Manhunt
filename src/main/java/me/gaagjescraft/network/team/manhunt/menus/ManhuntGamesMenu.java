@@ -4,7 +4,6 @@ import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.games.GameStatus;
 import me.gaagjescraft.network.team.manhunt.games.PlayerType;
-import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -23,23 +22,28 @@ import org.bukkit.inventory.meta.SkullMeta;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 public class ManhuntGamesMenu implements Listener {
 
     private final List<Player> viewers = new ArrayList<>();
 
-    public void openMenu(Player player) {
-        Inventory inventory = Bukkit.createInventory(null, 27, Util.c(Manhunt.get().getCfg().menuGamesTitle));
+    private final Manhunt plugin;
 
-        inventory.setItem(22, Itemizer.CLOSE_ITEM);
-        inventory.setItem(18, Itemizer.GO_BACK_ITEM);
+    public ManhuntGamesMenu(Manhunt plugin) {
+        this.plugin = plugin;
+    }
+
+    public void openMenu(Player player) {
+        Inventory inventory = Bukkit.createInventory(null, 27, Util.c(plugin.getCfg().menuGamesTitle));
+
+        inventory.setItem(22, plugin.getItemizer().CLOSE_ITEM);
+        inventory.setItem(18, plugin.getItemizer().GO_BACK_ITEM);
 
         List<Game> games = Game.getGames();
         if (games.isEmpty()) {
             for (int i = 0; i < inventory.getSize(); i++)
                 if (inventory.getItem(i) == null || Objects.requireNonNull(inventory.getItem(i)).getType() == Material.AIR)
-                    inventory.setItem(i, Itemizer.FILL_NO_GAMES);
+                    inventory.setItem(i, plugin.getItemizer().FILL_NO_GAMES);
 
             player.openInventory(inventory);
             return;
@@ -50,24 +54,24 @@ public class ManhuntGamesMenu implements Listener {
             ItemStack item = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta) item.getItemMeta();
 
-            String status = Util.c(Manhunt.get().getCfg().loadingStatusPrefix);
+            String status = Util.c(plugin.getCfg().loadingStatusPrefix);
             if (g.getStatus() == GameStatus.STARTING) {
-                status = Util.c(Manhunt.get().getCfg().startingStatusPrefix);
+                status = Util.c(plugin.getCfg().startingStatusPrefix);
             } else if (g.getStatus() == GameStatus.PLAYING) {
-                status = Util.c(Manhunt.get().getCfg().playingStatusPrefix);
+                status = Util.c(plugin.getCfg().playingStatusPrefix);
             } else if (g.getStatus() == GameStatus.WAITING) {
-                status = Util.c(Manhunt.get().getCfg().waitingStatusPrefix);
+                status = Util.c(plugin.getCfg().waitingStatusPrefix);
             } else if (g.getStatus() == GameStatus.STOPPING) {
-                status = Util.c(Manhunt.get().getCfg().stoppingStatusPrefix);
+                status = Util.c(plugin.getCfg().stoppingStatusPrefix);
             }
 
-            int onlineHunters = (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) ? g.getBungeeHunterCount() : g.getOnlinePlayers(PlayerType.HUNTER).size();
-            int onlineRunners = (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) ? g.getBungeeRunnerCount() : g.getOnlinePlayers(PlayerType.RUNNER).size();
+            int onlineHunters = (plugin.getCfg().bungeeMode && plugin.getCfg().isLobbyServer) ? g.getBungeeHunterCount() : g.getOnlinePlayers(PlayerType.HUNTER).size();
+            int onlineRunners = (plugin.getCfg().bungeeMode && plugin.getCfg().isLobbyServer) ? g.getBungeeRunnerCount() : g.getOnlinePlayers(PlayerType.RUNNER).size();
 
             assert meta != null;
-            meta.setDisplayName(Util.c(Manhunt.get().getCfg().gamesMenuGameHostDisplayname).replaceAll("%host%", g.getIdentifier()));
+            meta.setDisplayName(Util.c(plugin.getCfg().gamesMenuGameHostDisplayname).replaceAll("%host%", g.getIdentifier()));
             List<String> lore = (onlineHunters < g.getMaxPlayers() && (g.getStatus() != GameStatus.STOPPING && g.getStatus() != GameStatus.LOADING)) ?
-                    Manhunt.get().getCfg().gamesMenuGameHostLore : Manhunt.get().getCfg().gamesMenuGameHostLockedLore;
+                    plugin.getCfg().gamesMenuGameHostLore : plugin.getCfg().gamesMenuGameHostLockedLore;
             lore = new ArrayList<>(lore);
             for (int i = 0; i < lore.size(); i++) {
                 lore.set(i, Util.c(lore.get(i)
@@ -89,7 +93,7 @@ public class ManhuntGamesMenu implements Listener {
 
         for (int i = 0; i < inventory.getSize(); i++) {
             if (inventory.getItem(i) == null || Objects.requireNonNull(inventory.getItem(i)).getType() == Material.AIR)
-                inventory.setItem(i, Itemizer.FILL_ITEM);
+                inventory.setItem(i, plugin.getItemizer().FILL_ITEM);
         }
 
         player.openInventory(inventory);
@@ -99,7 +103,7 @@ public class ManhuntGamesMenu implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
-        if (!e.getView().getTitle().equals(Util.c(Manhunt.get().getCfg().menuGamesTitle))) return;
+        if (!e.getView().getTitle().equals(Util.c(plugin.getCfg().menuGamesTitle))) return;
         if (e.getSlot() < 0) return;
 
         e.setCancelled(true);
@@ -108,7 +112,7 @@ public class ManhuntGamesMenu implements Listener {
         Player p = (Player) e.getWhoClicked();
 
         if (e.getSlot() == 18) {
-            Manhunt.get().getManhuntMainMenu().openMenu(p);
+            plugin.getManhuntMainMenu().openMenu(p);
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
             return;
         } else if (e.getSlot() == 22) {
@@ -122,38 +126,23 @@ public class ManhuntGamesMenu implements Listener {
         Game g = games.get(e.getSlot());
         if (g == null) return;
 
-        int playercount = Manhunt.get().getCfg().bungeeMode ? g.getBungeeHunterCount() : g.getOnlinePlayers(PlayerType.HUNTER).size();
+        int playerCount = plugin.getCfg().bungeeMode ? g.getBungeeHunterCount() : g.getOnlinePlayers(PlayerType.HUNTER).size();
+        if (playerCount >= g.getMaxPlayers() || e.getClick() == ClickType.RIGHT) {
+            if (!g.getSpectators().contains(e.getWhoClicked().getUniqueId()))
+                g.addSpectator(e.getWhoClicked().getUniqueId());
 
-        if (Manhunt.getParty().hasParty(p)  && Manhunt.getParty().isOwner(p)){
-            playercount = Manhunt.getParty().getMembers(p).size();
-        } else if (Manhunt.getParty().hasParty(p)) {
-            p.sendMessage("You are not party leader you cannot create a game or join a game");
-            p.closeInventory();
-            return;
-        }
-
-        if (playercount >= g.getMaxPlayers() || e.getClick() == ClickType.RIGHT) {
-            for (Player player : Manhunt.getParty().getMembers(p)) { //add party as spectators
-                UUID uuid = player.getUniqueId();
-                if (!g.getSpectators().contains(e.getWhoClicked().getUniqueId()))
-                    g.addSpectator(uuid);
-            }
-            //send message to owner if in party
             if (e.getClick() == ClickType.RIGHT) {
-                p.sendMessage("§eThis game currently not accepting any more players, so will try to add you as a spectator");
+                e.getWhoClicked().sendMessage("§eThis game currently not accepting any more players, so will try to add you as a spectator");
             } else {
-                p.sendMessage("§eAttempting to add you to this game as a spectator...");
+                e.getWhoClicked().sendMessage("§eAttempting to add you to this game as a spectator...");
             }
         }
-        else
-        {
-            for (Player player : Manhunt.getParty().getMembers(p)) {
-                boolean result = g.addPlayer(player);
-                if (!result)
-                    p.sendMessage(Util.c(Manhunt.get().getCfg().gameUnavailableMessage.replaceAll("%host%", g.getIdentifier())));
-            }
-        }
-        p.closeInventory();
+
+        boolean result = g.addPlayer((Player) e.getWhoClicked());
+        if (!result)
+            e.getWhoClicked().sendMessage(Util.c(plugin.getCfg().gameUnavailableMessage.replaceAll("%host%", g.getIdentifier())));
+
+        e.getWhoClicked().closeInventory();
     }
 
     @EventHandler

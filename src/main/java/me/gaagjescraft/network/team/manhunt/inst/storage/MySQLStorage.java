@@ -17,6 +17,12 @@ public class MySQLStorage implements PlayerStorage {
     private HikariConfig config;
     private HikariDataSource ds;
 
+    private final Manhunt plugin;
+
+    public MySQLStorage(Manhunt plugin) {
+        this.plugin = plugin;
+    }
+
     private Connection getConnection() throws SQLException {
         return ds.getConnection();
     }
@@ -28,19 +34,19 @@ public class MySQLStorage implements PlayerStorage {
 
     @Override
     public void connect() {
-        String hostname = Manhunt.get().getCfg().databaseHostname;
+        String hostname = plugin.getCfg().databaseHostname;
         int port = 3306;
         if (hostname.contains(":")) {
             String[] split = hostname.split(":");
             hostname = split[0];
             port = Integer.parseInt(split[1]);
         }
-        String url = "jdbc:mysql://" + hostname + ":" + port + "/" + Manhunt.get().getCfg().databaseDatabase;
+        String url = "jdbc:mysql://" + hostname + ":" + port + "/" + plugin.getCfg().databaseDatabase;
 
         config = new HikariConfig();
         config.setJdbcUrl(url);
-        config.setUsername(Manhunt.get().getCfg().databaseUsername);
-        config.setPassword(Manhunt.get().getCfg().databasePassword);
+        config.setUsername(plugin.getCfg().databaseUsername);
+        config.setPassword(plugin.getCfg().databasePassword);
         config.setMinimumIdle(1);
         config.setMaximumPoolSize(50);
         config.setConnectionTimeout(4000);
@@ -48,7 +54,7 @@ public class MySQLStorage implements PlayerStorage {
 
 
         try (Connection connection = getConnection()) {
-            connection.createStatement().executeUpdate("CREATE DATABASE IF NOT EXISTS " + Manhunt.get().getCfg().databaseDatabase);
+            connection.createStatement().executeUpdate("CREATE DATABASE IF NOT EXISTS " + plugin.getCfg().databaseDatabase);
             connection.createStatement().executeUpdate("CREATE TABLE IF NOT EXISTS `manhunt_playerdata` (" +
                     "  `uuid`   VARCHAR(255)  NOT NULL UNIQUE," +
                     "  `best_speedrun_time`  INT(6) DEFAULT 0," +
@@ -65,7 +71,7 @@ public class MySQLStorage implements PlayerStorage {
             Bukkit.getLogger().severe("Here's the mysql URI we used: " + url);
             Bukkit.getLogger().severe("Disabling the plugin to prevent further complications...");
             e.printStackTrace();
-            Bukkit.getPluginManager().disablePlugin(Manhunt.get());
+            Bukkit.getPluginManager().disablePlugin(plugin);
         }
     }
 

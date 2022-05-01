@@ -3,7 +3,6 @@ package me.gaagjescraft.network.team.manhunt.commands;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.games.GameStatus;
-import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -18,6 +17,12 @@ import java.util.Objects;
 
 public class CompassCmd implements CommandExecutor {
 
+    private final Manhunt plugin;
+
+    public CompassCmd(Manhunt plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, String[] args) {
         if (!(sender instanceof Player player)) {
@@ -28,26 +33,26 @@ public class CompassCmd implements CommandExecutor {
         Game game = Game.getGame(player);
 
         if (game == null) {
-            player.sendMessage(Util.c(Manhunt.get().getCfg().notIngameMessage));
+            player.sendMessage(Util.c(plugin.getCfg().notIngameMessage));
             return true;
         }
 
         if (game.getStatus() != GameStatus.PLAYING || game.getTimer() < game.getHeadStart().getSeconds()) {
-            player.sendMessage(Util.c(Manhunt.get().getCfg().compassUnavailableMessage));
+            player.sendMessage(Util.c(plugin.getCfg().compassUnavailableMessage));
             return true;
         }
 
         for (int i = 0; i < player.getInventory().getSize(); i++) {
             ItemStack item = player.getInventory().getItem(i);
             if (item == null || item.getType() == Material.AIR) continue;
-            if (item.getType() == Material.COMPASS && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname))) {
-                player.sendMessage(Util.c(Manhunt.get().getCfg().compassAlreadyAddedMessage));
+            if (item.getType() == Material.COMPASS && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', plugin.getCfg().generalTrackerDisplayname))) {
+                player.sendMessage(Util.c(plugin.getCfg().compassAlreadyAddedMessage));
                 return true;
             }
         }
 
-        player.getInventory().addItem(Itemizer.MANHUNT_RUNNER_TRACKER);
-        player.sendMessage(Util.c(Manhunt.get().getCfg().compassGivenMessage));
+        player.getInventory().addItem(plugin.getItemizer().MANHUNT_RUNNER_TRACKER);
+        player.sendMessage(Util.c(plugin.getCfg().compassGivenMessage));
         return true;
     }
 }

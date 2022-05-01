@@ -21,6 +21,11 @@ import java.util.UUID;
 public class MongoStorage implements PlayerStorage {
 
     private MongoCollection<Document> collection;
+    private final Manhunt plugin;
+
+    public MongoStorage(Manhunt plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public void setup() {
@@ -33,8 +38,8 @@ public class MongoStorage implements PlayerStorage {
 
     @Override
     public void connect() {
-        Bukkit.getScheduler().runTaskAsynchronously(Manhunt.get(), () -> {
-            String hostname = Manhunt.get().getCfg().databaseHostname;
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            String hostname = plugin.getCfg().databaseHostname;
             int port = 27017;
             if (hostname.contains(":")) {
                 String[] split = hostname.split(":");
@@ -45,8 +50,8 @@ public class MongoStorage implements PlayerStorage {
             String url = "null";
             try {
                 MongoCredential credential = null;
-                if (!Strings.isNullOrEmpty(Manhunt.get().getCfg().databaseUsername)) {
-                    credential = MongoCredential.createCredential(Manhunt.get().getCfg().databaseUsername, Manhunt.get().getCfg().databaseDatabase, Manhunt.get().getCfg().databasePassword.toCharArray());
+                if (!Strings.isNullOrEmpty(plugin.getCfg().databaseUsername)) {
+                    credential = MongoCredential.createCredential(plugin.getCfg().databaseUsername, plugin.getCfg().databaseDatabase, plugin.getCfg().databasePassword.toCharArray());
                 }
 
 
@@ -54,18 +59,18 @@ public class MongoStorage implements PlayerStorage {
                 if (credential == null) {
                     url = "mongodb://" + enc(hostname) + ":" + port;
                 } else {
-                    url = "mongodb://" + enc(Manhunt.get().getCfg().databaseUsername) + ":" + enc(Manhunt.get().getCfg().databasePassword) + "@" + enc(hostname) + ":" + port + "/?authSource=" + Manhunt.get().getCfg().databaseDatabase;
+                    url = "mongodb://" + enc(plugin.getCfg().databaseUsername) + ":" + enc(plugin.getCfg().databasePassword) + "@" + enc(hostname) + ":" + port + "/?authSource=" + plugin.getCfg().databaseDatabase;
                 }
                 client = new MongoClient(new MongoClientURI(url)); //MongoClients.create(url);
 
-                MongoDatabase database = client.getDatabase(Manhunt.get().getCfg().databaseDatabase);
+                MongoDatabase database = client.getDatabase(plugin.getCfg().databaseDatabase);
                 collection = database.getCollection("manhunt_stats");
             } catch (Exception | Error e) {
                 Bukkit.getLogger().severe("Manhunt failed to connect to the MongoDB database with the following hostname: '" + hostname + ":" + port + "'. Do you have access?");
                 Bukkit.getLogger().severe("Here's the mongodb URI we used: " + url);
                 Bukkit.getLogger().severe("Disabling the plugin to prevent further complications...");
                 e.printStackTrace();
-                Bukkit.getPluginManager().disablePlugin(Manhunt.get());
+                Bukkit.getPluginManager().disablePlugin(plugin);
                 return;
             }
             Bukkit.getLogger().info("Manhunt has successfully connected to the MongoDB database!");

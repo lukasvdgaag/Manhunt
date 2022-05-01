@@ -15,6 +15,12 @@ import java.util.Objects;
 
 public class LeaveEventHandler implements Listener {
 
+    private final Manhunt plugin;
+
+    public LeaveEventHandler(Manhunt plugin) {
+        this.plugin = plugin;
+    }
+
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         e.setQuitMessage(null);
@@ -27,11 +33,11 @@ public class LeaveEventHandler implements Listener {
         game.removePlayer(e.getPlayer());
         e.getPlayer().setScoreboard(Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard());
 
-        Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> {
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
             // removing the user after 5 minutes if they haven't rejoined yet.
             Player p = Bukkit.getPlayer(e.getPlayer().getUniqueId());
             if (p == null || !p.isOnline()) {
-                Manhunt.get().getPlayerStorage().unloadUser(e.getPlayer().getUniqueId());
+                plugin.getPlayerStorage().unloadUser(e.getPlayer().getUniqueId());
             }
         }, 20 * 300L);
     }
@@ -40,19 +46,19 @@ public class LeaveEventHandler implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         e.setJoinMessage(null);
 
-        Manhunt.get().getPlayerStorage().loadUser(e.getPlayer().getUniqueId());
+        plugin.getPlayerStorage().loadUser(e.getPlayer().getUniqueId());
 
-        if (Manhunt.get().getCfg().joinGameOnServerJoin || Manhunt.get().getCfg().teleportLobbyOnServerJoin) {
-            Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> {
-                if (Manhunt.get().getCfg().teleportLobbyOnServerJoin && Manhunt.get().getCfg().lobby != null) {
-                    e.getPlayer().teleport(Manhunt.get().getCfg().lobby);
+        if (plugin.getCfg().joinGameOnServerJoin || plugin.getCfg().teleportLobbyOnServerJoin) {
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (plugin.getCfg().teleportLobbyOnServerJoin && plugin.getCfg().lobby != null) {
+                    e.getPlayer().teleport(plugin.getCfg().lobby);
                 }
-                if (Manhunt.get().getCfg().joinGameOnServerJoin && !Manhunt.get().getCfg().isLobbyServer) {
+                if (plugin.getCfg().joinGameOnServerJoin && !plugin.getCfg().isLobbyServer) {
                     Game game = Game.getGame(e.getPlayer());
                     if (game == null) {
                         for (Game g : Game.getGames()) {
                             if (g.addPlayer(e.getPlayer())) {
-                                for (String s : Manhunt.get().getCfg().autoRejoinMessage) {
+                                for (String s : plugin.getCfg().autoRejoinMessage) {
                                     e.getPlayer().sendMessage(Util.c(s.replaceAll("%host%", g.getIdentifier())));
                                 }
                                 return;
@@ -61,7 +67,7 @@ public class LeaveEventHandler implements Listener {
                     } else {
                         if (!game.getPlayer(e.getPlayer()).isOnline()) {
                             if (game.addPlayer(e.getPlayer()) && game.getPlayer(e.getPlayer()).isJoinedBefore()) {
-                                e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().playerRejoinedMessage));
+                                e.getPlayer().sendMessage(Util.c(plugin.getCfg().playerRejoinedMessage));
                             }
                         }
                     }

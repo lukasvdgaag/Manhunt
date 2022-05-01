@@ -12,6 +12,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class LeaveCmd implements CommandExecutor {
 
+    private final Manhunt plugin;
+
+    public LeaveCmd(Manhunt plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, String[] args) {
         if (!(sender instanceof Player player)) {
@@ -21,7 +27,7 @@ public class LeaveCmd implements CommandExecutor {
 
         Game game = Game.getGame(player);
         if (game == null) {
-            player.sendMessage(Util.c(Manhunt.get().getCfg().notIngameMessage));
+            player.sendMessage(Util.c(plugin.getCfg().notIngameMessage));
             return true;
         }
 

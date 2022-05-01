@@ -12,9 +12,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
+import java.util.Objects;
+
+@Deprecated
 public class TagUtils implements Listener {
 
-    public TagUtils() {
+    private final Manhunt plugin;
+
+    public TagUtils(Manhunt plugin) {
+        this.plugin = plugin;
         /*GroupData hgd = new GroupData();
         hgd.setGroupName("manhunt-hunters");
         hgd.setPrefix(getNametag(PlayerType.HUNTER).replaceAll("§", "&"));
@@ -31,7 +37,7 @@ public class TagUtils implements Listener {
     }
 
     public void updateTag(Player player) {
-        Bukkit.getScheduler().runTask(Manhunt.get(), () -> {
+        Bukkit.getScheduler().runTask(plugin, () -> {
             if (player == null) return;
             String nametag = getNametag(player);
             if (nametag == null) {
@@ -46,10 +52,10 @@ public class TagUtils implements Listener {
     }
 
     public String getNametag(PlayerType type) {
-        String nametag = type == PlayerType.HUNTER ? Manhunt.get().getCfg().hunterNametagPrefix : Manhunt.get().getCfg().runnerNametagPrefix;
+        String nametag = type == PlayerType.HUNTER ? plugin.getCfg().hunterNametagPrefix : plugin.getCfg().runnerNametagPrefix;
         nametag = Util.c(nametag);
-        nametag = nametag.replaceAll("%prefix%", Util.c(type == PlayerType.HUNTER ? Manhunt.get().getCfg().hunterChatPrefix : Manhunt.get().getCfg().runnerChatPrefix));
-        nametag = nametag.replaceAll("%color%", Util.c(type == PlayerType.HUNTER ? Manhunt.get().getCfg().hunterColor : Manhunt.get().getCfg().runnerColor));
+        nametag = nametag.replaceAll("%prefix%", Util.c(type == PlayerType.HUNTER ? plugin.getCfg().hunterChatPrefix : plugin.getCfg().runnerChatPrefix));
+        nametag = nametag.replaceAll("%color%", Util.c(type == PlayerType.HUNTER ? plugin.getCfg().hunterColor : plugin.getCfg().runnerColor));
         return nametag;
     }
 
@@ -63,11 +69,7 @@ public class TagUtils implements Listener {
     @EventHandler
     public void onTagApply(NametagEvent e) {
         String tag = getNametag(Bukkit.getPlayer(e.getPlayer()));
-        if (tag == null) {
-            e.setNametag(new Nametag("§7", ""));
-        } else {
-            e.setNametag(new Nametag(tag, ""));
-        }
+        e.setNametag(new Nametag(Objects.requireNonNullElse(tag, "§7"), ""));
     }
 
 }

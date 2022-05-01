@@ -19,6 +19,12 @@ import java.util.UUID;
  */
 public class BungeeMessenger {
 
+    private final Manhunt plugin;
+
+    public BungeeMessenger(Manhunt plugin) {
+        this.plugin = plugin;
+    }
+
     public void serverProcessGameEnded(String json) {
         JsonObject ob = new JsonParser().parse(json).getAsJsonObject();
         String gameName = ob.getAsJsonPrimitive("game").getAsString();
@@ -45,7 +51,7 @@ public class BungeeMessenger {
 
         Game game = Game.getGame(gameName);
         if (game == null) {
-            game = Manhunt.get().getPlatformUtils().initGame(allowTwists, gameName, UUID.fromString(hostUuid), maxPlayers);
+            game = plugin.getPlatformUtils().initGame(allowTwists, gameName, UUID.fromString(hostUuid), maxPlayers);
             if (game == null) return;
         }
 
@@ -112,7 +118,7 @@ public class BungeeMessenger {
         // request for creating a game to a game server.
 
         String targetServer = ob.getAsJsonPrimitive("game_server").getAsString();
-        if (!Manhunt.get().getCfg().serverName.equals(targetServer)) return null;
+        if (!plugin.getCfg().serverName.equals(targetServer)) return null;
 
         boolean allowTwists = ob.getAsJsonPrimitive("allow_twists").getAsBoolean();
         int maxPlayers = ob.getAsJsonPrimitive("max_players").getAsInt();
@@ -123,19 +129,19 @@ public class BungeeMessenger {
 
         if (Game.getGames().isEmpty()) {
             // no running games on this server yet. Ready to create the game.
-            if (Manhunt.get().getCfg().lobby == null) {
+            if (plugin.getCfg().lobby == null) {
                 Bukkit.getLogger().severe("Manhunt denied a game creation from the lobby because the lobby spawnpoint has not been set yet.");
                 Bukkit.getLogger().severe("Please set it with '/manhunt setspawn'.");
-                Manhunt.get().getBungeeSocketManager().sendMessage("createGameResponse", createGameResponse(host, "denied", hostUid, allowTwists, maxPlayers, headstart, doDaylightCycle, friendlyFire));
+                plugin.getBungeeSocketManager().sendMessage("createGameResponse", createGameResponse(host, "denied", hostUid, allowTwists, maxPlayers, headstart, doDaylightCycle, friendlyFire));
                 return null;
             }
 
-            Game game = Manhunt.get().getPlatformUtils().initGame(allowTwists, host, hostUid, maxPlayers);
+            Game game = plugin.getPlatformUtils().initGame(allowTwists, host, hostUid, maxPlayers);
             if (game == null) {
-                Manhunt.get().getBungeeSocketManager().sendMessage("createGameResponse", createGameResponse(host, "failed", hostUid, allowTwists, maxPlayers, headstart, doDaylightCycle, friendlyFire));
+                plugin.getBungeeSocketManager().sendMessage("createGameResponse", createGameResponse(host, "failed", hostUid, allowTwists, maxPlayers, headstart, doDaylightCycle, friendlyFire));
                 return null;
             }
-            Manhunt.get().getBungeeSocketManager().sendMessage("createGameResponse", createGameResponse(host, "created", hostUid, allowTwists, maxPlayers, headstart, doDaylightCycle, friendlyFire));
+            plugin.getBungeeSocketManager().sendMessage("createGameResponse", createGameResponse(host, "created", hostUid, allowTwists, maxPlayers, headstart, doDaylightCycle, friendlyFire));
 
             game.setHeadStart(HeadstartType.valueOf(headstart));
             game.setDoDaylightCycle(doDaylightCycle);
@@ -144,7 +150,7 @@ public class BungeeMessenger {
             return game;
         } else {
             // no room for this game on this server, letting the lobby know.
-            Manhunt.get().getBungeeSocketManager().sendMessage("createGameResponse", createGameResponse(host, "denied", hostUid, allowTwists, maxPlayers, headstart, doDaylightCycle, friendlyFire));
+            plugin.getBungeeSocketManager().sendMessage("createGameResponse", createGameResponse(host, "denied", hostUid, allowTwists, maxPlayers, headstart, doDaylightCycle, friendlyFire));
         }
         return null;
     }
@@ -155,12 +161,12 @@ public class BungeeMessenger {
             // failed to create the game.
             Player p = Bukkit.getPlayer(UUID.fromString(ob.getAsJsonPrimitive("host_uuid").getAsString()));
             if (p == null) return null;
-            GameSetup setup = Manhunt.get().getManhuntGameSetupMenu().gameSetups.get(p);
+            GameSetup setup = plugin.getManhuntGameSetupMenu().gameSetups.get(p);
             if (setup == null) return null;
 
             if (setup.getBungeeSetup().isLastServer()) {
                 setup.getBungeeSetup().setNoGameAvailable(true);
-                Manhunt.get().getManhuntGameSetupMenu().gameSetups.remove(p);
+                plugin.getManhuntGameSetupMenu().gameSetups.remove(p);
             } else {
                 setup.getBungeeSetup().requestNextGameCreation();
             }
@@ -175,27 +181,27 @@ public class BungeeMessenger {
 
             Player p = Bukkit.getPlayer(hostUid);
 
-            Game game = Manhunt.get().getPlatformUtils().initGame(allowTwists, ob.getAsJsonPrimitive("host").getAsString(), hostUid, maxPlayers);
+            Game game = plugin.getPlatformUtils().initGame(allowTwists, ob.getAsJsonPrimitive("host").getAsString(), hostUid, maxPlayers);
             if (game != null) {
-                GameSetup setup = Manhunt.get().getManhuntGameSetupMenu().gameSetups.get(p);
+                GameSetup setup = plugin.getManhuntGameSetupMenu().gameSetups.get(p);
                 if (setup != null) {
                     setup.getBungeeSetup().setServerMatched(true);
                     Bukkit.getScheduler().cancelTask(setup.getBungeeSetup().getRunnableTaskId());
                 }
-                if (p != null) Util.sendTitle(p, Util.c(Manhunt.get().getCfg().serverFoundTitle), 10, 50, 10);
-                if (p != null) Manhunt.get().getManhuntGameSetupMenu().gameSetups.remove(p);
+                if (p != null) plugin.getUtil().sendTitle(p, Util.c(plugin.getCfg().serverFoundTitle), 10, 50, 10);
+                if (p != null) plugin.getManhuntGameSetupMenu().gameSetups.remove(p);
                 game.setHeadStart(HeadstartType.valueOf(headstart));
                 game.setDoDaylightCycle(doDaylightCycle);
                 game.setAllowFriendlyFire(friendlyFire);
                 if (p != null) {
-                    for (String s : Manhunt.get().getCfg().serverFoundMessage) {
+                    for (String s : plugin.getCfg().serverFoundMessage) {
                         p.sendMessage(Util.c(s));
                     }
                 }
                 return game;
             } else {
                 if (p == null) return null;
-                for (String s : Manhunt.get().getCfg().creatingGameErrorMessage) {
+                for (String s : plugin.getCfg().creatingGameErrorMessage) {
                     p.sendMessage(Util.c(s));
                 }
             }
@@ -225,29 +231,29 @@ public class BungeeMessenger {
             game.setBungeeServer(serverName);
             game.setReady(true);
 
-            p.sendMessage(Util.c(Manhunt.get().getCfg().finishedPreparingServerMessage));
+            p.sendMessage(Util.c(plugin.getCfg().finishedPreparingServerMessage));
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Connect");
             out.writeUTF(serverName);
-            p.sendPluginMessage(Manhunt.get(), "BungeeCord", out.toByteArray());
+            p.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
 
-            Bukkit.getScheduler().scheduleSyncDelayedTask(Manhunt.get(), game::sendGameAnnouncement, 20L);
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, game::sendGameAnnouncement, 20L);
         }
     }
 
     public String createGameResponse(String host, String response, UUID hostUUID, boolean allowTwists, int maxPlayers, String headstart, boolean daylight, boolean friendlyfire) {
         return String.format(
                 "{'server': '%s', " +
-                "'host': '%s', " +
-                "'response': '%s', " +
-                "'host_uuid': '%s', " +
-                "'allow_twists': %b, " +
-                "'max_players': %d, " +
-                "'headstart': %s, " +
-                "'daylight_cycle': %b, " +
-                "'friendly_fire': %b}",
-                Manhunt.get().getCfg().serverName,
+                        "'host': '%s', " +
+                        "'response': '%s', " +
+                        "'host_uuid': '%s', " +
+                        "'allow_twists': %b, " +
+                        "'max_players': %d, " +
+                        "'headstart': %s, " +
+                        "'daylight_cycle': %b, " +
+                        "'friendly_fire': %b}",
+                plugin.getCfg().serverName,
                 host,
                 response,
                 hostUUID.toString(),
@@ -260,10 +266,10 @@ public class BungeeMessenger {
     }
 
     public void createGameServer(GameSetup setup, String targetGameServer) {
-        if (Manhunt.get().getBungeeSocketManager() == null) return;
+        if (plugin.getBungeeSocketManager() == null) return;
         Player host = setup.getHost();
         JsonObject jsonReqData = new JsonObject();
-        jsonReqData.addProperty("server_name", Manhunt.get().getCfg().serverName);
+        jsonReqData.addProperty("server_name", plugin.getCfg().serverName);
         jsonReqData.addProperty("game_server", targetGameServer);
         jsonReqData.addProperty("host", host.getName());
         jsonReqData.addProperty("host_uuid", host.getUniqueId().toString());
@@ -273,43 +279,43 @@ public class BungeeMessenger {
         jsonReqData.addProperty("daylight_cycle", setup.isDoDaylightCycle());
         jsonReqData.addProperty("friendly_fire", setup.isAllowFriendlyFire());
 
-        if (!Manhunt.get().getBungeeSocketManager().sendMessage("createGame", jsonReqData.toString())) {
+        if (!plugin.getBungeeSocketManager().sendMessage("createGame", jsonReqData.toString())) {
             setup.getHost().sendMessage(ChatColor.RED + "We had some trouble connecting to the other servers. Please inform a staff member.");
         }
     }
 
     public void createAddSpectatorMessage(Game game, UUID player) {
-        if (Manhunt.get().getBungeeSocketManager() == null) return;
-        Manhunt.get().getBungeeSocketManager().sendMessage("addSpectator", "{'game':'" + game.getIdentifier() + "', 'player':'" + player.toString() + "'}");
+        if (plugin.getBungeeSocketManager() == null) return;
+        plugin.getBungeeSocketManager().sendMessage("addSpectator", "{'game':'" + game.getIdentifier() + "', 'player':'" + player.toString() + "'}");
     }
 
     public void createDisconnectClientMessage() {
-        if (Manhunt.get().getBungeeSocketManager() == null) return;
-        Manhunt.get().getBungeeSocketManager().sendMessage("disconnect", "");
+        if (plugin.getBungeeSocketManager() == null) return;
+        plugin.getBungeeSocketManager().sendMessage("disconnect", "");
     }
 
     public void createGameReadyMessage(Game game) {
-        if (Manhunt.get().getBungeeSocketManager() == null) return;
-        String json = "{'server_name': '" + Manhunt.get().getCfg().serverName + "', 'game':'" + game.getIdentifier() + "', 'host_uuid':'" + game.getHostUUID().toString() + "'}";
-        Manhunt.get().getBungeeSocketManager().sendMessage("gameReady", json);
+        if (plugin.getBungeeSocketManager() == null) return;
+        String json = "{'server_name': '" + plugin.getCfg().serverName + "', 'game':'" + game.getIdentifier() + "', 'host_uuid':'" + game.getHostUUID().toString() + "'}";
+        plugin.getBungeeSocketManager().sendMessage("gameReady", json);
     }
 
     public void createGameEndedMessage(Game game) {
-        if (Manhunt.get().getBungeeSocketManager() == null) return;
+        if (plugin.getBungeeSocketManager() == null) return;
         String json = "{'game':'" + game.getIdentifier() + "'}";
-        Manhunt.get().getBungeeSocketManager().sendMessage("gameEnded", json);
+        plugin.getBungeeSocketManager().sendMessage("gameEnded", json);
     }
 
     public void createEndGameMessage(Game game, boolean forceStop) {
-        if (Manhunt.get().getBungeeSocketManager() == null) return;
+        if (plugin.getBungeeSocketManager() == null) return;
         String json = "{'game':'" + game.getIdentifier() + "', 'force_stop':" + forceStop + "}";
-        Manhunt.get().getBungeeSocketManager().sendMessage("endGame", json);
+        plugin.getBungeeSocketManager().sendMessage("endGame", json);
     }
 
     public void createUpdateGameMessage(Game game) {
-        if (Manhunt.get().getBungeeSocketManager() == null) return;
+        if (plugin.getBungeeSocketManager() == null) return;
         JsonObject object = new JsonObject();
-        object.addProperty("server", Manhunt.get().getCfg().serverName);
+        object.addProperty("server", plugin.getCfg().serverName);
         object.addProperty("id", game.getIdentifier());
         object.addProperty("host_uuid", game.getHostUUID().toString());
         object.addProperty("allow_twists", game.isTwistsAllowed());
@@ -321,7 +327,7 @@ public class BungeeMessenger {
         object.addProperty("runner_count", game.getOnlinePlayers(PlayerType.RUNNER).size());
         object.addProperty("hunter_count", game.getOnlinePlayers(PlayerType.HUNTER).size());
 
-        Manhunt.get().getBungeeSocketManager().sendMessage("updateGame", object.toString());
+        plugin.getBungeeSocketManager().sendMessage("updateGame", object.toString());
     }
 
 }

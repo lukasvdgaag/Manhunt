@@ -3,7 +3,6 @@ package me.gaagjescraft.network.team.manhunt.menus;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.GameSetup;
 import me.gaagjescraft.network.team.manhunt.games.HeadstartType;
-import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
@@ -17,9 +16,15 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class ManhuntHeadstartSetupMenu implements Listener {
 
+    private final Manhunt plugin;
+
+    public ManhuntHeadstartSetupMenu(Manhunt plugin) {
+        this.plugin = plugin;
+    }
+
     public void openMenu(Player player, GameSetup setup) {
-        Util.playSound(player, Manhunt.get().getCfg().openMenuHeadstartSound, .5f, 1);
-        Inventory inventory = Bukkit.createInventory(null, 18, Util.c(Manhunt.get().getCfg().menuHeadstartTitle));
+        plugin.getUtil().playSound(player, plugin.getCfg().openMenuHeadstartSound, .5f, 1);
+        Inventory inventory = Bukkit.createInventory(null, 18, Util.c(plugin.getCfg().menuHeadstartTitle));
         player.openInventory(inventory);
         updateItems(player, setup);
     }
@@ -29,33 +34,33 @@ public class ManhuntHeadstartSetupMenu implements Listener {
         Inventory inventory = player.getOpenInventory().getTopInventory();
 
         for (int i = 0; i < inventory.getSize(); i++) {
-            inventory.setItem(i, Itemizer.FILL_ITEM);
+            inventory.setItem(i, plugin.getItemizer().FILL_ITEM);
         }
 
-        String selected = " " + Manhunt.get().getCfg().selectedPrefix;
+        String selected = " " + plugin.getCfg().selectedPrefix;
 
-        inventory.setItem(1, Itemizer.createItem(
-                Manhunt.get().getCfg().headstartMenuHalfMinuteHeadstartMaterial, 1,
-                Manhunt.get().getCfg().headstartMenuHalfMinuteHeadstartDisplayname + (setup.getHeadStart() == HeadstartType.HALF_MINUTE ? selected : ""),
-                Util.r(Manhunt.get().getCfg().headstartMenuHeadstartLore, "%time%", Manhunt.get().getUtil().secondsToTimeString(HeadstartType.HALF_MINUTE.getSeconds(), "string")))
+        inventory.setItem(1, plugin.getItemizer().createItem(
+                plugin.getCfg().headstartMenuHalfMinuteHeadstartMaterial, 1,
+                plugin.getCfg().headstartMenuHalfMinuteHeadstartDisplayname + (setup.getHeadStart() == HeadstartType.HALF_MINUTE ? selected : ""),
+                Util.r(plugin.getCfg().headstartMenuHeadstartLore, "%time%", plugin.getUtil().secondsToTimeString(HeadstartType.HALF_MINUTE.getSeconds(), "string")))
         );
-        inventory.setItem(3, Itemizer.createItem(
-                Manhunt.get().getCfg().headstartMenuOneMinuteHeadstartMaterial, 1,
-                Manhunt.get().getCfg().headstartMenuOneMinuteHeadstartDisplayname + (setup.getHeadStart() == HeadstartType.ONE_MINUTE ? selected : ""),
-                Util.r(Manhunt.get().getCfg().headstartMenuHeadstartLore, "%time%", Manhunt.get().getUtil().secondsToTimeString(HeadstartType.ONE_MINUTE.getSeconds(), "string")))
+        inventory.setItem(3, plugin.getItemizer().createItem(
+                plugin.getCfg().headstartMenuOneMinuteHeadstartMaterial, 1,
+                plugin.getCfg().headstartMenuOneMinuteHeadstartDisplayname + (setup.getHeadStart() == HeadstartType.ONE_MINUTE ? selected : ""),
+                Util.r(plugin.getCfg().headstartMenuHeadstartLore, "%time%", plugin.getUtil().secondsToTimeString(HeadstartType.ONE_MINUTE.getSeconds(), "string")))
         );
-        inventory.setItem(5, Itemizer.createItem(
-                Manhunt.get().getCfg().headstartMenuOneHalfMinuteHeadstartMaterial, 1,
-                Manhunt.get().getCfg().headstartMenuOneHalfMinuteHeadstartDisplayname + (setup.getHeadStart() == HeadstartType.ONE_HALF_MINUTE ? selected : ""),
-                Util.r(Manhunt.get().getCfg().headstartMenuHeadstartLore, "%time%", Manhunt.get().getUtil().secondsToTimeString(HeadstartType.ONE_HALF_MINUTE.getSeconds(), "string")))
+        inventory.setItem(5, plugin.getItemizer().createItem(
+                plugin.getCfg().headstartMenuOneHalfMinuteHeadstartMaterial, 1,
+                plugin.getCfg().headstartMenuOneHalfMinuteHeadstartDisplayname + (setup.getHeadStart() == HeadstartType.ONE_HALF_MINUTE ? selected : ""),
+                Util.r(plugin.getCfg().headstartMenuHeadstartLore, "%time%", plugin.getUtil().secondsToTimeString(HeadstartType.ONE_HALF_MINUTE.getSeconds(), "string")))
         );
-        inventory.setItem(7, Itemizer.createItem(
-                Manhunt.get().getCfg().headstartMenuTwoMinutesHeadstartMaterial, 1,
-                Manhunt.get().getCfg().headstartMenuTwoMinutesHeadstartDisplayname + (setup.getHeadStart() == HeadstartType.TWO_MINUTES ? selected : ""),
-                Util.r(Manhunt.get().getCfg().headstartMenuHeadstartLore, "%time%", Manhunt.get().getUtil().secondsToTimeString(HeadstartType.TWO_MINUTES.getSeconds(), "string")))
+        inventory.setItem(7, plugin.getItemizer().createItem(
+                plugin.getCfg().headstartMenuTwoMinutesHeadstartMaterial, 1,
+                plugin.getCfg().headstartMenuTwoMinutesHeadstartDisplayname + (setup.getHeadStart() == HeadstartType.TWO_MINUTES ? selected : ""),
+                Util.r(plugin.getCfg().headstartMenuHeadstartLore, "%time%", plugin.getUtil().secondsToTimeString(HeadstartType.TWO_MINUTES.getSeconds(), "string")))
         );
 
-        inventory.setItem(13, Itemizer.createItem(Manhunt.get().getCfg().headstartMenuSaveMaterial, 1, Manhunt.get().getCfg().headstartMenuSaveDisplayname, Manhunt.get().getCfg().headstartMenuSaveLore));
+        inventory.setItem(13, plugin.getItemizer().createItem(plugin.getCfg().headstartMenuSaveMaterial, 1, plugin.getCfg().headstartMenuSaveDisplayname, plugin.getCfg().headstartMenuSaveLore));
 
         int slot = 1;
         if (setup.getHeadStart() == HeadstartType.ONE_MINUTE) slot = 3;
@@ -71,7 +76,7 @@ public class ManhuntHeadstartSetupMenu implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
-        if (!e.getView().getTitle().equals(Util.c(Manhunt.get().getCfg().menuHeadstartTitle))) return;
+        if (!e.getView().getTitle().equals(Util.c(plugin.getCfg().menuHeadstartTitle))) return;
         if (e.getSlot() < 0) return;
 
         e.setCancelled(true);
@@ -79,29 +84,29 @@ public class ManhuntHeadstartSetupMenu implements Listener {
         if (!e.getClickedInventory().equals(e.getView().getTopInventory())) return;
 
         Player player = (Player) e.getWhoClicked();
-        GameSetup setup = Manhunt.get().getManhuntGameSetupMenu().gameSetups.get(player);
+        GameSetup setup = plugin.getManhuntGameSetupMenu().gameSetups.get(player);
         if (setup == null) return;
 
         if (e.getSlot() == 1 && setup.getHeadStart() != HeadstartType.HALF_MINUTE) {
             setup.setHeadstart(HeadstartType.HALF_MINUTE, true);
-            Util.playSound(player, Manhunt.get().getCfg().menuHeadstartSelectSound, 1, 1);
+            plugin.getUtil().playSound(player, plugin.getCfg().menuHeadstartSelectSound, 1, 1);
             updateItems(player, setup);
         } else if (e.getSlot() == 3 && setup.getHeadStart() != HeadstartType.ONE_MINUTE) {
             setup.setHeadstart(HeadstartType.ONE_MINUTE, true);
-            Util.playSound(player, Manhunt.get().getCfg().menuHeadstartSelectSound, 1, 1);
+            plugin.getUtil().playSound(player, plugin.getCfg().menuHeadstartSelectSound, 1, 1);
             updateItems(player, setup);
         } else if (e.getSlot() == 5 && setup.getHeadStart() != HeadstartType.ONE_HALF_MINUTE) {
             setup.setHeadstart(HeadstartType.ONE_HALF_MINUTE, true);
-            Util.playSound(player, Manhunt.get().getCfg().menuHeadstartSelectSound, 1, 1);
+            plugin.getUtil().playSound(player, plugin.getCfg().menuHeadstartSelectSound, 1, 1);
             updateItems(player, setup);
         } else if (e.getSlot() == 7 && setup.getHeadStart() != HeadstartType.TWO_MINUTES) {
             setup.setHeadstart(HeadstartType.TWO_MINUTES, true);
-            Util.playSound(player, Manhunt.get().getCfg().menuHeadstartSelectSound, 1, 1);
+            plugin.getUtil().playSound(player, plugin.getCfg().menuHeadstartSelectSound, 1, 1);
             updateItems(player, setup);
         } else if (e.getSlot() == 13) {
             // continue setup
-            Util.playSound(player, Manhunt.get().getCfg().menuHeadstartSelectSound, 1, 1);
-            Manhunt.get().getManhuntGameSetupMenu().openMenu(player, setup.getGame());
+            plugin.getUtil().playSound(player, plugin.getCfg().menuHeadstartSelectSound, 1, 1);
+            plugin.getManhuntGameSetupMenu().openMenu(player, setup.getGame());
         }
     }
 

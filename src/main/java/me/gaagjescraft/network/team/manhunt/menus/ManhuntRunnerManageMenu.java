@@ -5,7 +5,6 @@ import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.games.GamePlayer;
 import me.gaagjescraft.network.team.manhunt.games.PlayerType;
-import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -30,12 +29,15 @@ public class ManhuntRunnerManageMenu implements Listener {
 
     public List<Player> chatPlayers;
 
-    public ManhuntRunnerManageMenu() {
+    private final Manhunt plugin;
+
+    public ManhuntRunnerManageMenu(Manhunt plugin) {
+        this.plugin = plugin;
         this.chatPlayers = Lists.newArrayList();
     }
 
     public void open(Player player, Game game) {
-        Inventory menu = Bukkit.createInventory(null, 27, Util.c(Manhunt.get().getCfg().menuRunnerManagerTitle));
+        Inventory menu = Bukkit.createInventory(null, 27, Util.c(plugin.getCfg().menuRunnerManagerTitle));
         player.playSound(player.getLocation(), Sound.BLOCK_CHEST_OPEN, 1, 1);
         player.openInventory(menu);
         updateItems(player, game);
@@ -47,7 +49,7 @@ public class ManhuntRunnerManageMenu implements Listener {
         Inventory menu = player.getOpenInventory().getTopInventory();
 
         for (int i = 0; i < menu.getSize(); i++) {
-            menu.setItem(i, Itemizer.FILL_ITEM);
+            menu.setItem(i, plugin.getItemizer().FILL_ITEM);
         }
 
         int slot = 0;
@@ -58,9 +60,9 @@ public class ManhuntRunnerManageMenu implements Listener {
             assert meta != null;
             meta.setOwningPlayer(op);
             meta.setDisplayName(Util.c(
-                    gp.isHost() ? Manhunt.get().getCfg().runnerManagerMenuHostRunnerDisplayname : Manhunt.get().getCfg().runnerManagerMenuGeneralRunnerDisplayname
+                    gp.isHost() ? plugin.getCfg().runnerManagerMenuHostRunnerDisplayname : plugin.getCfg().runnerManagerMenuGeneralRunnerDisplayname
             ).replaceAll("%player%", Objects.requireNonNull(op.getName())));
-            List<String> lore = gp.isHost() ? Manhunt.get().getCfg().runnerManagerMenuHostRunnerLore : Manhunt.get().getCfg().runnerManagerMenuGeneralRunnerLore;
+            List<String> lore = gp.isHost() ? plugin.getCfg().runnerManagerMenuHostRunnerLore : plugin.getCfg().runnerManagerMenuGeneralRunnerLore;
             lore = new ArrayList<>(lore);
             for (int i = 0; i < lore.size(); i++) {
                 lore.set(i, Util.c(lore.get(i).replaceAll("%player%", op.getName())));
@@ -72,22 +74,22 @@ public class ManhuntRunnerManageMenu implements Listener {
             slot++;
         }
 
-        menu.setItem(22, Itemizer.createItem(
-                Manhunt.get().getCfg().runnerManagerMenuSaveMaterial, 1,
-                Manhunt.get().getCfg().runnerManagerMenuSaveDisplayname,
-                Manhunt.get().getCfg().runnerManagerMenuSaveLore
+        menu.setItem(22, plugin.getItemizer().createItem(
+                plugin.getCfg().runnerManagerMenuSaveMaterial, 1,
+                plugin.getCfg().runnerManagerMenuSaveDisplayname,
+                plugin.getCfg().runnerManagerMenuSaveLore
         ));
-        menu.setItem(26, Itemizer.createItem(
-                Manhunt.get().getCfg().runnerManagerMenuAddRunnerMaterial, 1,
-                Manhunt.get().getCfg().runnerManagerMenuAddRunnerDisplayname,
-                Manhunt.get().getCfg().runnerManagerMenuAddRunnerLore
+        menu.setItem(26, plugin.getItemizer().createItem(
+                plugin.getCfg().runnerManagerMenuAddRunnerMaterial, 1,
+                plugin.getCfg().runnerManagerMenuAddRunnerDisplayname,
+                plugin.getCfg().runnerManagerMenuAddRunnerLore
         ));
     }
 
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
-        if (!e.getView().getTitle().equals(Util.c(Manhunt.get().getCfg().menuRunnerManagerTitle))) return;
+        if (!e.getView().getTitle().equals(Util.c(plugin.getCfg().menuRunnerManagerTitle))) return;
         if (e.getSlot() < 0) return;
 
         e.setCancelled(true);
@@ -109,28 +111,28 @@ public class ManhuntRunnerManageMenu implements Listener {
 
                         if (runners.size() > 1) {
                             // can remove host because there are multiple hunters.
-                            player.sendMessage(Util.c(Manhunt.get().getCfg().playerRemoveRunnerMessage.replaceAll("%player%", Objects.requireNonNull(target.getName()))));
+                            player.sendMessage(Util.c(plugin.getCfg().playerRemoveRunnerMessage.replaceAll("%player%", Objects.requireNonNull(target.getName()))));
                             gp.setPlayerType(PlayerType.HUNTER);
                             game.getRunnerTeleporterMenu().update();
-                            Util.playSound(player, Manhunt.get().getCfg().runnerRemovedSound, 1, 1);
+                            plugin.getUtil().playSound(player, plugin.getCfg().runnerRemovedSound, 1, 1);
 
                             this.chatPlayers.remove(player);
                             open(player, game);
                         } else {
                             // cannot remove any runners because there must be at least one in the game.
-                            player.sendMessage(Util.c(Manhunt.get().getCfg().menuRunnerManagerCannotRemoveRunnerMessage.replaceAll("%player%", Objects.requireNonNull(target.getName()))));
-                            Util.playSound(player, Manhunt.get().getCfg().menuRunnerManagerCannotRemoveRunnerSound, 1, 1);
+                            player.sendMessage(Util.c(plugin.getCfg().menuRunnerManagerCannotRemoveRunnerMessage.replaceAll("%player%", Objects.requireNonNull(target.getName()))));
+                            plugin.getUtil().playSound(player, plugin.getCfg().menuRunnerManagerCannotRemoveRunnerSound, 1, 1);
                         }
                     }
                 }
             }
         } else if (e.getSlot() == 22) {
             // continue setup
-            Util.playSound(player, Manhunt.get().getCfg().menuHeadstartSaveSound, 1, 1);
-            Manhunt.get().getManhuntGameSetupMenu().openMenu(player, game);
+            plugin.getUtil().playSound(player, plugin.getCfg().menuHeadstartSaveSound, 1, 1);
+            plugin.getManhuntGameSetupMenu().openMenu(player, game);
         } else if (e.getSlot() == 26) {
             this.chatPlayers.add(player);
-            for (String s : Manhunt.get().getCfg().runnerAddInstructionsMessage) {
+            for (String s : plugin.getCfg().runnerAddInstructionsMessage) {
                 player.sendMessage(Util.c(s));
             }
             player.closeInventory();
@@ -150,33 +152,33 @@ public class ManhuntRunnerManageMenu implements Listener {
         e.setCancelled(true);
 
         if (e.getMessage().equalsIgnoreCase("cancel")) {
-            e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().runnerAddCancelledMessage));
+            e.getPlayer().sendMessage(Util.c(plugin.getCfg().runnerAddCancelledMessage));
             this.chatPlayers.remove(e.getPlayer());
             return;
         }
 
         Player target = Bukkit.getPlayer(e.getMessage());
         if (target == null) {
-            e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().playerNotOnlineMessage));
-            e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().runnerAddTryAgainMessage));
+            e.getPlayer().sendMessage(Util.c(plugin.getCfg().playerNotOnlineMessage));
+            e.getPlayer().sendMessage(Util.c(plugin.getCfg().runnerAddTryAgainMessage));
             return;
         }
 
         GamePlayer targetGP = game.getPlayer(target);
         if (targetGP == null) {
-            e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().targetPlayerNotIngameMessage.replaceAll("%player%", target.getName())));
-            e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().runnerAddTryAgainMessage));
+            e.getPlayer().sendMessage(Util.c(plugin.getCfg().targetPlayerNotIngameMessage.replaceAll("%player%", target.getName())));
+            e.getPlayer().sendMessage(Util.c(plugin.getCfg().runnerAddTryAgainMessage));
             return;
         }
 
         if (targetGP.getPlayerType() == PlayerType.RUNNER) {
-            e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().targetPlayerAlreadyRunnerMessage.replaceAll("%player%", target.getName())));
-            e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().runnerAddTryAgainMessage));
+            e.getPlayer().sendMessage(Util.c(plugin.getCfg().targetPlayerAlreadyRunnerMessage.replaceAll("%player%", target.getName())));
+            e.getPlayer().sendMessage(Util.c(plugin.getCfg().runnerAddTryAgainMessage));
             return;
         }
 
         targetGP.setPlayerType(PlayerType.RUNNER);
-        e.getPlayer().sendMessage(Util.c(Manhunt.get().getCfg().playerAddRunnerMessage.replaceAll("%player%", target.getName())));
+        e.getPlayer().sendMessage(Util.c(plugin.getCfg().playerAddRunnerMessage.replaceAll("%player%", target.getName())));
         this.chatPlayers.remove(e.getPlayer());
     }
 

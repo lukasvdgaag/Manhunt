@@ -13,10 +13,16 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 
 public class RunnerTrackerMenuHandler implements Listener {
 
+    private final Manhunt plugin;
+
+    public RunnerTrackerMenuHandler(Manhunt plugin) {
+        this.plugin = plugin;
+    }
+
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
-        if (!e.getView().getTitle().equals(Util.c(Manhunt.get().getCfg().menuTrackerTitle)) && !e.getView().getTitle().equals(Util.c(Manhunt.get().getCfg().menuTeleporterTitle)))
+        if (!e.getView().getTitle().equals(Util.c(plugin.getCfg().menuTrackerTitle)) && !e.getView().getTitle().equals(Util.c(plugin.getCfg().menuTeleporterTitle)))
             return;
         if (e.getSlot() < 0) return;
 
@@ -51,27 +57,27 @@ public class RunnerTrackerMenuHandler implements Listener {
             Player target = Bukkit.getPlayer(targetGP.getUuid());
             if (target == null) {
                 if (teleporting) {
-                    player.sendMessage(Util.c(Manhunt.get().getCfg().failedTeleportingMessage));
+                    player.sendMessage(Util.c(plugin.getCfg().failedTeleportingMessage));
                 } else {
-                    player.sendMessage(Util.c(Manhunt.get().getCfg().failedTrackingMessage));
+                    player.sendMessage(Util.c(plugin.getCfg().failedTrackingMessage));
                 }
                 return;
             }
             if (target.getUniqueId().equals(player.getUniqueId())) {
-                Util.playSound(player, Manhunt.get().getCfg().playerIsYouSound, 1, 1);
-                player.sendMessage(Util.c(Manhunt.get().getCfg().playerIsYouMessage));
+                plugin.getUtil().playSound(player, plugin.getCfg().playerIsYouSound, 1, 1);
+                player.sendMessage(Util.c(plugin.getCfg().playerIsYouMessage));
                 return;
             }
 
             player.closeInventory();
-            Util.playSound(player, Manhunt.get().getCfg().trackingPlayerSound, 1, 1);
+            plugin.getUtil().playSound(player, plugin.getCfg().trackingPlayerSound, 1, 1);
             if (teleporting) {
                 player.teleport(target.getLocation());
-                player.sendMessage(Util.c(Manhunt.get().getCfg().teleportingPlayerMessage.replaceAll("%prefix%", targetGP.getPrefix())
+                player.sendMessage(Util.c(plugin.getCfg().teleportingPlayerMessage.replaceAll("%prefix%", targetGP.getPrefix())
                         .replaceAll("%color%", targetGP.getColor()).replaceAll("%player%", target.getName())));
             } else {
                 gp.setTracking(game.getRunnerTeleporterMenu().getRunnersList().get(i));
-                player.sendMessage(Util.c(Manhunt.get().getCfg().trackingPlayerMessage.replaceAll("%prefix%", targetGP.getPrefix())
+                player.sendMessage(Util.c(plugin.getCfg().trackingPlayerMessage.replaceAll("%prefix%", targetGP.getPrefix())
                         .replaceAll("%color%", targetGP.getColor()).replaceAll("%player%", target.getName())));
             }
         }

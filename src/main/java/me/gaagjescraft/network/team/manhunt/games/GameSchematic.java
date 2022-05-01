@@ -27,7 +27,10 @@ public class GameSchematic {
     private EditSession editSession;
     private Location spawnLocation;
 
+    private final Manhunt plugin;
+
     GameSchematic(Game game) {
+        this.plugin = game.getPlugin();
         this.game = game;
         this.editSession = null;
         this.spawnLocation = null;
@@ -43,7 +46,7 @@ public class GameSchematic {
 
         this.spawnLocation = spawn.clone().add(1.5, 15, 0.5);
 
-        File file = new File(Manhunt.get().getDataFolder(), "manhunt-lobby.schem");
+        File file = new File(plugin.getDataFolder(), "manhunt-lobby.schem");
         BlockVector3 to = BlockVector3.at(spawn.getX(), spawn.getY(), spawn.getZ());
         ClipboardFormat format = ClipboardFormats.findByFile(file);
 

@@ -1,10 +1,11 @@
-package me.gaagjescraft.network.team.manhunt.utils.party;
+package me.gaagjescraft.network.team.manhunt.managers.party;
 
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
-public class NoParty implements Party{
+public class NoPartyManager implements PartyManager {
+
     @Override
     public boolean hasParty(Player p) {
         return false;
@@ -18,6 +19,11 @@ public class NoParty implements Party{
     @Override
     public boolean isOwner(Player p) {
         return false;
+    }
+
+    @Override
+    public Player getOwner(Player p) {
+        return null;
     }
 
     @Override

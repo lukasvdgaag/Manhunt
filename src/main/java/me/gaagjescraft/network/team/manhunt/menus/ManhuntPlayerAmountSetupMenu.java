@@ -2,7 +2,6 @@ package me.gaagjescraft.network.team.manhunt.menus;
 
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.GameSetup;
-import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -20,9 +19,15 @@ import java.util.List;
 
 public class ManhuntPlayerAmountSetupMenu implements Listener {
 
+    private final Manhunt plugin;
+
+    public ManhuntPlayerAmountSetupMenu(Manhunt plugin) {
+        this.plugin = plugin;
+    }
+
     public void openMenu(Player player, GameSetup setup) {
         player.playSound(player.getLocation(), Sound.BLOCK_CHEST_OPEN, 0.5f, 1);
-        Inventory inventory = Bukkit.createInventory(null, 27, Util.c(Manhunt.get().getCfg().menuMaxHuntersTitle));
+        Inventory inventory = Bukkit.createInventory(null, 27, Util.c(plugin.getCfg().menuMaxHuntersTitle));
         player.openInventory(inventory);
         updateItems(player, setup);
     }
@@ -36,10 +41,10 @@ public class ManhuntPlayerAmountSetupMenu implements Listener {
         inventory.setItem(10, getLoredItem(false, 10, setup.getMaxPlayers()));
         inventory.setItem(11, getLoredItem(false, 1, setup.getMaxPlayers()));
 
-        inventory.setItem(13, Itemizer.createItem(
-                Manhunt.get().getCfg().maxHuntersMenuSaveMaterial, 1,
-                Manhunt.get().getCfg().maxHuntersMenuSaveDisplayname,
-                Util.r(Manhunt.get().getCfg().maxHuntersMenuSaveLore, "%amount%", setup.getMaxPlayers() + "")
+        inventory.setItem(13, plugin.getItemizer().createItem(
+                plugin.getCfg().maxHuntersMenuSaveMaterial, 1,
+                plugin.getCfg().maxHuntersMenuSaveDisplayname,
+                Util.r(plugin.getCfg().maxHuntersMenuSaveLore, "%amount%", setup.getMaxPlayers() + "")
         ));
 
         inventory.setItem(15, getLoredItem(true, 1, setup.getMaxPlayers()));
@@ -49,14 +54,14 @@ public class ManhuntPlayerAmountSetupMenu implements Listener {
     }
 
     private ItemStack getLoredItem(boolean plus, int number, int currentSize) {
-        ItemStack item = plus ? Itemizer.HEAD_PLUS : Itemizer.HEAD_MINUS;
+        ItemStack item = plus ? plugin.getItemizer().HEAD_PLUS : plugin.getItemizer().HEAD_MINUS;
         item.setAmount(number);
         ItemMeta meta = item.getItemMeta();
         assert meta != null;
         meta.setDisplayName(Util.c(
-                plus ? Manhunt.get().getCfg().maxHuntersMenuAddDisplayname : Manhunt.get().getCfg().maxHuntersMenuRemoveDisplayname
+                plus ? plugin.getCfg().maxHuntersMenuAddDisplayname : plugin.getCfg().maxHuntersMenuRemoveDisplayname
         ).replaceAll("%number%", number + "").replaceAll("%amount%", currentSize + ""));
-        List<String> lore = plus ? Manhunt.get().getCfg().maxHuntersMenuAddLore : Manhunt.get().getCfg().maxHuntersMenuRemoveLore;
+        List<String> lore = plus ? plugin.getCfg().maxHuntersMenuAddLore : plugin.getCfg().maxHuntersMenuRemoveLore;
         lore = new ArrayList<>(lore);
         for (int i = 0; i < lore.size(); i++) {
             lore.set(i, Util.c(lore.get(i)
@@ -72,7 +77,7 @@ public class ManhuntPlayerAmountSetupMenu implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
-        if (!e.getView().getTitle().equals(Util.c(Manhunt.get().getCfg().menuMaxHuntersTitle))) return;
+        if (!e.getView().getTitle().equals(Util.c(plugin.getCfg().menuMaxHuntersTitle))) return;
         if (e.getSlot() < 0) return;
 
         e.setCancelled(true);
@@ -80,50 +85,50 @@ public class ManhuntPlayerAmountSetupMenu implements Listener {
         if (!e.getClickedInventory().equals(e.getView().getTopInventory())) return;
 
         Player player = (Player) e.getWhoClicked();
-        GameSetup setup = Manhunt.get().getManhuntGameSetupMenu().gameSetups.get(player);
+        GameSetup setup = plugin.getManhuntGameSetupMenu().gameSetups.get(player);
         if (setup == null) return;
 
         int current = setup.getMaxPlayers();
 
-        int max = Manhunt.get().getCfg().maximumPlayers;
-        int min = Manhunt.get().getCfg().minimumPlayers;
+        int max = plugin.getCfg().maximumPlayers;
+        int min = plugin.getCfg().minimumPlayers;
 
         if (e.getSlot() == 9) {
             if (current > min)
-                Util.playSound(player, Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound, 1, 1);
+                plugin.getUtil().playSound(player, plugin.getCfg().menuMaxHuntersChangeAmountSound, 1, 1);
             else player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             setup.setMaxPlayers(Math.max(current - 25, min));
             updateItems(player, setup);
         } else if (e.getSlot() == 10) {
             if (current > min)
-                Util.playSound(player, Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound, 1, 1);
+                plugin.getUtil().playSound(player, plugin.getCfg().menuMaxHuntersChangeAmountSound, 1, 1);
             else player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             setup.setMaxPlayers(Math.max(current - 10, min));
             updateItems(player, setup);
         } else if (e.getSlot() == 11) {
             if (current > min)
-                Util.playSound(player, Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound, 1, 1);
+                plugin.getUtil().playSound(player, plugin.getCfg().menuMaxHuntersChangeAmountSound, 1, 1);
             else player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             setup.setMaxPlayers(Math.max(current - 1, min));
             updateItems(player, setup);
         } else if (e.getSlot() == 13) {
             // continue setup
-            Manhunt.get().getManhuntGameSetupMenu().openMenu(player, setup.getGame());
+            plugin.getManhuntGameSetupMenu().openMenu(player, setup.getGame());
         } else if (e.getSlot() == 15) {
             if (current < max)
-                Util.playSound(player, Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound, 1, 2);
+                plugin.getUtil().playSound(player, plugin.getCfg().menuMaxHuntersChangeAmountSound, 1, 2);
             else player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             setup.setMaxPlayers(Math.min(current + 1, max));
             updateItems(player, setup);
         } else if (e.getSlot() == 16) {
             if (current < max)
-                Util.playSound(player, Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound, 1, 2);
+                plugin.getUtil().playSound(player, plugin.getCfg().menuMaxHuntersChangeAmountSound, 1, 2);
             else player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             setup.setMaxPlayers(Math.min(current + 10, max));
             updateItems(player, setup);
         } else if (e.getSlot() == 17) {
             if (current < max)
-                Util.playSound(player, Manhunt.get().getCfg().menuMaxHuntersChangeAmountSound, 1, 2);
+                plugin.getUtil().playSound(player, plugin.getCfg().menuMaxHuntersChangeAmountSound, 1, 2);
             else player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             setup.setMaxPlayers(Math.min(current + 25, max));
             updateItems(player, setup);

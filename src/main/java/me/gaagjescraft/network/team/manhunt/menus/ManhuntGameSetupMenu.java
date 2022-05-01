@@ -5,7 +5,6 @@ import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.events.custom.GameSetupMenuClickEvent;
 import me.gaagjescraft.network.team.manhunt.events.custom.GameSetupMenuOpenEvent;
 import me.gaagjescraft.network.team.manhunt.games.*;
-import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -31,9 +30,15 @@ public class ManhuntGameSetupMenu implements Listener {
     public List<Player> allowTwistsDelays = Lists.newArrayList();
     public List<Player> allowFriendlyFireDelays = Lists.newArrayList();
 
+    private final Manhunt plugin;
+
+    public ManhuntGameSetupMenu(Manhunt plugin) {
+        this.plugin = plugin;
+    }
+
     public void openMenu(Player player, Game game) {
-        Util.playSound(player, Manhunt.get().getCfg().openMenuHostGameSound, .5f, 1);
-        Inventory inventory = Bukkit.createInventory(null, 54, Util.c(Manhunt.get().getCfg().menuHostTitle));
+        plugin.getUtil().playSound(player, plugin.getCfg().openMenuHostGameSound, .5f, 1);
+        Inventory inventory = Bukkit.createInventory(null, 54, Util.c(plugin.getCfg().menuHostTitle));
         player.openInventory(inventory);
         updateItems(player, game);
     }
@@ -42,8 +47,8 @@ public class ManhuntGameSetupMenu implements Listener {
         player.getOpenInventory();
         player.getOpenInventory().getTopInventory();
 
-        GameSetup setup = gameSetups.getOrDefault(player, Manhunt.get().getPlatformUtils().initGameSetup(player, Manhunt.get().getCfg().defaultOptionAllowTwists, Manhunt.get().getCfg().defaultOptionMaxPlayers,
-                Manhunt.get().getCfg().defaultOptionDoDaylightCycle, Manhunt.get().getCfg().defaultOptionAllowFriendlyFire, Manhunt.get().getCfg().defaultOptionHeadstart));
+        GameSetup setup = gameSetups.getOrDefault(player, plugin.getPlatformUtils().initGameSetup(player, plugin.getCfg().defaultOptionAllowTwists, plugin.getCfg().defaultOptionMaxPlayers,
+                plugin.getCfg().defaultOptionDoDaylightCycle, plugin.getCfg().defaultOptionAllowFriendlyFire, plugin.getCfg().defaultOptionHeadstart));
         if (!gameSetups.containsKey(player)) {
             gameSetups.put(player, setup);
         }
@@ -59,38 +64,38 @@ public class ManhuntGameSetupMenu implements Listener {
         Inventory inventory = player.getOpenInventory().getTopInventory();
 
         for (int i = 0; i < inventory.getSize(); i++) {
-            inventory.setItem(i, Itemizer.FILL_ITEM);
+            inventory.setItem(i, plugin.getItemizer().FILL_ITEM);
         }
 
-        if (setup.getGame() == null) inventory.setItem(45, Itemizer.GO_BACK_ITEM);
-        inventory.setItem(49, Itemizer.CLOSE_ITEM);
+        if (setup.getGame() == null) inventory.setItem(45, plugin.getItemizer().GO_BACK_ITEM);
+        inventory.setItem(49, plugin.getItemizer().CLOSE_ITEM);
 
         ItemStack twistAllows;
         if (setup.isAllowTwists()) {
-            twistAllows = Itemizer.createItem(Manhunt.get().getCfg().hostMenuTwistEnabledMaterial, 1, Manhunt.get().getCfg().hostMenuTwistEnabledDisplayname, Manhunt.get().getCfg().hostMenuTwistEnabledLore);
+            twistAllows = plugin.getItemizer().createItem(plugin.getCfg().hostMenuTwistEnabledMaterial, 1, plugin.getCfg().hostMenuTwistEnabledDisplayname, plugin.getCfg().hostMenuTwistEnabledLore);
         } else {
-            twistAllows = Itemizer.createItem(Manhunt.get().getCfg().hostMenuTwistDisabledMaterial, 1, Manhunt.get().getCfg().hostMenuTwistDisabledDisplayname, Manhunt.get().getCfg().hostMenuTwistDisabledLore);
+            twistAllows = plugin.getItemizer().createItem(plugin.getCfg().hostMenuTwistDisabledMaterial, 1, plugin.getCfg().hostMenuTwistDisabledDisplayname, plugin.getCfg().hostMenuTwistDisabledLore);
         }
-        inventory.setItem(11, Manhunt.get().getCfg().disableSettingsChanging ? Itemizer.MANHUNT_SETTING_DISABLED : twistAllows);
+        inventory.setItem(11, plugin.getCfg().disableSettingsChanging ? plugin.getItemizer().MANHUNT_SETTING_DISABLED : twistAllows);
 
         ItemStack daycycle;
         if (setup.isDoDaylightCycle()) {
-            daycycle = Itemizer.createItem(Manhunt.get().getCfg().hostMenuDaylightCycleEnabledMaterial, 1, Manhunt.get().getCfg().hostMenuDaylightCycleEnabledDisplayname, Manhunt.get().getCfg().hostMenuDaylightCycleEnabledLore);
+            daycycle = plugin.getItemizer().createItem(plugin.getCfg().hostMenuDaylightCycleEnabledMaterial, 1, plugin.getCfg().hostMenuDaylightCycleEnabledDisplayname, plugin.getCfg().hostMenuDaylightCycleEnabledLore);
         } else {
-            daycycle = Itemizer.createItem(Manhunt.get().getCfg().hostMenuDaylightCycleDisabledMaterial, 1, Manhunt.get().getCfg().hostMenuDaylightCycleDisabledDisplayname, Manhunt.get().getCfg().hostMenuDaylightCycleDisabledLore);
+            daycycle = plugin.getItemizer().createItem(plugin.getCfg().hostMenuDaylightCycleDisabledMaterial, 1, plugin.getCfg().hostMenuDaylightCycleDisabledDisplayname, plugin.getCfg().hostMenuDaylightCycleDisabledLore);
         }
-        inventory.setItem(29, Manhunt.get().getCfg().disableSettingsChanging ? Itemizer.MANHUNT_SETTING_DISABLED : daycycle);
+        inventory.setItem(29, plugin.getCfg().disableSettingsChanging ? plugin.getItemizer().MANHUNT_SETTING_DISABLED : daycycle);
 
-        ItemStack headstart = new ItemStack(Material.valueOf(Manhunt.get().getCfg().hostMenuHeadstartMaterial));
+        ItemStack headstart = new ItemStack(Material.valueOf(plugin.getCfg().hostMenuHeadstartMaterial));
         ItemMeta hmeta = headstart.getItemMeta();
-        String headstartTime = Manhunt.get().getUtil().secondsToTimeString(setup.getHeadStart().getSeconds(), "string");
+        String headstartTime = plugin.getUtil().secondsToTimeString(setup.getHeadStart().getSeconds(), "string");
         assert hmeta != null;
-        hmeta.setDisplayName(Util.c(Manhunt.get().getCfg().hostMenuHeadstartDisplayname).replaceAll("%time%", headstartTime));
+        hmeta.setDisplayName(Util.c(plugin.getCfg().hostMenuHeadstartDisplayname).replaceAll("%time%", headstartTime));
         List<String> hlore;
         if (setup.getGame() == null || setup.getGame().getStatus() == GameStatus.WAITING) {
-            hlore = Manhunt.get().getCfg().hostMenuHeadstartLore;
+            hlore = plugin.getCfg().hostMenuHeadstartLore;
         } else {
-            hlore = Manhunt.get().getCfg().hostMenuHeadstartLockedLore;
+            hlore = plugin.getCfg().hostMenuHeadstartLockedLore;
         }
         hlore = new ArrayList<>(hlore);
         for (int i = 0; i < hlore.size(); i++) {
@@ -98,31 +103,31 @@ public class ManhuntGameSetupMenu implements Listener {
         }
         hmeta.setLore(hlore);
         headstart.setItemMeta(hmeta);
-        inventory.setItem(31, Manhunt.get().getCfg().disableSettingsChanging ? Itemizer.MANHUNT_SETTING_DISABLED : headstart);
+        inventory.setItem(31, plugin.getCfg().disableSettingsChanging ? plugin.getItemizer().MANHUNT_SETTING_DISABLED : headstart);
 
         int runnerAmount = setup.getGame() == null ? 0 : setup.getGame().getOnlinePlayers(PlayerType.RUNNER).size();
-        ItemStack run = Itemizer.createItem(Manhunt.get().getCfg().hostMenuManageRunnersMaterial, 1, Manhunt.get().getCfg().hostMenuManageRunnersDisplayname.replaceAll("%amount%", runnerAmount + ""),
-                setup.getGame() != null ? Manhunt.get().getCfg().hostMenuManageRunnersLore : Manhunt.get().getCfg().hostMenuManageRunnersLockedLore);
+        ItemStack run = plugin.getItemizer().createItem(plugin.getCfg().hostMenuManageRunnersMaterial, 1, plugin.getCfg().hostMenuManageRunnersDisplayname.replaceAll("%amount%", runnerAmount + ""),
+                setup.getGame() != null ? plugin.getCfg().hostMenuManageRunnersLore : plugin.getCfg().hostMenuManageRunnersLockedLore);
         inventory.setItem(33, run);
 
         ItemStack teamfire;
         if (setup.isAllowFriendlyFire()) {
-            teamfire = Itemizer.createItem(Manhunt.get().getCfg().hostMenuFriendlyFireEnabledMaterial, 1, Manhunt.get().getCfg().hostMenuFriendlyFireEnabledDisplayname, Manhunt.get().getCfg().hostMenuFriendlyFireEnabledLore);
+            teamfire = plugin.getItemizer().createItem(plugin.getCfg().hostMenuFriendlyFireEnabledMaterial, 1, plugin.getCfg().hostMenuFriendlyFireEnabledDisplayname, plugin.getCfg().hostMenuFriendlyFireEnabledLore);
         } else {
-            teamfire = Itemizer.createItem(Manhunt.get().getCfg().hostMenuFriendlyFireDisabledMaterial, 1, Manhunt.get().getCfg().hostMenuFriendlyFireDisabledDisplayname, Manhunt.get().getCfg().hostMenuFriendlyFireDisabledLore);
+            teamfire = plugin.getItemizer().createItem(plugin.getCfg().hostMenuFriendlyFireDisabledMaterial, 1, plugin.getCfg().hostMenuFriendlyFireDisabledDisplayname, plugin.getCfg().hostMenuFriendlyFireDisabledLore);
         }
-        inventory.setItem(15, Manhunt.get().getCfg().disableSettingsChanging ? Itemizer.MANHUNT_SETTING_DISABLED : teamfire);
+        inventory.setItem(15, plugin.getCfg().disableSettingsChanging ? plugin.getItemizer().MANHUNT_SETTING_DISABLED : teamfire);
 
         int players = setup.getGame() == null ? setup.getMaxPlayers() : setup.getGame().getMaxPlayers();
-        ItemStack playerAmount = new ItemStack(Material.valueOf(Manhunt.get().getCfg().hostMenuPlayerAmountMaterial));
+        ItemStack playerAmount = new ItemStack(Material.valueOf(plugin.getCfg().hostMenuPlayerAmountMaterial));
         ItemMeta pameta = playerAmount.getItemMeta();
         assert pameta != null;
-        pameta.setDisplayName(Util.c(Manhunt.get().getCfg().hostMenuPlayerAmountDisplayname).replaceAll("%amount%", players + ""));
+        pameta.setDisplayName(Util.c(plugin.getCfg().hostMenuPlayerAmountDisplayname).replaceAll("%amount%", players + ""));
         List<String> palore;
         if (setup.getGame() == null) {
-            palore = Manhunt.get().getCfg().hostMenuPlayerAmountLore;
+            palore = plugin.getCfg().hostMenuPlayerAmountLore;
         } else {
-            palore = Manhunt.get().getCfg().hostMenuPlayerAmountLockedLore;
+            palore = plugin.getCfg().hostMenuPlayerAmountLockedLore;
         }
         palore = new ArrayList<>(palore);
         for (int i = 0; i < palore.size(); i++) {
@@ -132,28 +137,28 @@ public class ManhuntGameSetupMenu implements Listener {
         pameta.addItemFlags(ItemFlag.values());
         playerAmount.setItemMeta(pameta);
 
-        inventory.setItem(13, Manhunt.get().getCfg().disableSettingsChanging ? Itemizer.MANHUNT_SETTING_DISABLED : playerAmount);
+        inventory.setItem(13, plugin.getCfg().disableSettingsChanging ? plugin.getItemizer().MANHUNT_SETTING_DISABLED : playerAmount);
         if (setup.getGame() == null) {
-            inventory.setItem(53, Itemizer.NEW_GAME_FINISH_ITEM);
+            inventory.setItem(53, plugin.getItemizer().NEW_GAME_FINISH_ITEM);
         } else if (setup.getGame().getStatus() == GameStatus.WAITING) {
-            inventory.setItem(53, Itemizer.GAME_START_ITEM);
+            inventory.setItem(53, plugin.getItemizer().GAME_START_ITEM);
         }
 
         GameSetupMenuOpenEvent event = new GameSetupMenuOpenEvent(player, gameSetups.get(player), inventory);
-        Manhunt.get().getServer().getPluginManager().callEvent(event);
+        plugin.getServer().getPluginManager().callEvent(event);
     }
 
     @EventHandler
     public void onClose(InventoryCloseEvent e) {
-        if (!e.getView().getTitle().equals(Util.c(Manhunt.get().getCfg().menuHostTitle))) return;
+        if (!e.getView().getTitle().equals(Util.c(plugin.getCfg().menuHostTitle))) return;
         Player player = (Player) e.getPlayer();
-        Util.playSound(player, Manhunt.get().getCfg().closeMenuHostGameSound, .5f, 1);
+        plugin.getUtil().playSound(player, plugin.getCfg().closeMenuHostGameSound, .5f, 1);
     }
 
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
-        if (!e.getView().getTitle().equals(Util.c(Manhunt.get().getCfg().menuHostTitle))) return;
+        if (!e.getView().getTitle().equals(Util.c(plugin.getCfg().menuHostTitle))) return;
         if (e.getSlot() < 0) return;
 
         e.setCancelled(true);
@@ -162,116 +167,116 @@ public class ManhuntGameSetupMenu implements Listener {
 
         Player player = (Player) e.getWhoClicked();
 
-        GameSetup setup = gameSetups.getOrDefault(player, Manhunt.get().getPlatformUtils().initGameSetup(player, true, 50, true, false, HeadstartType.HALF_MINUTE));
+        GameSetup setup = gameSetups.getOrDefault(player, plugin.getPlatformUtils().initGameSetup(player, true, 50, true, false, HeadstartType.HALF_MINUTE));
 
         GameSetupMenuClickEvent event = new GameSetupMenuClickEvent(player, setup, e.getClickedInventory(), e.getSlot(), e.getClick());
-        Manhunt.get().getServer().getPluginManager().callEvent(event);
+        plugin.getServer().getPluginManager().callEvent(event);
         if (!event.isCancelled()) {
             switch (event.getSlot()) {
                 case 49 -> {
                     player.closeInventory();
                     if (setup.getGame() == null) {
-                        player.sendMessage(Util.c(Manhunt.get().getCfg().gameDiscardMessage));
+                        player.sendMessage(Util.c(plugin.getCfg().gameDiscardMessage));
                     }
                     gameSetups.remove(player);
                 }
                 case (11) -> {
-                    if (allowTwistsDelays.contains(player) || !Manhunt.get().getCfg().disableSettingsChanging) return;
+                    if (allowTwistsDelays.contains(player) || !plugin.getCfg().disableSettingsChanging) return;
                     boolean nv = !setup.isAllowTwists();
-                    Util.playSound(player, Manhunt.get().getCfg().menuHostToggleTwistSound, 1, nv ? 2 : 1);
+                    plugin.getUtil().playSound(player, plugin.getCfg().menuHostToggleTwistSound, 1, nv ? 2 : 1);
                     setup.setAllowTwists(nv, true);
                     updateItems(player, Game.getGame(player));
                     allowTwistsDelays.add(player);
-                    Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> allowTwistsDelays.remove(player), 20L);
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> allowTwistsDelays.remove(player), 20L);
                 }
                 case 13 -> {
-                    if (setup.getGame() != null || Manhunt.get().getCfg().disableSettingsChanging) return;
+                    if (setup.getGame() != null || plugin.getCfg().disableSettingsChanging) return;
                     player.closeInventory();
-                    Manhunt.get().getManhuntPlayerAmountSetupMenu().openMenu(player, setup);
+                    plugin.getManhuntPlayerAmountSetupMenu().openMenu(player, setup);
                 }
                 case 15 -> {
-                    if (allowFriendlyFireDelays.contains(player) || Manhunt.get().getCfg().disableSettingsChanging) return;
+                    if (allowFriendlyFireDelays.contains(player) || plugin.getCfg().disableSettingsChanging) return;
                     boolean nv = !setup.isAllowFriendlyFire();
-                    Util.playSound(player, Manhunt.get().getCfg().menuHostToggleFriendlyFireSound, 1, nv ? 2 : 1);
+                    plugin.getUtil().playSound(player, plugin.getCfg().menuHostToggleFriendlyFireSound, 1, nv ? 2 : 1);
                     setup.setAllowFriendlyFire(nv, true);
                     updateItems(player, Game.getGame(player));
                     allowFriendlyFireDelays.add(player);
-                    Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> allowFriendlyFireDelays.remove(player), 20L);
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> allowFriendlyFireDelays.remove(player), 20L);
                 }
                 case 29 -> {
-                    if (daylightDelays.contains(player) || Manhunt.get().getCfg().disableSettingsChanging) return;
+                    if (daylightDelays.contains(player) || plugin.getCfg().disableSettingsChanging) return;
                     boolean nv = !setup.isDoDaylightCycle();
-                    Util.playSound(player, Manhunt.get().getCfg().menuHostToggleDaylightSound, 1, nv ? 2 : 1);
+                    plugin.getUtil().playSound(player, plugin.getCfg().menuHostToggleDaylightSound, 1, nv ? 2 : 1);
                     setup.setDoDaylightCycle(nv, true);
                     updateItems(player, Game.getGame(player));
                     daylightDelays.add(player);
-                    Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> daylightDelays.remove(player), 20L);
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> daylightDelays.remove(player), 20L);
                 }
                 case 31 -> {
-                    if (Manhunt.get().getCfg().disableSettingsChanging || (setup.getGame() != null && setup.getGame().getStatus() != GameStatus.WAITING && setup.getGame().getStatus() != GameStatus.STARTING)) {
+                    if (plugin.getCfg().disableSettingsChanging || (setup.getGame() != null && setup.getGame().getStatus() != GameStatus.WAITING && setup.getGame().getStatus() != GameStatus.STARTING)) {
                         return;
                     }
                     player.closeInventory();
-                    Manhunt.get().getManhuntHeadstartSetupMenu().openMenu(player, setup);
+                    plugin.getManhuntHeadstartSetupMenu().openMenu(player, setup);
                 }
                 case 45 -> {
                     if (setup.getGame() != null) return;
                     player.closeInventory();
-                    Manhunt.get().getManhuntMainMenu().openMenu(player);
+                    plugin.getManhuntMainMenu().openMenu(player);
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
                 }
                 case 33 -> {
                     if (setup.getGame() == null) {
-                        Util.playSound(player, Manhunt.get().getCfg().menuHostLockedSound, 1, 1);
+                        plugin.getUtil().playSound(player, plugin.getCfg().menuHostLockedSound, 1, 1);
                     } else {
                         player.closeInventory();
-                        Manhunt.get().getManhuntRunnerManageMenu().open(player, setup.getGame());
+                        plugin.getManhuntRunnerManageMenu().open(player, setup.getGame());
                     }
                 }
                 case 53 -> {
                     // submitting the game.
                     if (setup.getGame() == null) {
-                        final int pricePerGame = Manhunt.get().getCfg().pricePerGame;
+                        final int pricePerGame = plugin.getCfg().pricePerGame;
                         if (player.hasPermission("manhunt.hostgame")) {
-                            if (pricePerGame > 0 && Manhunt.get().getEconomy() != null)
-                                player.sendMessage(Util.c(Manhunt.get().getCfg().freeGameHostedMessage));
-                        } else if (pricePerGame > 0 && Manhunt.get().getEconomy() != null) {
-                            if (Manhunt.get().getEconomy().hasBalance(player, pricePerGame)) {
-                                Manhunt.get().getEconomy().removeBalance(player, pricePerGame);
-                                player.sendMessage(Util.c(Manhunt.get().getCfg().moneyPaidHostingGameMessage)
+                            if (pricePerGame > 0 && plugin.getEconomy() != null)
+                                player.sendMessage(Util.c(plugin.getCfg().freeGameHostedMessage));
+                        } else if (pricePerGame > 0 && plugin.getEconomy() != null) {
+                            if (plugin.getEconomy().hasBalance(player, pricePerGame)) {
+                                plugin.getEconomy().removeBalance(player, pricePerGame);
+                                player.sendMessage(Util.c(plugin.getCfg().moneyPaidHostingGameMessage)
                                         .replace("%money%", pricePerGame + "")
-                                        .replace("%balance%", Manhunt.get().getEconomy().getBalance(player) + "")
+                                        .replace("%balance%", plugin.getEconomy().getBalance(player) + "")
                                 );
                             } else {
-                                Util.playSound(player, Manhunt.get().getCfg().cantHostGameSound, 1, 1);
-                                player.sendMessage(Util.c(Manhunt.get().getCfg().notEnoughMoneyHostingGameMessage)
+                                plugin.getUtil().playSound(player, plugin.getCfg().cantHostGameSound, 1, 1);
+                                player.sendMessage(Util.c(plugin.getCfg().notEnoughMoneyHostingGameMessage)
                                         .replace("%money%", pricePerGame + "")
-                                        .replace("%balance%", Manhunt.get().getEconomy().getBalance(player) + ""));
+                                        .replace("%balance%", plugin.getEconomy().getBalance(player) + ""));
                                 return;
                             }
                         } else {
                             // no permission
-                            Util.playSound(player, Manhunt.get().getCfg().cantHostGameSound, 1, 1);
-                            player.sendMessage(Util.c(Manhunt.get().getCfg().noPermissionHostingGameMessage));
+                            plugin.getUtil().playSound(player, plugin.getCfg().cantHostGameSound, 1, 1);
+                            player.sendMessage(Util.c(plugin.getCfg().noPermissionHostingGameMessage));
                             return;
                         }
 
-                        if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) {
+                        if (plugin.getCfg().bungeeMode && plugin.getCfg().isLobbyServer) {
                             player.closeInventory();
-                            player.sendMessage(Util.c(Manhunt.get().getCfg().gameSubmittedMessage));
+                            player.sendMessage(Util.c(plugin.getCfg().gameSubmittedMessage));
 
                             setup.getBungeeSetup().requestNextGameCreation();
                         } else {
-                            Game game = Manhunt.get().getPlatformUtils().initGame(setup, player);
+                            Game game = plugin.getPlatformUtils().initGame(setup, player);
                             if (game == null) {
-                                Util.playSound(player, Manhunt.get().getCfg().menuHostLockedSound, 1, 1);
-                                player.sendMessage(Util.c(Manhunt.get().getCfg().alreadyOwnGameMessage));
+                                plugin.getUtil().playSound(player, plugin.getCfg().menuHostLockedSound, 1, 1);
+                                player.sendMessage(Util.c(plugin.getCfg().alreadyOwnGameMessage));
                                 return;
                             }
                             this.gameSetups.remove(player);
 
                             player.closeInventory();
-                            player.sendMessage(Util.c(Manhunt.get().getCfg().gameCreatedMessage));
+                            player.sendMessage(Util.c(plugin.getCfg().gameCreatedMessage));
                             game.create();
                             game.setAllowFriendlyFire(setup.isAllowFriendlyFire());
                             game.setHeadStart(setup.getHeadStart());
@@ -279,19 +284,19 @@ public class ManhuntGameSetupMenu implements Listener {
                     } else if (setup.getGame().getStatus() == GameStatus.WAITING) {
                         Game game = setup.getGame();
                         if (game == null) {
-                            player.sendMessage(Util.c(Manhunt.get().getCfg().somethingWentWrong));
+                            player.sendMessage(Util.c(plugin.getCfg().somethingWentWrong));
                             return;
                         }
                         game.setHeadStart(setup.getHeadStart());
                         this.gameSetups.remove(player);
                         if (game.getStatus() != GameStatus.WAITING) {
-                            player.sendMessage(Util.c(Manhunt.get().getCfg().gameMustBeWaitingMessage));
+                            player.sendMessage(Util.c(plugin.getCfg().gameMustBeWaitingMessage));
                             return;
                         }
                         game.start();
 
-                        player.sendMessage(Util.c(Manhunt.get().getCfg().startingGameMessage));
-                        Util.playSound(player, Manhunt.get().getCfg().menuHostGameStartedSound, 1, 1);
+                        player.sendMessage(Util.c(plugin.getCfg().startingGameMessage));
+                        plugin.getUtil().playSound(player, plugin.getCfg().menuHostGameStartedSound, 1, 1);
                         player.closeInventory();
                     }
                 }

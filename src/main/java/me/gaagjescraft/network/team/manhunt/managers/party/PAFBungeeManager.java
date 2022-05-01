@@ -1,4 +1,4 @@
-package me.gaagjescraft.network.team.manhunt.utils.party;
+package me.gaagjescraft.network.team.manhunt.managers.party;
 
 import de.simonsator.partyandfriends.spigot.api.pafplayers.PAFPlayer;
 import de.simonsator.partyandfriends.spigot.api.pafplayers.PAFPlayerManager;
@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PAFBungee implements Party{
+public class PAFBungeeManager implements me.gaagjescraft.network.team.manhunt.managers.party.PartyManager {
 
     private PlayerParty getPAFParty(Player p) {
         PAFPlayer pafPlayer = PAFPlayerManager.getInstance().getPlayer(p.getUniqueId());
@@ -30,22 +30,32 @@ public class PAFBungee implements Party{
     @Override
     public boolean isOwner(Player p) {
         PAFPlayer pafPlayer = PAFPlayerManager.getInstance().getPlayer(p.getUniqueId());
+
         PlayerParty party = PartyManager.getInstance().getParty(pafPlayer);
-        if (party == null)
-            return false;
+        if (party == null) return false;
+
         return party.isLeader(pafPlayer);
+    }
+
+    @Override
+    public Player getOwner(Player p) {
+        PlayerParty party = getPAFParty(p);
+        if (party == null) return null;
+
+        return Bukkit.getPlayer(party.getLeader().getUniqueId());
     }
 
     @Override
     public List<Player> getMembers(Player owner) {
         ArrayList<Player> playerList = new ArrayList<>();
+
         PlayerParty party = getPAFParty(owner);
-        if (party == null)
-            return playerList;
+        if (party == null) return playerList;
+
         for (PAFPlayer players : party.getAllPlayers()) {
             Player bukkitPlayer = Bukkit.getPlayer(players.getUniqueId());
-            if (bukkitPlayer != null)
-                playerList.add(bukkitPlayer);
+
+            if (bukkitPlayer != null) playerList.add(bukkitPlayer);
         }
         return playerList;
     }

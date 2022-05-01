@@ -440,16 +440,18 @@ public class Config {
 
     private FileConfiguration conf;
 
+    private final Manhunt plugin;
 
-    public Config() {
-        file = new File(Manhunt.get().getDataFolder(), "config.yml");
+    public Config(Manhunt plugin) {
+        this.plugin = plugin;
+        file = new File(plugin.getDataFolder(), "config.yml");
         if (!file.exists()) {
-            Manhunt.get().saveResource("config.yml", false);
+            plugin.saveResource("config.yml", false);
         }
-        Manhunt.get().getConfig().options().copyDefaults(true);
-        Manhunt.get().saveDefaultConfig();
-        Manhunt.get().saveConfig();
-        Manhunt.get().reloadConfig();
+        plugin.getConfig().options().copyDefaults(true);
+        plugin.saveDefaultConfig();
+        plugin.saveConfig();
+        plugin.reloadConfig();
 
         load();
         save();
@@ -1346,7 +1348,7 @@ public class Config {
         try {
             conf.save(file);
         } catch (IOException e) {
-            Manhunt.get().getLogger().severe("Couldn't save the config.yml.");
+            plugin.getLogger().severe("Couldn't save the config.yml.");
             e.printStackTrace();
         }
     }

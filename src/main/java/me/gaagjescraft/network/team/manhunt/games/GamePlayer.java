@@ -5,7 +5,6 @@ import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.compass.CompassTracker;
 import me.gaagjescraft.network.team.manhunt.inst.PlayerStat;
 import me.gaagjescraft.network.team.manhunt.utils.AdditionsBoard;
-import me.gaagjescraft.network.team.manhunt.utils.Itemizer;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -46,8 +45,11 @@ public class GamePlayer{
     private Location overworldPortal; // portal from nether -> overworld
     private Location endPortal; // portal from overworld -> end
 
+    private final Manhunt plugin;
+
     public GamePlayer(Game game, UUID uuid, PlayerType playerType, boolean isHost, String username) {
-        this.compassTracker = Manhunt.get().getPlatformUtils().getCompassTracker(this);
+        this.plugin = game.getPlugin();
+        this.compassTracker = plugin.getPlatformUtils().getCompassTracker(this);
         this.game = game;
         this.uuid = uuid;
         this.twistVoted = null;
@@ -64,7 +66,7 @@ public class GamePlayer{
         this.bedSpawn = null;
         this.online = true;
         this.username = username;
-        this.joinedBefore = !Manhunt.get().getCfg().bungeeMode;
+        this.joinedBefore = !plugin.getCfg().bungeeMode;
         this.spectating = false;
         this.extraLives = 0;
 
@@ -72,7 +74,7 @@ public class GamePlayer{
         this.overworldPortal = null;
         this.endPortal = null;
 
-        if (!Manhunt.get().getCfg().isLobbyServer) updateScoreboard();
+        if (!plugin.getCfg().isLobbyServer) updateScoreboard();
     }
 
     public int getExtraLives() {
@@ -142,17 +144,17 @@ public class GamePlayer{
             if (leaveTask != null) {
                 leaveTask.cancel();
                 if (!forceStopScheduler) {
-                    Util.playSound(player, Manhunt.get().getCfg().delayedLeaveCancelSound, 1, .5f);
+                    plugin.getUtil().playSound(player, plugin.getCfg().delayedLeaveCancelSound, 1, .5f);
                     assert player != null;
-                    player.sendMessage(Util.c(Manhunt.get().getCfg().delayedLeaveCancelMessage));
+                    player.sendMessage(Util.c(plugin.getCfg().delayedLeaveCancelMessage));
                 }
             }
             return;
         }
         setLeavingGame(true);
-        Util.playSound(player, Manhunt.get().getCfg().delayedLeaveStartSound, 1, 2);
+        plugin.getUtil().playSound(player, plugin.getCfg().delayedLeaveStartSound, 1, 2);
         assert player != null;
-        player.sendMessage(Util.c(Manhunt.get().getCfg().delayedLeaveStartMessage));
+        player.sendMessage(Util.c(plugin.getCfg().delayedLeaveStartMessage));
         leaveTask = new BukkitRunnable() {
             @Override
             public void run() {
@@ -164,10 +166,10 @@ public class GamePlayer{
                         return;
                     }
                     game.removePlayer(player);
-                    player.sendMessage(Util.c(Manhunt.get().getCfg().playerLeftGameMessage));
+                    player.sendMessage(Util.c(plugin.getCfg().playerLeftGameMessage));
                 }
             }
-        }.runTaskLater(Manhunt.get(), 60L);
+        }.runTaskLater(plugin, 60L);
     }
 
     public boolean isOnline() {
@@ -188,17 +190,17 @@ public class GamePlayer{
     }
 
     public String getColor() {
-        if (isFullyDead() && Manhunt.get().getCfg().spectatorsHaveGeneralColor)
-            return Manhunt.get().getCfg().spectatorChatColor;
-        return playerType == PlayerType.HUNTER ? Manhunt.get().getCfg().hunterColor : Manhunt.get().getCfg().runnerColor;
+        if (isFullyDead() && plugin.getCfg().spectatorsHaveGeneralColor)
+            return plugin.getCfg().spectatorChatColor;
+        return playerType == PlayerType.HUNTER ? plugin.getCfg().hunterColor : plugin.getCfg().runnerColor;
     }
 
     public String getPrefix() {
-        return playerType == PlayerType.HUNTER ? Manhunt.get().getCfg().hunterChatPrefix : Manhunt.get().getCfg().runnerChatPrefix;
+        return playerType == PlayerType.HUNTER ? plugin.getCfg().hunterChatPrefix : plugin.getCfg().runnerChatPrefix;
     }
 
     public String getPrefix(boolean includeDead) {
-        if (includeDead && isFullyDead()) return Manhunt.get().getCfg().deadChatPrefix;
+        if (includeDead && isFullyDead()) return plugin.getCfg().deadChatPrefix;
         return getPrefix();
     }
 
@@ -254,8 +256,8 @@ public class GamePlayer{
 
     public void setTwistVoted(TwistVote twistVoted) {
         this.twistVoted = twistVoted;
-        if (Manhunt.get().getCfg().announceTwistVoteToEntireGame) {
-            game.sendMessage(null, Util.c(Manhunt.get().getCfg().twistVotedMessage
+        if (plugin.getCfg().announceTwistVoteToEntireGame) {
+            game.sendMessage(null, Util.c(plugin.getCfg().twistVotedMessage
                     .replaceAll("%color%", getColor())
                     .replaceAll("%player%", Objects.requireNonNull(Bukkit.getPlayer(uuid)).getName())
                     .replaceAll("%twist%", twistVoted.getDisplayName())
@@ -263,7 +265,7 @@ public class GamePlayer{
         } else {
             Player p = Bukkit.getPlayer(uuid);
             assert p != null;
-            p.sendMessage(Util.c(Manhunt.get().getCfg().playerTwistVoteMessage
+            p.sendMessage(Util.c(plugin.getCfg().playerTwistVoteMessage
                     .replaceAll("%color%", getColor())
                     .replaceAll("%player%", p.getName())
                     .replaceAll("%twist%", twistVoted.getDisplayName())
@@ -284,12 +286,12 @@ public class GamePlayer{
             Player p = Bukkit.getPlayer(gp.getUuid());
             if (p == null) continue;
             if (playerType == PlayerType.RUNNER) {
-                p.sendMessage(Util.c(Manhunt.get().getCfg().runnerAddedMessage.replaceAll("%player%", name)));
-                Util.sendTitle(p, Util.c(Manhunt.get().getCfg().runnerAddedTitle.replaceAll("%player%", name)), 20, 50, 20);
+                p.sendMessage(Util.c(plugin.getCfg().runnerAddedMessage.replaceAll("%player%", name)));
+                plugin.getUtil().sendTitle(p, Util.c(plugin.getCfg().runnerAddedTitle.replaceAll("%player%", name)), 20, 50, 20);
             } else {
-                p.sendMessage(Util.c(Manhunt.get().getCfg().runnerRemovedMessage.replaceAll("%player%", name)));
+                p.sendMessage(Util.c(plugin.getCfg().runnerRemovedMessage.replaceAll("%player%", name)));
             }
-            if (Manhunt.get().getTagUtils() != null) Manhunt.get().getTagUtils().updateTag(p);
+            if (plugin.getTagUtils() != null) plugin.getTagUtils().updateTag(p);
         }
     }
 
@@ -316,17 +318,17 @@ public class GamePlayer{
         // player.playSound(player.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 1, 1.5f);
         // player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§d⚔ §e§lKILL: §b+" + credits + " credits §d⚔"));
 
-        Manhunt.get().getUtil().performRewardActions(player, game, Manhunt.get().getUtil().replace(Manhunt.get().getCfg().killRewards, "%kills%", kills + ""));
+        plugin.getUtil().performRewardActions(player, game, plugin.getUtil().replace(plugin.getCfg().killRewards, "%kills%", kills + ""));
 
-        PlayerStat stat = Manhunt.get().getPlayerStorage().getUser(uuid);
+        PlayerStat stat = plugin.getPlayerStorage().getUser(uuid);
         if (playerType == PlayerType.HUNTER) stat.setHunterKills(stat.getHunterKills() + 1);
         else stat.setRunnerKills(stat.getRunnerKills() + 1);
-        Manhunt.get().getPlayerStorage().saveUser(uuid);
+        plugin.getPlayerStorage().saveUser(uuid);
     }
 
     public void addLose() {
         Player player = Bukkit.getPlayer(uuid);
-        Manhunt.get().getUtil().performRewardActions(player, game, (Manhunt.get().getCfg().loseRewards));
+        plugin.getUtil().performRewardActions(player, game, (plugin.getCfg().loseRewards));
     }
 
     public void doTopBonus() {
@@ -334,7 +336,7 @@ public class GamePlayer{
             if (game.getPlayers().get(i).getUuid().equals(this.uuid)) {
                 // player is on the top 3 of the kills.
                 Player player = Bukkit.getPlayer(uuid);
-                Manhunt.get().getUtil().performRewardActions(player, game, Manhunt.get().getUtil().replace(Manhunt.get().getUtil().replace(Manhunt.get().getCfg().topThreeRewards, "%kills%", kills + ""), "%place%", (i + 1) + ""));
+                plugin.getUtil().performRewardActions(player, game, plugin.getUtil().replace(plugin.getUtil().replace(plugin.getCfg().topThreeRewards, "%kills%", kills + ""), "%place%", (i + 1) + ""));
                 break;
             }
         }
@@ -345,23 +347,23 @@ public class GamePlayer{
         int credits = playerType == PlayerType.HUNTER ? 150 : 250;
 
         Player player = Bukkit.getPlayer(uuid);
-        Manhunt.get().getUtil().performRewardActions(player, game, Manhunt.get().getCfg().winRewards);
+        plugin.getUtil().performRewardActions(player, game, plugin.getCfg().winRewards);
 
-        PlayerStat stat = Manhunt.get().getPlayerStorage().getUser(uuid);
+        PlayerStat stat = plugin.getPlayerStorage().getUser(uuid);
         if (playerType == PlayerType.HUNTER) stat.setHunterWins(stat.getHunterWins() + 1);
         else stat.setRunnerWins(stat.getRunnerWins() + 1);
-        Manhunt.get().getPlayerStorage().saveUser(uuid);
+        plugin.getPlayerStorage().saveUser(uuid);
     }
 
     public void addGame() {
-        PlayerStat stat = Manhunt.get().getPlayerStorage().getUser(uuid);
+        PlayerStat stat = plugin.getPlayerStorage().getUser(uuid);
         if (playerType == PlayerType.HUNTER) stat.setHunterGamesPlayed(stat.getHunterGamesPlayed() + 1);
         else stat.setRunnerGamesPlayed(stat.getRunnerGamesPlayed() + 1);
-        Manhunt.get().getPlayerStorage().saveUser(uuid);
+        plugin.getPlayerStorage().saveUser(uuid);
     }
 
     public void prepareForSpectate() {
-        if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) return;
+        if (plugin.getCfg().bungeeMode && plugin.getCfg().isLobbyServer) return;
         Player player = Bukkit.getPlayer(uuid);
         assert player != null;
         player.setInvisible(true);
@@ -369,18 +371,18 @@ public class GamePlayer{
         player.setGameMode(GameMode.SURVIVAL);
         player.setAllowFlight(true);
         player.setFlying(true);
-        player.getInventory().setItem(4, Itemizer.MANHUNT_RUNNER_TRACKER);
+        player.getInventory().setItem(4, plugin.getItemizer().MANHUNT_RUNNER_TRACKER);
 
         player.teleport(game.getWorld().getSpawnLocation().add(0, 20, 0));
 
         if (isFullyDead()) {
-            player.getInventory().setItem(8, Itemizer.MANHUNT_LEAVE_ITEM);
+            player.getInventory().setItem(8, plugin.getItemizer().MANHUNT_LEAVE_ITEM);
         }
 
         for (GamePlayer gp : game.getOnlinePlayers(null)) {
             Player p = Bukkit.getPlayer(gp.getUuid());
             if (p != null && !p.equals(player)) {
-                p.hidePlayer(Manhunt.get(), player);
+                p.hidePlayer(plugin, player);
             }
         }
     }
@@ -397,7 +399,7 @@ public class GamePlayer{
             public void run() {
                 Player player = Bukkit.getPlayer(uuid);
                 if (player == null || !player.isOnline()) return;
-                Util.sendTitle(player, Util.c(Manhunt.get().getCfg().respawningSoonTitle.replaceAll("%time%", i + "")), 5, 10, 5);
+                plugin.getUtil().sendTitle(player, Util.c(plugin.getCfg().respawningSoonTitle.replaceAll("%time%", i + "")), 5, 10, 5);
                 World world = Bukkit.getWorld(game.getWorldIdentifier());
 
                 if (world == null) {
@@ -406,7 +408,7 @@ public class GamePlayer{
                 }
 
                 if (i == 0) {
-                    Util.playSound(player, Manhunt.get().getCfg().playerRespawnedSound, 1, 1);
+                    plugin.getUtil().playSound(player, plugin.getCfg().playerRespawnedSound, 1, 1);
                     setDead(false);
                     prepareForGame(game.getStatus());
 
@@ -416,7 +418,7 @@ public class GamePlayer{
                     for (GamePlayer gp : game.getOnlinePlayers(null)) {
                         Player p = Bukkit.getPlayer(gp.getUuid());
                         if (p != null && !p.equals(player)) {
-                            p.showPlayer(Manhunt.get(), player);
+                            p.showPlayer(plugin, player);
                         }
                     }
 
@@ -424,20 +426,20 @@ public class GamePlayer{
                         // player has bed spawn set.
                         player.setGameMode(GameMode.SURVIVAL);
                         player.teleport(getBedSpawn());
-                        player.sendMessage(Util.c(Manhunt.get().getCfg().respawnedBedMessage));
-                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().respawnedBedActionbar)));
+                        player.sendMessage(Util.c(plugin.getCfg().respawnedBedMessage));
+                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(plugin.getCfg().respawnedBedActionbar)));
                     } else {
                         // no bed spawn
                         player.setGameMode(GameMode.SURVIVAL);
                         player.teleport(world.getSpawnLocation());
-                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().respawnedWorldspawnActionbar)));
+                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(plugin.getCfg().respawnedWorldspawnActionbar)));
                     }
                     this.cancel();
                 }
 
                 i--;
             }
-        }.runTaskTimer(Manhunt.get(), 40L, 20L);
+        }.runTaskTimer(plugin, 40L, 20L);
 
     }
 
@@ -456,7 +458,7 @@ public class GamePlayer{
 
         if (removeScoreboard) {
             this.scoreboard = null;
-            player.setScoreboard(Objects.requireNonNull(Manhunt.get().getServer().getScoreboardManager()).getNewScoreboard());
+            player.setScoreboard(Objects.requireNonNull(plugin.getServer().getScoreboardManager()).getNewScoreboard());
         }
     }
 
@@ -488,12 +490,12 @@ public class GamePlayer{
     }
 
     public void prepareForGame(GameStatus status) {
-        if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) return;
+        if (plugin.getCfg().bungeeMode && plugin.getCfg().isLobbyServer) return;
         Player player = Bukkit.getPlayer(uuid);
         if (player == null) return;
         if (status != GameStatus.PLAYING) reset(player, false);
         // Debug game status
-        if (Manhunt.get().getCfg().debug) Manhunt.get().getLogger().info("Debug: Current state of the game: " + status.name());
+        if (plugin.getCfg().debug) plugin.getLogger().info("Debug: Current state of the game: " + status.name());
         updateScoreboard();
 
         if (isSpectating() || isFullyDead()) {
@@ -503,22 +505,22 @@ public class GamePlayer{
 
         if (status == GameStatus.WAITING || status == GameStatus.LOADING || status == GameStatus.STARTING) {
             player.setGameMode(GameMode.ADVENTURE);
-            if (game.isTwistsAllowed()) player.getInventory().setItem(0, Itemizer.MANHUNT_VOTE_ITEM);
-            player.getInventory().setItem(8, Itemizer.MANHUNT_LEAVE_ITEM);
+            if (game.isTwistsAllowed()) player.getInventory().setItem(0, plugin.getItemizer().MANHUNT_VOTE_ITEM);
+            player.getInventory().setItem(8, plugin.getItemizer().MANHUNT_LEAVE_ITEM);
 
             if (isHost) {
-                player.getInventory().setItem(4, Itemizer.MANHUNT_HOST_SETTINGS_ITEM);
+                player.getInventory().setItem(4, plugin.getItemizer().MANHUNT_HOST_SETTINGS_ITEM);
             }
         } else if (status == GameStatus.PLAYING) {
             player.setGameMode(GameMode.SURVIVAL);
             player.getInventory().clear();
             if ((getPlayerType() == PlayerType.HUNTER && game.getTimer() >= game.getHeadStart().getSeconds()) ||
                     (getPlayerType() == PlayerType.RUNNER && game.getPlayers(PlayerType.RUNNER).size() > 1)) {
-                HashMap<Integer, ItemStack> failedItems = player.getInventory().addItem(Itemizer.MANHUNT_RUNNER_TRACKER);
+                HashMap<Integer, ItemStack> failedItems = player.getInventory().addItem(plugin.getItemizer().MANHUNT_RUNNER_TRACKER);
                 // Successfully added the compass
-                if (failedItems.isEmpty()) player.sendMessage(Manhunt.get().getCfg().compassGivenMessage);
+                if (failedItems.isEmpty()) player.sendMessage(plugin.getCfg().compassGivenMessage);
                     // Failed to add the compass
-                else player.sendMessage(Manhunt.get().getCfg().compassUnavailableMessage);
+                else player.sendMessage(plugin.getCfg().compassUnavailableMessage);
             }
         }
     }
@@ -535,7 +537,7 @@ public class GamePlayer{
     public void restoreForLobby() {
         Player player = Bukkit.getPlayer(uuid);
         if (player == null) return;
-        Manhunt.get().getManhuntGameSetupMenu().gameSetups.remove(player);
+        plugin.getManhuntGameSetupMenu().gameSetups.remove(player);
         reset(player, true);
         player.setFlying(false);
         player.setAllowFlight(false);
@@ -551,41 +553,41 @@ public class GamePlayer{
         int timeLeft = game.getTimer();
 
         if (game.getStatus() == GameStatus.LOADING) {
-            lines = Manhunt.get().getCfg().loadingScoreboard;
+            lines = plugin.getCfg().loadingScoreboard;
         } else if (game.getStatus() == GameStatus.WAITING) {
             if (isHost) {
-                lines = Manhunt.get().getCfg().waitingHostScoreboard;
+                lines = plugin.getCfg().waitingHostScoreboard;
             } else {
-                lines = Manhunt.get().getCfg().waitingScoreboard;
+                lines = plugin.getCfg().waitingScoreboard;
             }
         } else if (game.getStatus() == GameStatus.STARTING) {
             if (getPlayerType() == PlayerType.RUNNER) {
-                lines = Manhunt.get().getCfg().startingRunnerScoreboard;
+                lines = plugin.getCfg().startingRunnerScoreboard;
             } else {
-                lines = Manhunt.get().getCfg().startingHunterScoreboard;
+                lines = plugin.getCfg().startingHunterScoreboard;
             }
             timeLeft = 10 - game.getTimer();
         } else if (game.getStatus() == GameStatus.PLAYING) {
             if (game.getTimer() <= game.getHeadStart().getSeconds()) {
                 if (getPlayerType() == PlayerType.RUNNER) {
-                    lines = Manhunt.get().getCfg().playingUnreleasedRunnerScoreboard;
+                    lines = plugin.getCfg().playingUnreleasedRunnerScoreboard;
                 } else {
-                    lines = Manhunt.get().getCfg().playingUnreleasedHunterScoreboard;
+                    lines = plugin.getCfg().playingUnreleasedHunterScoreboard;
                 }
                 timeLeft = game.getHeadStart().getSeconds() - game.getTimer();
             } else {
-                lines = Manhunt.get().getCfg().playingScoreboard;
+                lines = plugin.getCfg().playingScoreboard;
                 timeLeft = game.getTimer();
             }
         } else if (game.getStatus() == GameStatus.STOPPING) {
             PlayerType won = game.getWinningTeam();
             if (won == null) {
-                lines = Manhunt.get().getCfg().stoppingDrawScoreboard;
+                lines = plugin.getCfg().stoppingDrawScoreboard;
             } else {
                 if (getPlayerType() == won) {
-                    lines = Manhunt.get().getCfg().stoppingWinScoreboard;
+                    lines = plugin.getCfg().stoppingWinScoreboard;
                 } else {
-                    lines = Manhunt.get().getCfg().stoppingLoseScoreboard;
+                    lines = plugin.getCfg().stoppingLoseScoreboard;
                 }
             }
             timeLeft = game.getTimer();
@@ -603,8 +605,8 @@ public class GamePlayer{
         if (board == null || board.getLinecount() != lines.size()) {
             Player player = Bukkit.getPlayer(uuid);
             if (player == null) return;
-            board = new AdditionsBoard(player, lines.size());
-            board.setTitle(Util.c(Manhunt.get().getCfg().scoreboardTitle));
+            board = new AdditionsBoard(plugin, player, lines.size());
+            board.setTitle(Util.c(plugin.getCfg().scoreboardTitle));
             this.scoreboard = board;
         }
 
@@ -615,7 +617,7 @@ public class GamePlayer{
             line = line.replaceAll("%host%", game.getIdentifier());
             line = line.replaceAll("%prefix%", getPrefix(true));
             line = line.replaceAll("%time%", timeLeft + "");
-            line = line.replaceAll("%time_formatted%", Manhunt.get().getUtil().secondsToTimeString(timeLeft, "simplified"));
+            line = line.replaceAll("%time_formatted%", plugin.getUtil().secondsToTimeString(timeLeft, "simplified"));
             line = line.replaceAll("%color%", getColor());
             line = line.replaceAll("%winner%", game.getWinningTeam() == null ? "null" : game.getWinningTeam().name());
             line = line.replaceAll("%lives%", getMaxLives() < 1 ? "unlimited" : Math.max(getMaxLives() - getDeaths(), 0) + "");
@@ -633,7 +635,7 @@ public class GamePlayer{
 
     public int getMaxLives() {
         if (getPlayerType() == PlayerType.RUNNER) return 1 + getExtraLives();
-        return Manhunt.get().getCfg().hunterLives + getExtraLives();
+        return plugin.getCfg().hunterLives + getExtraLives();
     }
 
     public Location getBedSpawn() {

@@ -1,8 +1,6 @@
 package me.gaagjescraft.network.team.manhunt.utils.centerText;
 
 public class CharSequenceUtils {
-    public CharSequenceUtils() {
-    }
 
     static int indexOf(CharSequence var0, int var1, int var2) {
         if (var0 instanceof String) {

@@ -2,8 +2,9 @@ name: Manhunt
 main: me.gaagjescraft.network.team.manhunt.Manhunt
 version: ${project.version}
 description: Twisted Manhunt plugin.
-author: GaagjesCraft Network Team (GCNT)
+author: GCNT
 api-version: 1.16
+website: https://www.gcnt.net/
 depend:
   - WorldEdit
 softdepend:

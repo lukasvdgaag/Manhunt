@@ -11,6 +11,12 @@ import java.util.UUID;
 
 public class PAPIHook extends PlaceholderExpansion {
 
+    private Manhunt plugin;
+
+    public PAPIHook(Manhunt plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public boolean canRegister() {
         return true;
@@ -28,7 +34,7 @@ public class PAPIHook extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getVersion() {
-        return Manhunt.get().getDescription().getVersion();
+        return plugin.getDescription().getVersion();
     }
 
     @Override
@@ -42,8 +48,8 @@ public class PAPIHook extends PlaceholderExpansion {
     }
 
     private String res(UUID uid, String id) {
-        PlayerStat sp = Manhunt.get().getPlayerStorage().getUser(uid);
-        if (sp == null) sp = Manhunt.get().getPlayerStorage().loadUser(uid);
+        PlayerStat sp = plugin.getPlayerStorage().getUser(uid);
+        if (sp == null) sp = plugin.getPlayerStorage().loadUser(uid);
 
         if (id.equalsIgnoreCase("hunter_wins")) return sp.getHunterWins() + "";
         else if (id.equalsIgnoreCase("hunter_kills")) return sp.getHunterKills() + "";

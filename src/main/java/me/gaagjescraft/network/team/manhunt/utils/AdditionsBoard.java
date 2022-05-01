@@ -1,6 +1,8 @@
 package me.gaagjescraft.network.team.manhunt.utils;
 
+import com.google.common.collect.Lists;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -17,13 +19,15 @@ public class AdditionsBoard {
     private final Player player;
     private final Objective objective;
     private final int linecount;
+    private final Manhunt plugin;
 
     private final HashMap<Integer, String> cache = new HashMap<>();
 
-    public AdditionsBoard(Player player, int linecount) {
+    public AdditionsBoard(Manhunt plugin, Player player, int linecount) {
+        this.plugin = plugin;
         this.player = player;
         this.linecount = linecount;
-        this.board = Manhunt.get().getServer().getScoreboardManager().getNewScoreboard();
+        this.board = Bukkit.getServer().getScoreboardManager().getNewScoreboard();
         this.objective = this.board.registerNewObjective("test", "dummy", "§6§lMANHUNT");
         this.objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
@@ -64,15 +68,15 @@ public class AdditionsBoard {
 
         ArrayList<String> arg3 = convertIntoPieces(arg1, 64);
 
-        arg2.setPrefix(fixIssues(arg3.get(0)));
-        arg2.setSuffix(fixIssues(arg3.get(1)));
-    }
-
-    private String fixIssues(String arg0) {
-        return arg0;
+        arg2.setPrefix(arg3.get(0));
+        arg2.setSuffix(arg3.get(1));
     }
 
     private ArrayList<String> convertIntoPieces(String arg0, int arg1) {
+        if (plugin.getUtil().getVersion() >= 16) {
+            return Lists.newArrayList(arg0);
+        }
+
         ArrayList<String> arg2 = new ArrayList<>();
 
         if (arg0.length() <= arg1) {

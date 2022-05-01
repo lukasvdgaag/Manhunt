@@ -23,9 +23,15 @@ import java.util.Objects;
 
 public class DeathEventHandler implements Listener {
 
+    private final Manhunt plugin;
+
+    public DeathEventHandler(Manhunt plugin) {
+        this.plugin = plugin;
+    }
+
     @EventHandler
     public void onDeath(PlayerDeathEvent e) {
-        if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) return;
+        if (plugin.getCfg().bungeeMode && plugin.getCfg().isLobbyServer) return;
 
         Player player = e.getEntity();
         Game game = Game.getGame(player);
@@ -38,7 +44,7 @@ public class DeathEventHandler implements Listener {
 
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent e) {
-        if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) return;
+        if (plugin.getCfg().bungeeMode && plugin.getCfg().isLobbyServer) return;
 
         if (e.getEntity().getType() == EntityType.ENDER_DRAGON) {
             if (e.getDamager().getType() == EntityType.PLAYER) {
@@ -53,11 +59,11 @@ public class DeathEventHandler implements Listener {
                     EnderDragon dragon = ((EnderDragon) e.getEntity());
                     if (dragon.getHealth() - e.getFinalDamage() <= 0) {
                         Objects.requireNonNull(dragon.getBossBar()).removeAll();
-                        game.sendMessage(null, Util.c(Manhunt.get().getCfg().dragonDefeatedMessage).replaceAll("%prefix%", dgp.getPrefix()).replaceAll("%player%", damager.getName()));
+                        game.sendMessage(null, Util.c(plugin.getCfg().dragonDefeatedMessage).replaceAll("%prefix%", dgp.getPrefix()).replaceAll("%player%", damager.getName()));
                         for (GamePlayer gp : game.getPlayers(null)) {
                             Player p = Bukkit.getPlayer(gp.getUuid());
                             if (p == null || !gp.isOnline()) continue;
-                            Util.sendTitle(p, Util.c(Manhunt.get().getCfg().dragonDefeatedTitle).replaceAll("%prefix%", dgp.getPrefix()).replaceAll("%player%", damager.getName()), 20, 50, 20);
+                            plugin.getUtil().sendTitle(p, Util.c(plugin.getCfg().dragonDefeatedTitle).replaceAll("%prefix%", dgp.getPrefix()).replaceAll("%player%", damager.getName()), 20, 50, 20);
                         }
                         game.setDragonDefeated(true);
                         game.checkForWin(true);
@@ -118,7 +124,7 @@ public class DeathEventHandler implements Listener {
 
     @EventHandler
     public void onHeal(EntityRegainHealthEvent e) {
-        if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) return;
+        if (plugin.getCfg().bungeeMode && plugin.getCfg().isLobbyServer) return;
 
         if (e.getEntity().getType() != EntityType.PLAYER) return;
         Player player = (Player) e.getEntity();
@@ -132,7 +138,7 @@ public class DeathEventHandler implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onDeath(EntityDamageEvent e) {
-        if (Manhunt.get().getCfg().bungeeMode && Manhunt.get().getCfg().isLobbyServer) return;
+        if (plugin.getCfg().bungeeMode && plugin.getCfg().isLobbyServer) return;
 
         if (e.isCancelled()) return;
         if (e.getEntity().getType() != EntityType.PLAYER) return;
@@ -167,7 +173,7 @@ public class DeathEventHandler implements Listener {
         for (int i = 0; i < player.getInventory().getSize(); i++) {
             ItemStack item = player.getInventory().getItem(i);
             if (item == null || item.getType() == Material.AIR) continue;
-            if (item.getType() == Material.COMPASS && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname)))
+            if (item.getType() == Material.COMPASS && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', plugin.getCfg().generalTrackerDisplayname)))
                 continue;
             player.getWorld().dropItemNaturally(player.getLocation(), item);
         }
@@ -185,7 +191,7 @@ public class DeathEventHandler implements Listener {
         if (gp.getPlayerType() == PlayerType.RUNNER && gp.getDeaths() == 1) {
             String killMsg = determineDeathMessage(player, cause, killer);
 
-            Util.sendTitle(player, Util.c(Manhunt.get().getCfg().deathTitle).replaceAll("%lives%", "0"), 20, 60, 20);
+            plugin.getUtil().sendTitle(player, Util.c(plugin.getCfg().deathTitle).replaceAll("%lives%", "0"), 20, 60, 20);
             game.getRunnerTeleporterMenu().update();
 
             for (GamePlayer gp1 : game.getPlayers()) {
@@ -193,21 +199,21 @@ public class DeathEventHandler implements Listener {
 
                 if (gp1.getCompassTracker().getTrackingPlayer() != null && gp1.getCompassTracker().getTrackingPlayer().getUuid().equals(player.getUniqueId())) {
                     if (p != null && gp1.isOnline())
-                        p.sendMessage(Util.c(Manhunt.get().getCfg().trackerResetDiedMessage));
+                        p.sendMessage(Util.c(plugin.getCfg().trackerResetDiedMessage));
                     gp1.setTracking(null);
                 }
 
                 if (p == null) continue;
 
-                p.sendMessage(Util.c(Manhunt.get().getCfg().runnerDownMessage));
+                p.sendMessage(Util.c(plugin.getCfg().runnerDownMessage));
                 p.sendMessage(killMsg);
                 if (!p.equals(player)) {
-                    Util.sendTitle(p, Util.c(Manhunt.get().getCfg().runnerDownTitle).replaceAll("%player%", player.getName()), 20, 60, 20);
+                    plugin.getUtil().sendTitle(p, Util.c(plugin.getCfg().runnerDownTitle).replaceAll("%player%", player.getName()), 20, 60, 20);
                 }
             }
         } else if (gp.getPlayerType() == PlayerType.HUNTER && !gp.isFullyDead()) {
             String killMsg = determineDeathMessage(player, cause, killer);
-            Util.sendTitle(player, Util.c(Manhunt.get().getCfg().deathTitle).replaceAll("%lives%", (gp.getMaxLives() < 1 ? "unlimited" : (Math.max(gp.getMaxLives() - gp.getDeaths(), 0))) + ""), 20, 60, 20);
+            plugin.getUtil().sendTitle(player, Util.c(plugin.getCfg().deathTitle).replaceAll("%lives%", (gp.getMaxLives() < 1 ? "unlimited" : (Math.max(gp.getMaxLives() - gp.getDeaths(), 0))) + ""), 20, 60, 20);
 
             game.sendMessage(null, killMsg);
         }

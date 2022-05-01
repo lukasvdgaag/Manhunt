@@ -16,22 +16,28 @@ public class YamlStorage implements PlayerStorage {
     private File file;
     private FileConfiguration conf;
 
+    private final Manhunt plugin;
+
+    public YamlStorage(Manhunt plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public void setup() {
-        file = new File(Manhunt.get().getDataFolder(), "playerdata.yml");
+        file = new File(plugin.getDataFolder(), "playerdata.yml");
         if (!file.exists()) {
             try {
                 boolean res = file.createNewFile();
                 if (!res) {
                     Bukkit.getLogger().severe("Manhunt failed to create the playerdata.yml file");
                     Bukkit.getLogger().severe("Disabling the plugin to prevent further complications...");
-                    Bukkit.getPluginManager().disablePlugin(Manhunt.get());
+                    Bukkit.getPluginManager().disablePlugin(plugin);
                 }
             } catch (IOException e) {
                 Bukkit.getLogger().severe("Manhunt failed to create the playerdata.yml file");
                 Bukkit.getLogger().severe("Disabling the plugin to prevent further complications...");
                 e.printStackTrace();
-                Bukkit.getPluginManager().disablePlugin(Manhunt.get());
+                Bukkit.getPluginManager().disablePlugin(plugin);
             }
         }
 

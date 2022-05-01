@@ -6,16 +6,19 @@ import org.bukkit.entity.Player;
 
 public class GameSetup {
 
+    private final GameSetupBungee bungeeSetup;
+    private final Manhunt plugin;
+    private final Player host;
+
+    private Game game;
     private int maxPlayers;
     private boolean allowTwists;
     private boolean doDaylightCycle;
     private boolean allowFriendlyFire;
-    private Game game;
-    private final Player host;
     private HeadstartType headstart;
-    private final GameSetupBungee bungeeSetup;
 
-    public GameSetup(Player host, boolean allowTwists, int maxPlayers, boolean doDaylightCycle, boolean allowFriendlyFire, HeadstartType type) {
+    public GameSetup(Manhunt plugin, Player host, boolean allowTwists, int maxPlayers, boolean doDaylightCycle, boolean allowFriendlyFire, HeadstartType type) {
+        this.plugin = plugin;
         this.host = host;
         this.allowTwists = allowTwists;
         this.maxPlayers = maxPlayers;
@@ -23,7 +26,7 @@ public class GameSetup {
         this.game = null;
         this.allowFriendlyFire = allowFriendlyFire;
         this.headstart = type;
-        this.bungeeSetup = new GameSetupBungee(this);
+        this.bungeeSetup = new GameSetupBungee(plugin, this);
     }
 
     public GameSetupBungee getBungeeSetup() {
@@ -47,7 +50,7 @@ public class GameSetup {
         if (getGame() != null) {
             getGame().setHeadStart(headstart);
             if (announce) {
-                getGame().sendMessage(null, Util.c(Manhunt.get().getCfg().headstartChangeMessage.replaceAll("%time%", Manhunt.get().getUtil().secondsToTimeString(headstart.getSeconds(), "string")).replaceAll("%player%", host.getName())));
+                getGame().sendMessage(null, Util.c(plugin.getCfg().headstartChangeMessage.replaceAll("%time%", plugin.getUtil().secondsToTimeString(headstart.getSeconds(), "string")).replaceAll("%player%", host.getName())));
             }
         }
     }
@@ -68,7 +71,7 @@ public class GameSetup {
                 gp.prepareForGame(GameStatus.WAITING);
             }
             if (announce) {
-                getGame().sendMessage(null, Util.c(this.allowTwists ? Manhunt.get().getCfg().toggleTwistsEnabledMessage : Manhunt.get().getCfg().toggleTwistsDisabledMessage).replaceAll("%player%", host.getName()));
+                getGame().sendMessage(null, Util.c(this.allowTwists ? plugin.getCfg().toggleTwistsEnabledMessage : plugin.getCfg().toggleTwistsDisabledMessage).replaceAll("%player%", host.getName()));
             }
         }
     }
@@ -90,7 +93,7 @@ public class GameSetup {
         if (getGame() != null) {
             getGame().setDoDaylightCycle(this.doDaylightCycle);
             if (announce) {
-                getGame().sendMessage(null, Util.c(this.doDaylightCycle ? Manhunt.get().getCfg().toggleDaylightEnabledMessage : Manhunt.get().getCfg().toggleDaylightDisabledMessage).replaceAll("%player%", host.getName()));
+                getGame().sendMessage(null, Util.c(this.doDaylightCycle ? plugin.getCfg().toggleDaylightEnabledMessage : plugin.getCfg().toggleDaylightDisabledMessage).replaceAll("%player%", host.getName()));
             }
         }
     }
@@ -104,7 +107,7 @@ public class GameSetup {
         if (getGame() != null) {
             getGame().setAllowFriendlyFire(this.allowFriendlyFire);
             if (announce) {
-                getGame().sendMessage(null, Util.c(this.allowFriendlyFire ? Manhunt.get().getCfg().toggleFriendlyFireEnabledMessage : Manhunt.get().getCfg().toggleFriendlyFireDisabledMessage).replaceAll("%player%", host.getName()));
+                getGame().sendMessage(null, Util.c(this.allowFriendlyFire ? plugin.getCfg().toggleFriendlyFireEnabledMessage : plugin.getCfg().toggleFriendlyFireDisabledMessage).replaceAll("%player%", host.getName()));
             }
         }
     }

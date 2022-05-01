@@ -17,8 +17,10 @@ public class GameSetupBungee {
     private String currentServerChecking;
     private boolean serverMatched;
     private boolean isLastServer;
+    private final Manhunt plugin;
 
-    public GameSetupBungee(GameSetup setup) {
+    public GameSetupBungee(Manhunt plugin, GameSetup setup) {
+        this.plugin = plugin;
         this.gameSetup = setup;
         this.startedSearching = false;
         this.noGameAvailable = false;
@@ -59,8 +61,8 @@ public class GameSetupBungee {
     public void requestNextGameCreation() {
         if (!isStartedSearching()) {
             this.startedSearching = true;
-            Util.sendTitle(gameSetup.getHost(), Util.c(Manhunt.get().getCfg().searchingServerTitle), 0, 1000, 0);
-            runnableTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(Manhunt.get(), new Runnable() {
+            plugin.getUtil().sendTitle(gameSetup.getHost(), Util.c(plugin.getCfg().searchingServerTitle), 0, 1000, 0);
+            runnableTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
                 int currentTick = 0;
                 int lastServerTicked = 0;
                 String lastServerTickedName = null;
@@ -77,20 +79,20 @@ public class GameSetupBungee {
                     }
 
                     if (currentTick % 10 == 0) {
-                        Util.playSound(gameSetup.getHost(), Manhunt.get().getCfg().searchingServerTickingSound, 1, 1);
+                        plugin.getUtil().playSound(gameSetup.getHost(), plugin.getCfg().searchingServerTickingSound, 1, 1);
                     }
                     if (currentTick - lastServerTicked >= 60 && !isServerMatched()) {
                         if (!isLastServer) requestNextGameCreation();
                         else {
                             Bukkit.getScheduler().cancelTask(runnableTaskId);
-                            Util.playSound(gameSetup.getHost(), Manhunt.get().getCfg().noServersAvailableSound, 1, 1);
+                            plugin.getUtil().playSound(gameSetup.getHost(), plugin.getCfg().noServersAvailableSound, 1, 1);
                             gameSetup.getHost().resetTitle();
-                            Util.sendTitle(gameSetup.getHost(), Util.c(Manhunt.get().getCfg().noServersAvailableTitle), 10, 50, 10);
-                            gameSetup.getHost().sendMessage(Util.c(Manhunt.get().getCfg().noServersAvailableMessage));
+                            plugin.getUtil().sendTitle(gameSetup.getHost(), Util.c(plugin.getCfg().noServersAvailableTitle), 10, 50, 10);
+                            gameSetup.getHost().sendMessage(Util.c(plugin.getCfg().noServersAvailableMessage));
 
-                            if (Manhunt.get().getEconomy() != null && Manhunt.get().getEconomy().getBalance(gameSetup.getHost()) != -1 && !gameSetup.getHost().hasPermission("manhunt.hostgame")) {
-                                Manhunt.get().getEconomy().addBalance(gameSetup.getHost(), Manhunt.get().getCfg().pricePerGame);
-                                gameSetup.getHost().sendMessage(Util.c(Manhunt.get().getCfg().moneyRefundedNoServersMessage).replace("%money%", Manhunt.get().getCfg().pricePerGame + ""));
+                            if (plugin.getEconomy() != null && plugin.getEconomy().getBalance(gameSetup.getHost()) != -1 && !gameSetup.getHost().hasPermission("manhunt.hostgame")) {
+                                plugin.getEconomy().addBalance(gameSetup.getHost(), plugin.getCfg().pricePerGame);
+                                gameSetup.getHost().sendMessage(Util.c(plugin.getCfg().moneyRefundedNoServersMessage).replace("%money%", plugin.getCfg().pricePerGame + ""));
                             }
                         }
                         return;
@@ -99,10 +101,10 @@ public class GameSetupBungee {
                 }
             }, 0, 1L);
         }
-        List<String> servers = Manhunt.get().getCfg().gameServers;
+        List<String> servers = plugin.getCfg().gameServers;
         for (String server : servers) {
             if (!serversChecked.contains(server)) {
-                Manhunt.get().getBungeeMessenger().createGameServer(this.gameSetup, server);
+                plugin.getBungeeMessenger().createGameServer(this.gameSetup, server);
                 serversChecked.add(server);
                 currentServerChecking = server;
                 return;

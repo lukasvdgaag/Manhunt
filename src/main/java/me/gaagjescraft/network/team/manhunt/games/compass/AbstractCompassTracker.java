@@ -17,8 +17,10 @@ public abstract class AbstractCompassTracker implements CompassTracker {
     public final GamePlayer gamePlayer;
     public GamePlayer trackingPlayer;
     public Location trackingLocation;
+    private final Manhunt plugin;
 
-    public AbstractCompassTracker(GamePlayer gamePlayer) {
+    public AbstractCompassTracker(Manhunt plugin, GamePlayer gamePlayer) {
+        this.plugin = plugin;
         this.gamePlayer = gamePlayer;
     }
 
@@ -33,7 +35,7 @@ public abstract class AbstractCompassTracker implements CompassTracker {
         for (int i = 0; i < player.getInventory().getSize(); i++) {
             ItemStack item = player.getInventory().getItem(i);
             if (item == null || item.getType() == Material.AIR) continue;
-            if (item.getType() == Material.COMPASS && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', Manhunt.get().getCfg().generalTrackerDisplayname))) {
+            if (item.getType() == Material.COMPASS && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', plugin.getCfg().generalTrackerDisplayname))) {
                 CompassMeta meta = (CompassMeta) item.getItemMeta();
                 if (player.getWorld().getEnvironment() != World.Environment.NORMAL) {
                     meta.setLodestone(location);
@@ -51,7 +53,7 @@ public abstract class AbstractCompassTracker implements CompassTracker {
 
         if (trackingPlayer != null) {
             int distance = (int) player.getLocation().distance(location);
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingActionbar.replaceAll("%player%", Objects.requireNonNull(Bukkit.getPlayer(trackingPlayer.getUuid())).getName()).replaceAll("%color%", trackingPlayer.getColor()).replaceAll("%distance%", distance + ""))));
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(plugin.getCfg().trackingActionbar.replaceAll("%player%", Objects.requireNonNull(Bukkit.getPlayer(trackingPlayer.getUuid())).getName()).replaceAll("%color%", trackingPlayer.getColor()).replaceAll("%distance%", distance + ""))));
         }
     }
 
@@ -74,18 +76,18 @@ public abstract class AbstractCompassTracker implements CompassTracker {
                 if (!track.getWorld().getName().equals(player.getWorld().getName())) {
                     if (track.getWorld().getEnvironment() == World.Environment.NETHER && player.getWorld().getEnvironment() == World.Environment.NORMAL && trackingPlayer.getNetherPortal() != null) {
                         // player is in overworld, tracked player is in the nether.
-                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingPortalActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", trackingPlayer.getColor()))));
+                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(plugin.getCfg().trackingPortalActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", trackingPlayer.getColor()))));
                         return trackingPlayer.getNetherPortal();
                     } else if (player.getWorld().getEnvironment() == World.Environment.NETHER && track.getWorld().getEnvironment() == World.Environment.NORMAL && trackingPlayer.getOverworldPortal() != null) {
                         // player is in nether, tracked player is in the overworld.
-                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingPortalActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", trackingPlayer.getColor()))));
+                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(plugin.getCfg().trackingPortalActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", trackingPlayer.getColor()))));
                         return trackingPlayer.getOverworldPortal();
                     } else if (track.getWorld().getEnvironment() == World.Environment.THE_END && player.getWorld().getEnvironment() == World.Environment.NORMAL && trackingPlayer.getEndPortal() != null) {
                         // player is in overworld, tracked player is in the end.
-                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingPortalActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", trackingPlayer.getColor()))));
+                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(plugin.getCfg().trackingPortalActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", trackingPlayer.getColor()))));
                         return trackingPlayer.getEndPortal();
                     } else {
-                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(Manhunt.get().getCfg().trackingOtherDimensionActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", trackingPlayer.getColor()))));
+                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(plugin.getCfg().trackingOtherDimensionActionbar.replaceAll("%player%", track.getName()).replaceAll("%color%", trackingPlayer.getColor()))));
                         return null;
                     }
                 } else {

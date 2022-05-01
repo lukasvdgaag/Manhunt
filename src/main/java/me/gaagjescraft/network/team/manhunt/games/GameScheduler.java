@@ -19,8 +19,10 @@ import java.util.concurrent.ThreadLocalRandom;
 public class GameScheduler {
 
     private final Game game;
+    private final Manhunt plugin;
 
     GameScheduler(Game game) {
+        this.plugin = game.getPlugin();
         this.game = game;
     }
 
@@ -43,10 +45,10 @@ public class GameScheduler {
 
                 // todo add automatic start for minimum amount of players.
                 if (game.getStatus() == GameStatus.STARTING) {
-                    if (Manhunt.get().getCfg().debug) Bukkit.getLogger().severe("Starting the game now. (1)");
+                    if (plugin.getCfg().debug) Bukkit.getLogger().severe("Starting the game now. (1)");
                     doStartingCountdown();
                     if (game.getTimer() == 10) {
-                        if (Manhunt.get().getCfg().debug)
+                        if (plugin.getCfg().debug)
                             Bukkit.getLogger().severe("Finished countdown, dropping runners now. (1)");
                         game.setStatus(GameStatus.PLAYING);
                         game.setTimer(0);
@@ -69,23 +71,23 @@ public class GameScheduler {
                     this.cancel();
                 }
             }
-        }.runTaskTimer(Manhunt.get(), 0L, 20L);
+        }.runTaskTimer(plugin, 0L, 20L);
     }
 
     public void end() {
         this.game.setTimer(10);
 
-        if (Manhunt.get().getCfg().bungeeMode) {
-            Manhunt.get().getBungeeMessenger().createEndGameMessage(this.game, false);
+        if (plugin.getCfg().bungeeMode) {
+            plugin.getBungeeMessenger().createEndGameMessage(this.game, false);
         }
 
-        if (!Manhunt.get().getCfg().isLobbyServer) {
+        if (!plugin.getCfg().isLobbyServer) {
             new BukkitRunnable() {
                 @Override
                 public void run() {
                     List<GamePlayer> online = game.getOnlinePlayers(null);
 
-                    Location loc = Manhunt.get().getCfg().lobby;
+                    Location loc = plugin.getCfg().lobby;
                     for (GamePlayer gp : online) {
                         Player player = Bukkit.getPlayer(gp.getUuid());
                         if (player == null) continue;
@@ -94,7 +96,7 @@ public class GameScheduler {
                         player.setExp(game.getTimer() > 10 ? 1.0f : (game.getTimer() / 10f));
 
                         if (game.getTimer() == 0) {
-                            player.sendMessage(Util.c(Manhunt.get().getCfg().thanksForPlaying));
+                            player.sendMessage(Util.c(plugin.getCfg().thanksForPlaying));
                             player.teleport(loc);
                             gp.restoreForLobby();
                         }
@@ -108,7 +110,7 @@ public class GameScheduler {
 
                     game.setTimer(game.getTimer() - 1);
                 }
-            }.runTaskTimer(Manhunt.get(), 0, 20L);
+            }.runTaskTimer(plugin, 0, 20L);
         }
     }
 
@@ -167,17 +169,17 @@ public class GameScheduler {
                     for (GamePlayer gp : game.getOnlinePlayers(null)) {
                         Player p = Bukkit.getPlayer(gp.getUuid());
                         if (p == null) continue;
-                        p.sendMessage(Util.c(Manhunt.get().getCfg().newHostAssignedMessage).replace("%player%", name));
-                        Util.sendTitle(p, Util.c(Manhunt.get().getCfg().newHostAssignedTitle).replace("%player%", name), 20, 60, 20);
+                        p.sendMessage(Util.c(plugin.getCfg().newHostAssignedMessage).replace("%player%", name));
+                        plugin.getUtil().sendTitle(p, Util.c(plugin.getCfg().newHostAssignedTitle).replace("%player%", name), 20, 60, 20);
 
-                        Util.playSound(p, Manhunt.get().getCfg().newHostAssignedSound, 1, 1);
+                        plugin.getUtil().playSound(p, plugin.getCfg().newHostAssignedSound, 1, 1);
                     }
 
                 }
 
                 current++;
             }
-        }.runTaskTimer(Manhunt.get(), 0, 20L);
+        }.runTaskTimer(plugin, 0, 20L);
 
     }
 
@@ -188,15 +190,15 @@ public class GameScheduler {
         // announce time at 60s, 30s, 10s, <5s
         int headstart = game.getHeadStart().getSeconds();
         if ((headstart >= 120 && timer == headstart - 120) || (headstart >= 90 && timer == headstart - 90) || (headstart >= 60 && timer == headstart - 60) || (headstart >= 30 && timer == headstart - 30) || (headstart >= 10 && timer == headstart - 10) || (timer >= headstart - 5 && timer < headstart)) {
-            String time = Manhunt.get().getUtil().secondsToTimeString(headstart - timer, "string");
+            String time = plugin.getUtil().secondsToTimeString(headstart - timer, "string");
             for (GamePlayer gp : online) {
                 Player p = Bukkit.getPlayer(gp.getUuid());
                 if (p == null) continue;
-                p.sendMessage(Util.c(Manhunt.get().getCfg().hunterReleaseCountdownMessage.replaceAll("%time%", time)));
+                p.sendMessage(Util.c(plugin.getCfg().hunterReleaseCountdownMessage.replaceAll("%time%", time)));
                 if (gp.getPlayerType() == PlayerType.HUNTER) {
                     if (timer > headstart - 6)
-                        Util.sendTitle(p, Util.c(Manhunt.get().getCfg().hunterReleaseCountdownTitle.replaceAll("%time%", (game.getHeadStart().getSeconds() - timer) + "")), 5, 10, 5);
-                    Util.playSound(p, Manhunt.get().getCfg().countdownSound, 1, 1);
+                        plugin.getUtil().sendTitle(p, Util.c(plugin.getCfg().hunterReleaseCountdownTitle.replaceAll("%time%", (game.getHeadStart().getSeconds() - timer) + "")), 5, 10, 5);
+                    plugin.getUtil().playSound(p, plugin.getCfg().countdownSound, 1, 1);
                 }
             }
         }
@@ -208,19 +210,19 @@ public class GameScheduler {
             for (GamePlayer gp : online) {
                 Player p = Bukkit.getPlayer(gp.getUuid());
                 if (p == null) continue;
-                for (String s : Manhunt.get().getCfg().huntersReleasedMessage) {
+                for (String s : plugin.getCfg().huntersReleasedMessage) {
                     p.sendMessage(Util.c(s));
                 }
                 if (gp.getPlayerType() == PlayerType.HUNTER) {
-                    Util.sendTitle(p, Util.c(Manhunt.get().getCfg().huntersReleasedHunterTitle), 10, 50, 10);
+                    plugin.getUtil().sendTitle(p, Util.c(plugin.getCfg().huntersReleasedHunterTitle), 10, 50, 10);
                 } else {
-                    Util.sendTitle(p, Util.c(Manhunt.get().getCfg().huntersReleasedRunnerTitle), 10, 50, 10);
+                    plugin.getUtil().sendTitle(p, Util.c(plugin.getCfg().huntersReleasedRunnerTitle), 10, 50, 10);
                 }
 
                 if (gp.getPlayerType() == PlayerType.HUNTER) {
                     gp.prepareForGame(GameStatus.PLAYING);
                 }
-                Util.playSound(p, Manhunt.get().getCfg().huntersReleasedSound, 1, 1);
+                plugin.getUtil().playSound(p, plugin.getCfg().huntersReleasedSound, 1, 1);
 
                 if (gp.getPlayerType() == PlayerType.HUNTER) {
                     int random = ThreadLocalRandom.current().nextInt(runners.size());
@@ -233,7 +235,7 @@ public class GameScheduler {
     private void doStartingCountdown() {
         int timer = game.getTimer();
         if (timer == 10) {
-            if (Manhunt.get().getCfg().debug) Bukkit.getLogger().severe("Finished countdown, selecting twist. (1)");
+            if (plugin.getCfg().debug) Bukkit.getLogger().severe("Finished countdown, selecting twist. (1)");
             game.selectTwist();
         }
 
@@ -242,31 +244,31 @@ public class GameScheduler {
             if (p == null) continue;
 
             if (timer == 0 || (timer >= 5 && timer < 10)) {
-                p.sendMessage(Util.c(Manhunt.get().getCfg().startingCountdownMessage.replaceAll("%time%", (10 - timer) + "")));
-                Util.sendTitle(p, Util.c(Manhunt.get().getCfg().startingCountdownTitle.replaceAll("%time%", (10 - timer) + "")), 5, 10, 5);
-                Util.playSound(p, Manhunt.get().getCfg().countdownSound, 1, 1);
+                p.sendMessage(Util.c(plugin.getCfg().startingCountdownMessage.replaceAll("%time%", (10 - timer) + "")));
+                plugin.getUtil().sendTitle(p, Util.c(plugin.getCfg().startingCountdownTitle.replaceAll("%time%", (10 - timer) + "")), 5, 10, 5);
+                plugin.getUtil().playSound(p, plugin.getCfg().countdownSound, 1, 1);
             } else if (timer == 10) {
-                List<String> msgs = gp.getPlayerType() == PlayerType.HUNTER ? Manhunt.get().getCfg().gameStartHunterMessage : Manhunt.get().getCfg().gameStartRunnerMessage;
+                List<String> msgs = gp.getPlayerType() == PlayerType.HUNTER ? plugin.getCfg().gameStartHunterMessage : plugin.getCfg().gameStartRunnerMessage;
                 for (String s : msgs) {
-                    p.sendMessage(Util.c(s.replaceAll("%time%", Manhunt.get().getUtil().secondsToTimeString(game.getHeadStart().getSeconds(), "string"))
+                    p.sendMessage(Util.c(s.replaceAll("%time%", plugin.getUtil().secondsToTimeString(game.getHeadStart().getSeconds(), "string"))
                             .replaceAll("%host%", game.getIdentifier())));
                 }
 
                 if (game.isTwistsAllowed()) {
-                    for (String s : Manhunt.get().getCfg().twistSelectMessage) {
+                    for (String s : plugin.getCfg().twistSelectMessage) {
                         p.sendMessage(Util.c(s.replaceAll("%twist%", game.getSelectedTwist().getDisplayName()).replaceAll("%votes%", game.getTwistVotes(game.getSelectedTwist()) + "")));
                     }
                 }
 
                 if (gp.getPlayerType() == PlayerType.HUNTER) {
-                    Util.sendTitle(p, Util.c(Manhunt.get().getCfg().gameStartHunterTitle.replaceAll("%time%", Manhunt.get().getUtil().secondsToTimeString(game.getHeadStart().getSeconds(), "string"))), 10, 50, 10);
+                    plugin.getUtil().sendTitle(p, Util.c(plugin.getCfg().gameStartHunterTitle.replaceAll("%time%", plugin.getUtil().secondsToTimeString(game.getHeadStart().getSeconds(), "string"))), 10, 50, 10);
                     p.getInventory().setItem(0, null); // remove twist vote item
                 } else {
-                    Util.sendTitle(p, Util.c(Manhunt.get().getCfg().gameStartRunnerTitle.replaceAll("%time%", Manhunt.get().getUtil().secondsToTimeString(game.getHeadStart().getSeconds(), "string"))), 10, 50, 10);
+                    plugin.getUtil().sendTitle(p, Util.c(plugin.getCfg().gameStartRunnerTitle.replaceAll("%time%", plugin.getUtil().secondsToTimeString(game.getHeadStart().getSeconds(), "string"))), 10, 50, 10);
                     gp.prepareForGame(GameStatus.PLAYING);
                     p.teleport(game.getWorld().getSpawnLocation());
                 }
-                Util.playSound(p, Manhunt.get().getCfg().countdownSound, 1, 1);
+                plugin.getUtil().playSound(p, plugin.getCfg().countdownSound, 1, 1);
             }
         }
     }
@@ -277,11 +279,11 @@ public class GameScheduler {
             for (GamePlayer gp : game.getOnlinePlayers(null)) {
                 Player player = Bukkit.getPlayer(gp.getUuid());
                 if (player == null) continue;
-                player.sendMessage(Util.c(Manhunt.get().getCfg().twistRandomYeetMessage));
+                player.sendMessage(Util.c(plugin.getCfg().twistRandomYeetMessage));
                 if (!gp.isDead()) {
                     player.setVelocity(new Vector(random.nextDouble(-5, 5.1), random.nextDouble(1, 2.3), random.nextDouble(-5, 5.1)));
-                    Util.sendTitle(player, Util.c(Manhunt.get().getCfg().twistRandomYeetTitle), 20, 50, 20);
-                    Util.playSound(player, Manhunt.get().getCfg().twistRandomYeetSound, 1, 1);
+                    plugin.getUtil().sendTitle(player, Util.c(plugin.getCfg().twistRandomYeetTitle), 20, 50, 20);
+                    plugin.getUtil().playSound(player, plugin.getCfg().twistRandomYeetSound, 1, 1);
                 }
             }
             game.determineNextEventTime();
@@ -297,14 +299,14 @@ public class GameScheduler {
                 Player player = Bukkit.getPlayer(gp.getUuid());
                 if (player == null) continue;
 
-                Util.playSound(player, Manhunt.get().getCfg().twistSpeedBoostSound, 1, 1);
-                Util.sendTitle(player, Util.c(Manhunt.get().getCfg().twistSpeedBoostTitle), 20, 50, 20);
-                player.sendMessage(Util.c(Manhunt.get().getCfg().twistSpeedBoostMessage.replaceAll("%strength%", a.toString())));
+                plugin.getUtil().playSound(player, plugin.getCfg().twistSpeedBoostSound, 1, 1);
+                plugin.getUtil().sendTitle(player, Util.c(plugin.getCfg().twistSpeedBoostTitle), 20, 50, 20);
+                player.sendMessage(Util.c(plugin.getCfg().twistSpeedBoostMessage.replaceAll("%strength%", a.toString())));
                 if (gp.getPlayerType() == PlayerType.RUNNER && !gp.isFullyDead()) {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 400, rand));
                 }
             }
-            Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> {
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 game.setEventActive(false);
                 game.determineNextEventTime();
             }, 400);
@@ -314,14 +316,14 @@ public class GameScheduler {
                 Player player = Bukkit.getPlayer(gp.getUuid());
                 if (player == null) continue;
 
-                Util.playSound(player, Manhunt.get().getCfg().twistBlindnessSound, 1, 1);
-                Util.sendTitle(player, Util.c(Manhunt.get().getCfg().twistBlindnessTitle), 20, 50, 20);
-                player.sendMessage(Util.c(Manhunt.get().getCfg().twistBlindnessMessage));
+                plugin.getUtil().playSound(player, plugin.getCfg().twistBlindnessSound, 1, 1);
+                plugin.getUtil().sendTitle(player, Util.c(plugin.getCfg().twistBlindnessTitle), 20, 50, 20);
+                player.sendMessage(Util.c(plugin.getCfg().twistBlindnessMessage));
                 if (gp.getPlayerType() == PlayerType.HUNTER && !gp.isFullyDead()) {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 200, 1));
                 }
             }
-            Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> {
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 game.setEventActive(false);
                 game.determineNextEventTime();
             }, 200);
@@ -332,13 +334,13 @@ public class GameScheduler {
             for (GamePlayer gp : game.getOnlinePlayers(null)) {
                 Player player = Bukkit.getPlayer(gp.getUuid());
                 if (player == null) continue;
-                Util.playSound(player, Manhunt.get().getCfg().twistAcidRainSound, 1, 1);
-                player.sendMessage(Util.c(Manhunt.get().getCfg().twistAcidRainMessage));
-                Util.sendTitle(player, Util.c(Manhunt.get().getCfg().twistAcidRainTitle), 20, 50, 20);
+                plugin.getUtil().playSound(player, plugin.getCfg().twistAcidRainSound, 1, 1);
+                player.sendMessage(Util.c(plugin.getCfg().twistAcidRainMessage));
+                plugin.getUtil().sendTitle(player, Util.c(plugin.getCfg().twistAcidRainTitle), 20, 50, 20);
             }
 
-            Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> {
-                game.sendMessage(null, Util.c(Manhunt.get().getCfg().twistAcidRainEndedMessage));
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                game.sendMessage(null, Util.c(plugin.getCfg().twistAcidRainEndedMessage));
                 game.setEventActive(false);
                 game.determineNextEventTime();
                 if (game.getWorld() != null) {
@@ -352,19 +354,19 @@ public class GameScheduler {
                 Player player = Bukkit.getPlayer(gp.getUuid());
                 if (player == null) continue;
                 if (!gp.isFullyDead()) player.setHealth(6);
-                Util.playSound(player, Manhunt.get().getCfg().twistHardcoreSound, 1, 1);
-                player.sendMessage(Util.c(Manhunt.get().getCfg().twistHardcoreMessage));
-                Util.sendTitle(player, Util.c(Manhunt.get().getCfg().twistHardcoreTitle), 20, 50, 20);
+                plugin.getUtil().playSound(player, plugin.getCfg().twistHardcoreSound, 1, 1);
+                player.sendMessage(Util.c(plugin.getCfg().twistHardcoreMessage));
+                plugin.getUtil().sendTitle(player, Util.c(plugin.getCfg().twistHardcoreTitle), 20, 50, 20);
             }
 
-            Bukkit.getScheduler().runTaskLater(Manhunt.get(), () -> {
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 game.setEventActive(false);
                 game.determineNextEventTime();
                 for (GamePlayer gp : game.getOnlinePlayers(null)) {
                     Player player = Bukkit.getPlayer(gp.getUuid());
                     if (player == null) continue;
                     player.setHealth(player.getMaxHealth());
-                    player.sendMessage(Util.c(Manhunt.get().getCfg().twistHardcoreEndedMessage));
+                    player.sendMessage(Util.c(plugin.getCfg().twistHardcoreEndedMessage));
                 }
             }, 600);
         }
@@ -374,7 +376,7 @@ public class GameScheduler {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         List<String> addedLocations = Lists.newArrayList();
 
-        Bukkit.getScheduler().runTaskAsynchronously(Manhunt.get(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             for (GamePlayer gp : game.getOnlinePlayers(null)) {
                 if (gp.isDead()) continue;
                 Player player = Bukkit.getPlayer(gp.getUuid());
@@ -383,11 +385,11 @@ public class GameScheduler {
 
                 if (!gp.isFullyDead() && player.getLocation().getY() + 1 > player.getWorld().getHighestBlockYAt(player.getLocation())) {
                     double damage = player.getInventory().getHelmet() != null ? 0.5 : 1.0;
-                    Bukkit.getScheduler().runTask(Manhunt.get(), () -> {
+                    Bukkit.getScheduler().runTask(plugin, () -> {
                         player.damage(damage);
                         player.setLastDamageCause(new EntityDamageEvent(player, EntityDamageEvent.DamageCause.CUSTOM, damage));
                     });
-                    Manhunt.get().getUtil().spawnAcidParticles(player.getLocation().add(0, 1, 0), true);
+                    plugin.getUtil().spawnAcidParticles(player.getLocation().add(0, 1, 0), true);
                 }
 
                 for (int i = 0; i < 30; i++) {
@@ -398,7 +400,7 @@ public class GameScheduler {
                     if (!addedLocations.contains(loc.getBlockX() + ":" + loc.getBlockZ())) {
                         addedLocations.add(loc.getBlockX() + ":" + loc.getBlockZ());
 
-                        Manhunt.get().getUtil().spawnAcidParticles(loc, false);
+                        plugin.getUtil().spawnAcidParticles(loc, false);
                     }
                 }
             }

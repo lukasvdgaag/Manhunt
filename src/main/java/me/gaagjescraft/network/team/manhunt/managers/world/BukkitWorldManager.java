@@ -1,4 +1,4 @@
-package me.gaagjescraft.network.team.manhunt.world;
+package me.gaagjescraft.network.team.manhunt.managers.world;
 
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.utils.FileUtils;
@@ -6,11 +6,18 @@ import org.bukkit.*;
 
 import java.io.IOException;
 
-public class DefaultBukkit implements WorldUtil{
+public class BukkitWorldManager implements WorldManager {
+
+    private final Manhunt plugin;
+
+    public BukkitWorldManager(Manhunt plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
-    public World create(long seed, String worldidentifier, World.Environment environment) {
+    public World create(long seed, String worldName, World.Environment environment) {
         //Default Bukkit World creation
-        WorldCreator creator = new WorldCreator(worldidentifier);
+        WorldCreator creator = new WorldCreator(worldName);
         creator.environment(environment);
         creator.seed(seed);
         World world = creator.createWorld();
@@ -20,21 +27,21 @@ public class DefaultBukkit implements WorldUtil{
         world.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
         world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
 
-        if (Manhunt.get().getCfg().enableWorldBorder) {
+        if (plugin.getCfg().enableWorldBorder) {
             WorldBorder border = world.getWorldBorder();
-            border.setSize(Manhunt.get().getCfg().worldBorderSize);
+            border.setSize(plugin.getCfg().worldBorderSize);
             border.setCenter(world.getSpawnLocation());
-            border.setDamageAmount(Manhunt.get().getCfg().worldBorderDamage);
-            border.setDamageBuffer(Manhunt.get().getCfg().worldBorderDamageBuffer);
-            border.setWarningDistance(Manhunt.get().getCfg().worldBorderWarningDistance);
-            border.setWarningTime(Manhunt.get().getCfg().worldBorderWarningTime);
+            border.setDamageAmount(plugin.getCfg().worldBorderDamage);
+            border.setDamageBuffer(plugin.getCfg().worldBorderDamageBuffer);
+            border.setWarningDistance(plugin.getCfg().worldBorderWarningDistance);
+            border.setWarningTime(plugin.getCfg().worldBorderWarningTime);
         }
         return world;
     }
 
     @Override
-    public void delete(String worldidentifier) {
-        World w = Bukkit.getWorld(worldidentifier);
+    public void delete(String worldName) {
+        World w = Bukkit.getWorld(worldName);
         if (w != null) {
             Bukkit.unloadWorld(w, false);
             try {
@@ -43,4 +50,5 @@ public class DefaultBukkit implements WorldUtil{
             }
         }
     }
+
 }

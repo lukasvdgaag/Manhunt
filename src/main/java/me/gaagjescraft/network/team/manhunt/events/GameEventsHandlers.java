@@ -19,6 +19,12 @@ import java.util.List;
 
 public class GameEventsHandlers implements Listener {
 
+    private final Manhunt plugin;
+
+    public GameEventsHandlers(Manhunt plugin) {
+        this.plugin = plugin;
+    }
+
     @EventHandler
     public void onBedSpawn(PlayerBedEnterEvent e) {
         Player player = e.getPlayer();
@@ -35,16 +41,16 @@ public class GameEventsHandlers implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncPlayerChatEvent e) {
-        if (e.isCancelled() || Manhunt.get().getManhuntRunnerManageMenu().chatPlayers.contains(e.getPlayer())) return;
+        if (e.isCancelled() || plugin.getManhuntRunnerManageMenu().chatPlayers.contains(e.getPlayer())) return;
         Player player = e.getPlayer();
 
         Game game = Game.getGame(player);
         if (game == null) {
-            if (!Manhunt.get().getCfg().enableLobbyChat) return;
+            if (!plugin.getCfg().enableLobbyChat) return;
             e.setCancelled(true);
 
-            String prefix = Manhunt.get().getCfg().lobbyChatPrefix;
-            String format = Manhunt.get().getCfg().lobbyChatFormat;
+            String prefix = plugin.getCfg().lobbyChatPrefix;
+            String format = plugin.getCfg().lobbyChatFormat;
             if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
                 format = PlaceholderAPI.setPlaceholders(player, format);
             }
@@ -77,8 +83,8 @@ public class GameEventsHandlers implements Listener {
         GamePlayer gp = game.getPlayer(player);
 
         e.setCancelled(true);
-        String prefix = game.getStatus() != GameStatus.PLAYING ? Manhunt.get().getCfg().globalChatPrefix : gp.getPrefix(true);
-        String format = Manhunt.get().getCfg().chatFormat;
+        String prefix = game.getStatus() != GameStatus.PLAYING ? plugin.getCfg().globalChatPrefix : gp.getPrefix(true);
+        String format = plugin.getCfg().chatFormat;
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             format = PlaceholderAPI.setPlaceholders(player, format);
         }
@@ -88,7 +94,7 @@ public class GameEventsHandlers implements Listener {
                 .replaceAll("%player%", player.getName())
                 .replaceAll("%message%", e.getMessage()));
 
-        if (Manhunt.get().getCfg().chatPerTeam) {
+        if (plugin.getCfg().chatPerTeam) {
             for (GamePlayer gps : game.getOnlinePlayers(null)) {
                 Player p = Bukkit.getPlayer(gps.getUuid());
                 if (p == null) continue;
@@ -96,7 +102,7 @@ public class GameEventsHandlers implements Listener {
                     p.sendMessage(message);
                     continue;
                 }
-                if (Manhunt.get().getCfg().separateDeadChat) {
+                if (plugin.getCfg().separateDeadChat) {
                     if (gp.isFullyDead()) {
                         if (gps.isFullyDead()) {
                             p.sendMessage(message);
@@ -117,7 +123,7 @@ public class GameEventsHandlers implements Listener {
                     p.sendMessage(message);
                     continue;
                 }
-                if (Manhunt.get().getCfg().separateDeadChat) {
+                if (plugin.getCfg().separateDeadChat) {
                     if (gp.isFullyDead()) {
                         if (gps.isFullyDead()) {
                             p.sendMessage(message);

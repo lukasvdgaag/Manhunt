@@ -27,9 +27,23 @@ import java.util.UUID;
 
 public class Util {
 
-    public static int CENTER_PX = 120;
+    public final static int CENTER_PX = 120;
+    private final int version;
+    private final Manhunt plugin;
 
-    public static void sendCenteredMessage(Player player, String message) {
+    public Util(Manhunt plugin) {
+        this.plugin = plugin;
+
+        String packageName = Bukkit.getServer().getClass().getPackage().getName();
+        String version = packageName.substring(packageName.lastIndexOf('.') + 1);
+        this.version = Integer.parseInt(version.split("_")[1]);
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void sendCenteredMessage(Player player, String message) {
         if (message == null || message.equals("")) player.sendMessage("");
         message = c(message);
 
@@ -76,13 +90,13 @@ public class Util {
         return ChatColor.translateAlternateColorCodes('&', a);
     }
 
-    public static void sendTitle(Player player, String cfgMsg, int in, int stay, int out) {
+    public void sendTitle(Player player, String cfgMsg, int in, int stay, int out) {
         String[] titles = cfgMsg.split("\\\\n");
         if (titles.length == 0) return;
         player.sendTitle(c(titles[0]), titles.length >= 2 ? c(titles[1]) : "", in, stay, out);
     }
 
-    public static void playSound(Player player, String soundString, float volume, float pitch) {
+    public void playSound(Player player, String soundString, float volume, float pitch) {
         Sound sound = null;
 
         if (soundString.contains(";")) {
@@ -99,7 +113,7 @@ public class Util {
                 try {
                     volume = Float.parseFloat(split[1]);
                 } catch (Exception ex) {
-                    Manhunt.get().getLogger().severe("You entered a wrongly formatted volume for the sound string: '" + soundString + "'.");
+                    plugin.getLogger().severe("You entered a wrongly formatted volume for the sound string: '" + soundString + "'.");
                 }
             }
 
@@ -107,7 +121,7 @@ public class Util {
                 // getting the pitch (last in the array).
                 pitch = Float.parseFloat(split[split.length - 1]);
             } catch (Exception ex) {
-                Manhunt.get().getLogger().severe("You entered a wrongly formatted pitch for the sound string: '" + soundString + "'.");
+                plugin.getLogger().severe("You entered a wrongly formatted pitch for the sound string: '" + soundString + "'.");
             }
             // changing value of soundString for the code below so it will execute correctly if sound is null.
             soundString = split[0];
@@ -125,7 +139,7 @@ public class Util {
                 player.playSound(player.getLocation(), soundString, volume, pitch);
             }
         } catch (Exception e) {
-            Manhunt.get().getLogger().severe("We failed to play the sound '" + soundString + " for player " + player.getName() + ". Does it exist?");
+            plugin.getLogger().severe("We failed to play the sound '" + soundString + " for player " + player.getName() + ". Does it exist?");
         }
     }
 
@@ -258,10 +272,7 @@ public class Util {
                 if (p1 == null) continue;
                 ob.getScore(p1.getName()).setScore((int) p1.getHealth());
             }
-
-            //target.setScoreboard(board.getScoreboard());
         }
-
     }
 
     public List<String> replace(List<String> a, String search, String replace) {
@@ -304,5 +315,4 @@ public class Util {
             return false;
         }
     }
-
 }
