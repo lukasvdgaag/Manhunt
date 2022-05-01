@@ -15,6 +15,9 @@ softdepend:
   - Multiverse-Core
   - PlaceholderAPI
   - Chunky
+  - Parties
+  - Spigot-Party-API-PAF
+  - PartyAndFriends
 load: POSTWORLD
 
 commands:
