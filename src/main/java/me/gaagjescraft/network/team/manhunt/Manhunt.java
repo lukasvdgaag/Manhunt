@@ -1,10 +1,7 @@
 package me.gaagjescraft.network.team.manhunt;
 
 import me.gaagjescraft.network.team.manhunt.commands.*;
-import me.gaagjescraft.network.team.manhunt.events.DeathEventHandler;
-import me.gaagjescraft.network.team.manhunt.events.GameEventsHandlers;
-import me.gaagjescraft.network.team.manhunt.events.GameWaitingEvents;
-import me.gaagjescraft.network.team.manhunt.events.LeaveEventHandler;
+import me.gaagjescraft.network.team.manhunt.events.*;
 import me.gaagjescraft.network.team.manhunt.events.bungee.BungeeMessenger;
 import me.gaagjescraft.network.team.manhunt.events.bungee.BungeeSocketManager;
 import me.gaagjescraft.network.team.manhunt.games.*;
@@ -105,6 +102,7 @@ public class Manhunt extends JavaPlugin {
         if (Bukkit.getPluginManager().isPluginEnabled("Multiverse-Core")) {
             getLogger().info("Found Multiverse-Core! We will register and create Manhunt worlds with Multiverse so everything will work smoothly.");
             worldManager = new MultiverseManager(this);
+            Bukkit.getPluginManager().registerEvents(new WorldLoadHandler(this),this);
         } else {
             worldManager = new BukkitWorldManager(this);
         }

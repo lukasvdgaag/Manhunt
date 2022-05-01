@@ -51,4 +51,17 @@ public class MultiverseManager implements WorldManager {
             worldManager.deleteWorld(worldName);
         }
     }
+    @Override
+    public void multiverseLoad(String worldName){
+        if (Bukkit.getWorld(worldName) != null){
+            worldManager.loadWorld(worldName);
+        }
+    }
+
+    @Override
+    public void worldUnload(String worldName){
+        if (Bukkit.getWorld(worldName) != null){
+            worldManager.unloadWorld(worldName);
+        }
+    }
 }

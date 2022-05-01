@@ -588,14 +588,13 @@ public class Game {
         long seed = plugin.getCfg().seeds.get(random);
         this.seed = seed;
 
-        World w = plugin.getWorldManager().create(seed, getWorldIdentifier(), World.Environment.NORMAL);
+        plugin.getWorldManager().create(seed, getWorldIdentifier(), World.Environment.NORMAL);
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> plugin.getWorldManager().create(seed, getWorldIdentifier() + "_nether", World.Environment.NETHER), 60L);
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-            World wnet = plugin.getWorldManager().create(seed, getWorldIdentifier() + "_nether", World.Environment.NETHER);
-        }, 60L);
-
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-            World wend = plugin.getWorldManager().create(seed, getWorldIdentifier() + "_the_end", World.Environment.THE_END);
+            plugin.getWorldManager().create(seed, getWorldIdentifier() + "_the_end", World.Environment.THE_END);
+            plugin.getWorldManager().worldUnload(getWorldIdentifier() + "_the_end");
         }, 120L);
 
 
