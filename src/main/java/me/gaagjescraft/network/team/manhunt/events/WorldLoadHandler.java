@@ -21,7 +21,7 @@ public class WorldLoadHandler implements Listener {
         if (game == null) return;
         NamespacedKey key = event.getAdvancement().getKey();
         if (key.getNamespace().equals(NamespacedKey.MINECRAFT) && (key.getKey().equals("story/follow_ender_eye")  || key.getKey().equals("story/enter_the_end"))){
-            plugin.getWorldManager().multiverseLoad(game.getWorldIdentifier() + "_the_end");
+            plugin.getWorldManager().worldLoad(game.getWorldIdentifier() + "_the_end");
         }
     }
 

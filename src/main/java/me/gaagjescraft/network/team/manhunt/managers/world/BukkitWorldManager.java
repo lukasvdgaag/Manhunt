@@ -52,7 +52,7 @@ public class BukkitWorldManager implements WorldManager {
     }
 
     @Override
-    public void multiverseLoad(String worldName) {
+    public void worldLoad(String worldName) {
     }
 
     @Override

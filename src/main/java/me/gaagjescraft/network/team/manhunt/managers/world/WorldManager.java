@@ -8,7 +8,7 @@ public interface WorldManager {
 
     void delete(String worldName);
 
-    void multiverseLoad(String worldName);
+    void worldLoad(String worldName);
 
     void worldUnload(String worldName);
 

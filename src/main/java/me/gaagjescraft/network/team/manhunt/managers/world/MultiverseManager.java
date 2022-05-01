@@ -10,14 +10,14 @@ import static com.onarandombox.MultiverseCore.enums.AllowedPortalType.ALL;
 
 public class MultiverseManager implements WorldManager {
 
-    private final MultiverseCore core;
     private final MVWorldManager worldManager;
 
     private final Manhunt plugin;
 
     public MultiverseManager(Manhunt plugin) {
         this.plugin = plugin;
-        core = (MultiverseCore) Bukkit.getServer().getPluginManager().getPlugin("Multiverse-Core");
+        MultiverseCore core = (MultiverseCore) Bukkit.getServer().getPluginManager().getPlugin("Multiverse-Core");
+        assert core != null;
         worldManager = core.getMVWorldManager();
     }
 
@@ -52,7 +52,7 @@ public class MultiverseManager implements WorldManager {
         }
     }
     @Override
-    public void multiverseLoad(String worldName){
+    public void worldLoad(String worldName){
         if (Bukkit.getWorld(worldName) != null){
             worldManager.loadWorld(worldName);
         }
