@@ -6,6 +6,8 @@ import org.bukkit.*;
 
 import java.io.IOException;
 
+import static org.bukkit.Bukkit.getServer;
+
 public class BukkitWorldManager implements WorldManager {
 
     private final Manhunt plugin;
@@ -53,9 +55,11 @@ public class BukkitWorldManager implements WorldManager {
 
     @Override
     public void worldLoad(String worldName) {
+        getServer().createWorld(new WorldCreator(worldName));
     }
 
     @Override
     public void worldUnload(String worldName){
+        getServer().unloadWorld(worldName, true);
     }
 }
