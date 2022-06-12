@@ -68,8 +68,15 @@ public class AdditionsBoard {
 
         ArrayList<String> arg3 = convertIntoPieces(arg1, 64);
 
+        // Sanity check
+        if (arg2 == null) return;
+
         arg2.setPrefix(arg3.get(0));
-        arg2.setSuffix(arg3.get(1));
+
+        // If line is less than 64, there won't be a suffix
+        if (arg3.size() > 1) {
+            arg2.setSuffix(arg3.get(1));
+        }
     }
 
     private ArrayList<String> convertIntoPieces(String arg0, int arg1) {
