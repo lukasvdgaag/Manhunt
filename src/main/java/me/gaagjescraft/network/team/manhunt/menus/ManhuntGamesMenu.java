@@ -42,9 +42,11 @@ public class ManhuntGamesMenu implements Listener {
 
         List<Game> games = Game.getGames();
         if (games.isEmpty()) {
-            for (int i = 0; i < inventory.getSize(); i++)
-                if (inventory.getItem(i) == null || Objects.requireNonNull(inventory.getItem(i)).getType() == Material.AIR)
+            for (int i = 0; i < inventory.getSize(); i++) {
+                if (inventory.getItem(i) == null || Objects.requireNonNull(inventory.getItem(i)).getType() == Material.AIR) {
                     inventory.setItem(i, plugin.getItemizer().FILL_NO_GAMES);
+                }
+            }
 
             player.openInventory(inventory);
             return;
@@ -66,8 +68,10 @@ public class ManhuntGamesMenu implements Listener {
                 status = Util.c(plugin.getCfg().stoppingStatusPrefix);
             }
 
-            int onlineHunters = (plugin.getCfg().bungeeMode && plugin.getCfg().isLobbyServer) ? g.getBungeeHunterCount() : g.getOnlinePlayers(PlayerType.HUNTER).size();
-            int onlineRunners = (plugin.getCfg().bungeeMode && plugin.getCfg().isLobbyServer) ? g.getBungeeRunnerCount() : g.getOnlinePlayers(PlayerType.RUNNER).size();
+            int onlineHunters = (plugin.getCfg().bungeeMode && plugin.getCfg().isLobbyServer) ?
+                    g.getBungeeHunterCount() : g.getOnlinePlayers(PlayerType.HUNTER).size();
+            int onlineRunners = (plugin.getCfg().bungeeMode && plugin.getCfg().isLobbyServer) ?
+                    g.getBungeeRunnerCount() : g.getOnlinePlayers(PlayerType.RUNNER).size();
 
             assert meta != null;
             meta.setDisplayName(Util.c(plugin.getCfg().gamesMenuGameHostDisplayname).replaceAll("%host%", g.getIdentifier()));
@@ -93,8 +97,9 @@ public class ManhuntGamesMenu implements Listener {
         }
 
         for (int i = 0; i < inventory.getSize(); i++) {
-            if (inventory.getItem(i) == null || Objects.requireNonNull(inventory.getItem(i)).getType() == Material.AIR)
+            if (inventory.getItem(i) == null || Objects.requireNonNull(inventory.getItem(i)).getType() == Material.AIR) {
                 inventory.setItem(i, plugin.getItemizer().FILL_ITEM);
+            }
         }
 
         player.openInventory(inventory);

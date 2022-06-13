@@ -18,7 +18,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 
-public class GamePlayer{
+public class GamePlayer {
 
     private final CompassTracker compassTracker;
     private final Game game;
@@ -593,14 +593,15 @@ public class GamePlayer{
             timeLeft = game.getTimer();
         }
 
-        List<GamePlayer> gps = game.getOnlinePlayers(PlayerType.HUNTER);
-        final int hunters = gps.size();
-        List<GamePlayer> rrs = game.getOnlinePlayers(PlayerType.RUNNER);
-        final int runners = rrs.size();
-        gps.removeIf(GamePlayer::isFullyDead);
-        final int aliveHunters = gps.size();
-        rrs.removeIf(GamePlayer::isFullyDead);
-        final int aliveRunners = rrs.size();
+        List<GamePlayer> huntersList = game.getOnlinePlayers(PlayerType.HUNTER);
+        final int hunters = huntersList.size();
+        huntersList.removeIf(GamePlayer::isFullyDead);
+        final int aliveHunters = huntersList.size();
+
+        List<GamePlayer> runnersList = game.getOnlinePlayers(PlayerType.RUNNER);
+        final int runners = runnersList.size();
+        runnersList.removeIf(GamePlayer::isFullyDead);
+        final int aliveRunners = runnersList.size();
 
         if (board == null || board.getLinecount() != lines.size()) {
             Player player = Bukkit.getPlayer(uuid);

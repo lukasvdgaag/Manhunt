@@ -233,7 +233,8 @@ public class Game {
         GamePlayer gamePlayer = getPlayer(player);
         int hunterCount = (plugin.getCfg().bungeeMode && plugin.getCfg().isLobbyServer) ? bungeeHunterCount : getOnlinePlayers(PlayerType.HUNTER).size();
         if (!spectators.contains(player.getUniqueId()) || (gamePlayer != null && !gamePlayer.isSpectating())) {
-            if (status == GameStatus.LOADING || status == GameStatus.STOPPING || (hunterCount >= maxPlayers && (gamePlayer == null || gamePlayer.isOnline())))
+            if (status == GameStatus.LOADING || status == GameStatus.STOPPING ||
+                    (hunterCount >= maxPlayers && (gamePlayer == null || gamePlayer.isOnline())))
                 return false;
         }
 
@@ -298,7 +299,8 @@ public class Game {
         if (getStatus() == GameStatus.WAITING || getStatus() == GameStatus.STARTING ||
                 (getStatus() == GameStatus.PLAYING && gamePlayer.getPlayerType() == PlayerType.HUNTER && getTimer() <= getHeadStart().getSeconds()))
             player.teleport(this.schematic.getSpawnLocation());
-        else player.teleport(Objects.requireNonNull(Bukkit.getWorld(getWorldIdentifier())).getSpawnLocation());
+        else
+            player.teleport(Objects.requireNonNull(Bukkit.getWorld(getWorldIdentifier())).getSpawnLocation());
 
         this.getRunnerTeleporterMenu().update();
         sendUpdate();
@@ -678,11 +680,13 @@ public class Game {
     }
 
     public List<GamePlayer> getOnlinePlayers(@Nullable PlayerType type) {
-        List<GamePlayer> prs = new ArrayList<>();
+        List<GamePlayer> onlinePlayers = new ArrayList<>();
         for (GamePlayer gp : players) {
-            if ((type == null || gp.getPlayerType() == type) && gp.isOnline()) prs.add(gp);
+            if ((type == null || gp.getPlayerType() == type) && gp.isOnline()) {
+                onlinePlayers.add(gp);
+            }
         }
-        return prs;
+        return onlinePlayers;
     }
 
     public List<GamePlayer> getPlayers(PlayerType type) {
