@@ -89,7 +89,7 @@ public class ManhuntMainMenu implements Listener {
             gui.setItem(i, plugin.getItemizer().FILL_ITEM);
         }
 
-        gui.setItem(53, plugin.getItemizer().createItem(plugin.getCfg().mainMenuStoreMaterial, 1, Util.c(plugin.getCfg().mainMenuStoreDisplayname), plugin.getCfg().mainMenuStoreLore));
+        gui.setItem(53, plugin.getItemizer().FILL_ITEM);
         gui.setItem(49, plugin.getItemizer().CLOSE_ITEM);
 
         player.openInventory(gui);

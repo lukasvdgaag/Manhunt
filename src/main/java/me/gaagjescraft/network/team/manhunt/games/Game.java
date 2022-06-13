@@ -13,13 +13,16 @@ import me.gaagjescraft.network.team.manhunt.utils.Util;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.*;
+import org.bukkit.advancement.Advancement;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 
 public class Game {
@@ -34,7 +37,7 @@ public class Game {
     private final String worldIdentifier;
     private final List<GamePlayer> players;
     private final List<UUID> spectators;
-    private GameSchematic schematic;
+    private final GameSchematic schematic;
     private final GameScheduler scheduler;
     private final RunnerTrackerMenu runnerTrackerMenu;
     private boolean twistsAllowed;
@@ -102,7 +105,9 @@ public class Game {
     }
 
     public static Game getGame(UUID worldId) {
-        for (Game g : games) if (g.getWorldIdentifier().equals(worldId.toString()) || (g.getHostUUID() != null && g.getHostUUID().equals(worldId))) return g;
+        for (Game g : games)
+            if (g.getWorldIdentifier().equals(worldId.toString()) || (g.getHostUUID() != null && g.getHostUUID().equals(worldId)))
+                return g;
         return null;
     }
 
@@ -190,6 +195,10 @@ public class Game {
     }
 
     public void start() {
+        this.maxPlayers = players.size() - ((int) players.stream()
+                .filter(gamePlayer -> gamePlayer.getPlayerType() == PlayerType.RUNNER)
+                .count());
+
         this.status = GameStatus.STARTING;
         this.timer = 0;
     }
@@ -241,6 +250,7 @@ public class Game {
         gamePlayer.setOnline(true);
         if (spectators.contains(player.getUniqueId())) {
             gamePlayer.setSpectating(true);
+            gamePlayer.prepareForSpectate();
             // Verify players not invisible to spec
             player.spigot().getHiddenPlayers().forEach(p -> {
                 if (!getPlayer(p).isSpectating()) {
@@ -293,6 +303,15 @@ public class Game {
         this.getRunnerTeleporterMenu().update();
         sendUpdate();
         if (plugin.getTagUtils() != null) plugin.getTagUtils().updateTag(player);
+
+        // Revoke all advancements
+        var iterator = Bukkit.getServer().advancementIterator();
+        while (iterator.hasNext()) {
+            var progress = player.getAdvancementProgress(iterator.next());
+            for (String awardedCriterion : progress.getAwardedCriteria()) {
+                progress.revokeCriteria(awardedCriterion);
+            }
+        }
         return true;
     }
 
@@ -466,15 +485,16 @@ public class Game {
                     else if (s.contains("%third_killer%") && thirdKillerName == null) continue;
 
                     if (s.isEmpty() || s.trim().isEmpty()) player.sendMessage("");
-                    else plugin.getUtil().sendCenteredMessage(player, Util.c(s.replaceAll("%winner%", winningTeam.name())
-                            .replaceAll("%player%", player.getName())
-                            .replaceAll("%first_killer%", firstKillerName == null ? "N/A" : firstKillerName)
-                            .replaceAll("%second_killer%", secondKillerName == null ? "N/A" : secondKillerName)
-                            .replaceAll("%third_killer%", thirdKillerName == null ? "N/A" : thirdKillerName)
-                            .replaceAll("%first_killer_number%", firstKillerNumber + "")
-                            .replaceAll("%second_killer_number%", secondKillerNumber + "")
-                            .replaceAll("%third_killer_number%", thirdKillerNumber + "")
-                            .replaceAll("%kills%", gp.getKills() + "")));
+                    else
+                        plugin.getUtil().sendCenteredMessage(player, Util.c(s.replaceAll("%winner%", winningTeam.name())
+                                .replaceAll("%player%", player.getName())
+                                .replaceAll("%first_killer%", firstKillerName == null ? "N/A" : firstKillerName)
+                                .replaceAll("%second_killer%", secondKillerName == null ? "N/A" : secondKillerName)
+                                .replaceAll("%third_killer%", thirdKillerName == null ? "N/A" : thirdKillerName)
+                                .replaceAll("%first_killer_number%", firstKillerNumber + "")
+                                .replaceAll("%second_killer_number%", secondKillerNumber + "")
+                                .replaceAll("%third_killer_number%", thirdKillerNumber + "")
+                                .replaceAll("%kills%", gp.getKills() + "")));
                 }
 
                 if (gp.getPlayerType() == winningTeam) {
@@ -544,6 +564,15 @@ public class Game {
             for (GamePlayer gp : players) {
                 Player p = Bukkit.getPlayer(gp.getUuid());
                 if (p != null) {
+                    // Revoke all advancements
+                    var iterator = Bukkit.getServer().advancementIterator();
+                    while (iterator.hasNext()) {
+                        var progress = p.getAdvancementProgress(iterator.next());
+                        for (String awardedCriterion : progress.getAwardedCriteria()) {
+                            progress.revokeCriteria(awardedCriterion);
+                        }
+                    }
+
                     if (!plugin.getCfg().bungeeMode) p.teleport(loc);
                     else {
                         ByteArrayDataOutput out = ByteStreams.newDataOutput();
@@ -555,9 +584,13 @@ public class Game {
                     p.setFlying(false);
                     p.setAllowFlight(false);
 
-                    p.spigot().getHiddenPlayers().forEach(p1 -> p.showPlayer(plugin, p1));
+                    p.spigot().getHiddenPlayers().stream()
+                            .filter(Objects::nonNull)
+                            .forEach(hidden -> p.showPlayer(plugin, hidden));
 
-                    if (plugin.getTagUtils() != null) plugin.getTagUtils().updateTag(p);
+                    if (plugin.getTagUtils() != null) {
+                        plugin.getTagUtils().updateTag(p);
+                    }
                 }
             }
             if (plugin.getCfg().bungeeMode) plugin.getBungeeMessenger().createGameEndedMessage(this);
@@ -586,9 +619,7 @@ public class Game {
     }
 
     public void create() {
-        int random = ThreadLocalRandom.current().nextInt(plugin.getCfg().seeds.size());
-        long seed = plugin.getCfg().seeds.get(random);
-        this.seed = seed;
+        this.seed = ThreadLocalRandom.current().nextLong();
 
         World w = plugin.getWorldManager().create(seed, getWorldIdentifier(), World.Environment.NORMAL);
 
@@ -740,11 +771,11 @@ public class Game {
         return Bukkit.getWorld(getWorldIdentifier());
     }
 
-    public World getNether(){
+    public World getNether() {
         return Bukkit.getWorld(getWorldIdentifier() + "_nether");
     }
 
-    public World getEnd(){
+    public World getEnd() {
         return Bukkit.getWorld(getWorldIdentifier() + "_the_end");
     }
 
@@ -862,10 +893,6 @@ public class Game {
 
     public String getWorldIdentifier() {
         return worldIdentifier;
-    }
-
-    public long getSeed() {
-        return seed;
     }
 
     public Manhunt getPlugin() {

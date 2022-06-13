@@ -6,6 +6,8 @@ import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import org.bukkit.*;
 
+import java.security.SecureRandom;
+
 import static com.onarandombox.MultiverseCore.enums.AllowedPortalType.ALL;
 
 public class MultiverseManager implements WorldManager {

@@ -137,11 +137,13 @@ public class Config {
     public String twistHardcoreSound;
     public String twistRandomYeetTitle;
     public String twistSpeedBoostTitle;
+    public String twistGetHighTitle;
     public String twistBlindnessTitle;
     public String twistAcidRainTitle;
     public String twistHardcoreTitle;
     public String twistRandomYeetMessage;
     public String twistSpeedBoostMessage;
+    public String twistGetHighMessage;
     public String twistBlindnessMessage;
     public String twistAcidRainMessage;
     public String twistAcidRainEndedMessage;
@@ -279,6 +281,9 @@ public class Config {
     public String twistVoteMenuSpeedBoostMaterial;
     public String twistVoteMenuSpeedBoostDisplayname;
     public List<String> twistVoteMenuSpeedBoostLore;
+    public String twistVoteMenuGetHighMaterial;
+    public String twistVoteMenuGetHighDisplayname;
+    public List<String> twistVoteMenuGetHighLore;
     public String twistVoteMenuNoneMaterial;
     public String twistVoteMenuNoneDisplayname;
     public List<String> twistVoteMenuNoneLore;
@@ -598,6 +603,7 @@ public class Config {
         this.twistSelectMessage = conf.getStringList("messages.twist-select");
         this.twistRandomYeetMessage = conf.getString("messages.twists.random-yeet");
         this.twistSpeedBoostMessage = conf.getString("messages.twists.speed-boost");
+        this.twistGetHighMessage = conf.getString("messages.twists.get-high");
         this.twistBlindnessMessage = conf.getString("messages.twists.blindness");
         this.twistAcidRainMessage = conf.getString("messages.twists.acid-rain");
         this.twistAcidRainEndedMessage = conf.getString("messages.twists.acid-rain-ended");
@@ -689,6 +695,7 @@ public class Config {
         this.gameStartRunnerTitle = conf.getString("titles.game-start-runner");
         this.twistRandomYeetTitle = conf.getString("titles.twists.random-yeet");
         this.twistSpeedBoostTitle = conf.getString("titles.twists.speed-boost");
+        this.twistGetHighTitle = conf.getString("titles.twists.get-high");
         this.twistBlindnessTitle = conf.getString("titles.twists.blindness");
         this.twistAcidRainTitle = conf.getString("titles.twists.acid-rain");
         this.twistHardcoreTitle = conf.getString("titles.twists.hardcore");
@@ -854,6 +861,11 @@ public class Config {
         twistVoteMenuRandomYeetMaterial = conf.getString("items.twist-vote-menu.random-yeet-material");
         twistVoteMenuRandomYeetDisplayname = conf.getString("items.twist-vote-menu.random-yeet-displayname");
         twistVoteMenuRandomYeetLore = conf.getStringList("items.twist-vote-menu.random-yeet-lore");
+
+        twistVoteMenuGetHighMaterial = conf.getString("items.twist-vote-menu.get-high-material");
+        twistVoteMenuGetHighDisplayname = conf.getString("items.twist-vote-menu.get-high-displayname");
+        twistVoteMenuGetHighLore = conf.getStringList("items.twist-vote-menu.get-high-lore");
+
         twistVoteMenuSpeedBoostMaterial = conf.getString("items.twist-vote-menu.speed-boost-material");
         twistVoteMenuSpeedBoostDisplayname = conf.getString("items.twist-vote-menu.speed-boost-displayname");
         twistVoteMenuSpeedBoostLore = conf.getStringList("items.twist-vote-menu.speed-boost-lore");
@@ -1044,6 +1056,7 @@ public class Config {
         conf.set("messages.twist-select", twistSelectMessage);
         conf.set("messages.twists.random-yeet", twistRandomYeetMessage);
         conf.set("messages.twists.speed-boost", twistSpeedBoostMessage);
+        conf.set("messages.twists.get-high", twistGetHighMessage);
         conf.set("messages.twists.blindness", twistBlindnessMessage);
         conf.set("messages.twists.acid-rain", twistAcidRainMessage);
         conf.set("messages.twists.acid-rain-ended", twistAcidRainEndedMessage);
@@ -1134,6 +1147,7 @@ public class Config {
         conf.set("titles.game-start-runner", gameStartRunnerTitle);
         conf.set("titles.twists.random-yeet", twistRandomYeetTitle);
         conf.set("titles.twists.speed-boost", twistSpeedBoostTitle);
+        conf.set("titles.twists.get-high", twistGetHighMessage);
         conf.set("titles.twists.blindness", twistBlindnessTitle);
         conf.set("titles.twists.acid-rain", twistAcidRainTitle);
         conf.set("titles.twists.hardcore", twistHardcoreTitle);
@@ -1299,9 +1313,15 @@ public class Config {
         conf.set("items.twist-vote-menu.random-yeet-material", twistVoteMenuRandomYeetMaterial);
         conf.set("items.twist-vote-menu.random-yeet-displayname", twistVoteMenuRandomYeetDisplayname);
         conf.set("items.twist-vote-menu.random-yeet-lore", twistVoteMenuRandomYeetLore);
+
         conf.set("items.twist-vote-menu.speed-boost-material", twistVoteMenuSpeedBoostMaterial);
         conf.set("items.twist-vote-menu.speed-boost-displayname", twistVoteMenuSpeedBoostDisplayname);
         conf.set("items.twist-vote-menu.speed-boost-lore", twistVoteMenuSpeedBoostLore);
+
+        conf.set("items.twist-vote-menu.get-high-material", twistVoteMenuGetHighMaterial);
+        conf.set("items.twist-vote-menu.get-high-displayname", twistVoteMenuGetHighDisplayname);
+        conf.set("items.twist-vote-menu.get-high-lore", twistVoteMenuGetHighLore);
+
         conf.set("items.twist-vote-menu.none-material", twistVoteMenuNoneMaterial);
         conf.set("items.twist-vote-menu.none-displayname", twistVoteMenuNoneDisplayname);
         conf.set("items.twist-vote-menu.none-lore", twistVoteMenuNoneLore);

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -32,9 +33,14 @@ public class GameScheduler {
             @Override
             public void run() {
                 for (GamePlayer gp : game.getOnlinePlayers(null)) {
-                    if ((Bukkit.getPlayer(gp.getUuid()) != null)) {
+                    Player player = Bukkit.getPlayer(gp.getUuid());
+                    if (player != null) {
                         gp.updateScoreboard();
                         gp.getCompassTracker().updateCompass();
+
+                        if (gp.isSpectating()) {
+                            player.setGameMode(GameMode.SPECTATOR);
+                        }
                     }
                 }
 
@@ -43,7 +49,6 @@ public class GameScheduler {
                     if (w != null) w.setTime(6000);
                 }
 
-                // todo add automatic start for minimum amount of players.
                 if (game.getStatus() == GameStatus.STARTING) {
                     if (plugin.getCfg().debug) Bukkit.getLogger().severe("Starting the game now. (1)");
                     doStartingCountdown();
@@ -189,7 +194,12 @@ public class GameScheduler {
 
         // announce time at 60s, 30s, 10s, <5s
         int headstart = game.getHeadStart().getSeconds();
-        if ((headstart >= 120 && timer == headstart - 120) || (headstart >= 90 && timer == headstart - 90) || (headstart >= 60 && timer == headstart - 60) || (headstart >= 30 && timer == headstart - 30) || (headstart >= 10 && timer == headstart - 10) || (timer >= headstart - 5 && timer < headstart)) {
+        if ((headstart >= 120 && timer == headstart - 120)
+                || (headstart >= 90 && timer == headstart - 90)
+                || (headstart >= 60 && timer == headstart - 60)
+                || (headstart >= 30 && timer == headstart - 30)
+                || (headstart >= 10 && timer == headstart - 10)
+                || (timer >= headstart - 5 && timer < headstart)) {
             String time = plugin.getUtil().secondsToTimeString(headstart - timer, "string");
             for (GamePlayer gp : online) {
                 Player p = Bukkit.getPlayer(gp.getUuid());
@@ -310,6 +320,29 @@ public class GameScheduler {
                 game.setEventActive(false);
                 game.determineNextEventTime();
             }, 400);
+        } else if (game.getSelectedTwist() == TwistVote.GET_HIGH) {
+            game.setEventActive(true);
+            for (GamePlayer onlinePlayer : game.getOnlinePlayers(null)) {
+                Player player = Bukkit.getPlayer(onlinePlayer.getUuid());
+                if (player == null) {
+                    continue;
+                }
+
+                Location playerLocation = player.getLocation();
+                player.teleport(new Location(
+                        game.getWorld(),
+                        playerLocation.getX(),
+                        game.getWorld().getHighestBlockYAt(playerLocation) + 1.5,
+                        playerLocation.getZ()));
+
+                plugin.getUtil().sendTitle(player, Util.c(plugin.getCfg().twistGetHighTitle), 20, 50, 20);
+                player.sendMessage(Util.c(plugin.getCfg().twistGetHighMessage));
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    game.setEventActive(false);
+                    game.determineNextEventTime();
+                }, 200);
+
+            }
         } else if (game.getSelectedTwist() == TwistVote.BLINDNESS) {
             game.setEventActive(true);
             for (GamePlayer gp : game.getOnlinePlayers(null)) {
