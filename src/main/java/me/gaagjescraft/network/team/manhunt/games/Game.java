@@ -570,10 +570,12 @@ public class Game {
         }
 
 
-        //new method
+        // New method
         plugin.getWorldManager().delete(getWorldIdentifier());
-        plugin.getWorldManager().delete(getNether().getName());
-        plugin.getWorldManager().delete(getEnd().getName());
+        World nether = getNether();
+        if (nether != null) plugin.getWorldManager().delete(nether.getName());
+        World end = getEnd();
+        if (end != null) plugin.getWorldManager().delete(end.getName());
 
         this.players.clear();
         games.remove(this);
