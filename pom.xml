@@ -102,6 +102,11 @@
 
 
     <repositories>
+        <!-- This adds the Spigot Maven repository to the build -->
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
         <repository>
             <id>gcnt-self</id>
             <url>https://nexuslite.gcnt.net/repos/gcnt/</url>
@@ -158,18 +163,15 @@
             <id>alessiodp-repo</id>
             <url>https://repo.alessiodp.com/releases/</url>
         </repository>
-        <repository>
-            <id>rapture-snapshots</id>
-            <url>https://repo.rapture.pw/repository/maven-snapshots/</url>
-        </repository>
     </repositories>
 
 
     <dependencies>
+        <!--This adds the Spigot API artifact to the build -->
         <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
-            <version>1.16.4</version>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.16.5-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -187,19 +189,13 @@
         <dependency>
             <groupId>com.alessiodp.parties</groupId>
             <artifactId>parties-api</artifactId>
-            <version>3.2.4</version>
+            <version>3.2.6</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>de.simonsator</groupId>
             <artifactId>DevelopmentPAFSpigot</artifactId>
             <version>1.0.67</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.grinderwolf</groupId>
-            <artifactId>slimeworldmanager-api</artifactId>
-            <version>2.7.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -211,13 +207,13 @@
         <dependency>
             <groupId>org.popcraft</groupId>
             <artifactId>chunky-bukkit</artifactId>
-            <version>1.2.173</version>
+            <version>1.2.217</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.popcraft</groupId>
             <artifactId>chunky-common</artifactId>
-            <version>1.2.173</version>
+            <version>1.2.217</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -246,13 +242,13 @@
         <dependency>
             <groupId>com.nametagedit</groupId>
             <artifactId>nametagedit</artifactId>
-            <version>4.5.6</version>
+            <version>4.5.8</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.viaversion</groupId>
             <artifactId>viaversion-api</artifactId>
-            <version>4.2.1</version>
+            <version>4.3.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

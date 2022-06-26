@@ -8,4 +8,8 @@ public interface WorldManager {
 
     void delete(String worldName);
 
+    void worldLoad(String worldName);
+
+    void worldUnload(String worldName);
+
 }
