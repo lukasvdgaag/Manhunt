@@ -183,7 +183,7 @@
         <dependency>
             <groupId>com.alessiodp.parties</groupId>
             <artifactId>parties-api</artifactId>
-            <version>3.2.5</version>
+            <version>3.2.6</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -201,13 +201,13 @@
         <dependency>
             <groupId>org.popcraft</groupId>
             <artifactId>chunky-bukkit</artifactId>
-            <version>1.2.173</version>
+            <version>1.2.217</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.popcraft</groupId>
             <artifactId>chunky-common</artifactId>
-            <version>1.2.173</version>
+            <version>1.2.217</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -236,13 +236,13 @@
         <dependency>
             <groupId>com.nametagedit</groupId>
             <artifactId>nametagedit</artifactId>
-            <version>4.5.6</version>
+            <version>4.5.8</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.viaversion</groupId>
             <artifactId>viaversion-api</artifactId>
-            <version>4.2.1</version>
+            <version>4.3.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
