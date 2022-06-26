@@ -2,5 +2,6 @@
 lib
 target
 src/test
+*.iml
 .flattened-pom.xml
 dependency-reduced-pom.xml
