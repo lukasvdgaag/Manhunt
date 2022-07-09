@@ -1,6 +1,7 @@
 package me.gaagjescraft.network.team.manhunt.games;
 
 import com.google.common.collect.Lists;
+import io.papermc.lib.PaperLib;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
 import org.bukkit.Bukkit;
@@ -97,7 +98,7 @@ public class GameScheduler {
 
                         if (game.getTimer() == 0) {
                             player.sendMessage(Util.c(plugin.getCfg().thanksForPlaying));
-                            player.teleport(loc);
+                            PaperLib.teleportAsync(player, loc);
                             gp.restoreForLobby();
                         }
                     }
@@ -266,7 +267,7 @@ public class GameScheduler {
                 } else {
                     plugin.getUtil().sendTitle(p, Util.c(plugin.getCfg().gameStartRunnerTitle.replaceAll("%time%", plugin.getUtil().secondsToTimeString(game.getHeadStart().getSeconds(), "string"))), 10, 50, 10);
                     gp.prepareForGame(GameStatus.PLAYING);
-                    p.teleport(game.getWorld().getSpawnLocation());
+                    PaperLib.teleportAsync(p, game.getWorld().getSpawnLocation());
                 }
                 plugin.getUtil().playSound(p, plugin.getCfg().countdownSound, 1, 1);
             }

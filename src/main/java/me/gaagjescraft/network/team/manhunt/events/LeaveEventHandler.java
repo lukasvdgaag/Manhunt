@@ -1,5 +1,6 @@
 package me.gaagjescraft.network.team.manhunt.events;
 
+import io.papermc.lib.PaperLib;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.Game;
 import me.gaagjescraft.network.team.manhunt.games.GamePlayer;
@@ -51,7 +52,7 @@ public class LeaveEventHandler implements Listener {
         if (plugin.getCfg().joinGameOnServerJoin || plugin.getCfg().teleportLobbyOnServerJoin) {
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 if (plugin.getCfg().teleportLobbyOnServerJoin && plugin.getCfg().lobby != null) {
-                    e.getPlayer().teleport(plugin.getCfg().lobby);
+                    PaperLib.teleportAsync(e.getPlayer(), plugin.getCfg().lobby);
                 }
                 if (plugin.getCfg().joinGameOnServerJoin && !plugin.getCfg().isLobbyServer) {
                     Game game = Game.getGame(e.getPlayer());

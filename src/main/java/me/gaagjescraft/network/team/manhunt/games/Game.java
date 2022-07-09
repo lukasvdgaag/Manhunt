@@ -3,6 +3,7 @@ package me.gaagjescraft.network.team.manhunt.games;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import io.papermc.lib.PaperLib;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.events.custom.GameCreationEvent;
 import me.gaagjescraft.network.team.manhunt.events.custom.GameJoinEvent;
@@ -287,8 +288,8 @@ public class Game {
 
         if (getStatus() == GameStatus.WAITING || getStatus() == GameStatus.STARTING ||
                 (getStatus() == GameStatus.PLAYING && gamePlayer.getPlayerType() == PlayerType.HUNTER && getTimer() <= getHeadStart().getSeconds()))
-            player.teleport(this.schematic.getSpawnLocation());
-        else player.teleport(Objects.requireNonNull(Bukkit.getWorld(getWorldIdentifier())).getSpawnLocation());
+            PaperLib.teleportAsync(player, this.schematic.getSpawnLocation());
+        else PaperLib.teleportAsync(player, Objects.requireNonNull(Bukkit.getWorld(getWorldIdentifier())).getSpawnLocation());
 
         this.getRunnerTeleporterMenu().update();
         sendUpdate();
@@ -329,7 +330,7 @@ public class Game {
         if (!plugin.getCfg().isLobbyServer) {
             gamePlayer.restoreForLobby();
             gamePlayer.leaveGameDelayed(true);
-            if (!plugin.getCfg().bungeeMode) player.teleport(plugin.getCfg().lobby);
+            if (!plugin.getCfg().bungeeMode) PaperLib.teleportAsync(player, plugin.getCfg().lobby);
 
             if (plugin.getTagUtils() != null) plugin.getTagUtils().updateTag(player);
 
@@ -544,7 +545,7 @@ public class Game {
             for (GamePlayer gp : players) {
                 Player p = Bukkit.getPlayer(gp.getUuid());
                 if (p != null) {
-                    if (!plugin.getCfg().bungeeMode) p.teleport(loc);
+                    if (!plugin.getCfg().bungeeMode) PaperLib.teleportAsync(p, loc);
                     else {
                         ByteArrayDataOutput out = ByteStreams.newDataOutput();
                         out.writeUTF("Connect");
@@ -623,7 +624,7 @@ public class Game {
             for (GamePlayer gp : getOnlinePlayers(null)) {
                 Player p = Bukkit.getPlayer(gp.getUuid());
                 if (p == null) continue;
-                p.teleport(this.schematic.getSpawnLocation());
+                PaperLib.teleportAsync(p, this.schematic.getSpawnLocation());
                 gp.prepareForGame(getStatus());
                 gp.updateScoreboard();
 
