@@ -6,7 +6,6 @@ import me.gaagjescraft.network.team.manhunt.utils.Util;
 import me.gaagjescraft.network.team.manhunt.utils.config.twist.EndMessagePlainTwistConfig;
 import me.gaagjescraft.network.team.manhunt.utils.config.twist.PlainTwistConfig;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -35,14 +34,9 @@ public class GameScheduler {
             @Override
             public void run() {
                 for (GamePlayer gp : game.getOnlinePlayers(null)) {
-                    Player player = Bukkit.getPlayer(gp.getUuid());
-                    if (player != null) {
+                    if ((Bukkit.getPlayer(gp.getUuid()) != null)) {
                         gp.updateScoreboard();
                         gp.getCompassTracker().updateCompass();
-
-                        if (gp.isSpectating()) {
-                            player.setGameMode(GameMode.SPECTATOR);
-                        }
                     }
                 }
 
@@ -51,6 +45,7 @@ public class GameScheduler {
                     if (w != null) w.setTime(6000);
                 }
 
+                // todo add automatic start for minimum amount of players.
                 if (game.getStatus() == GameStatus.STARTING) {
                     if (plugin.getCfg().debug) Bukkit.getLogger().severe("Starting the game now. (1)");
                     doStartingCountdown();

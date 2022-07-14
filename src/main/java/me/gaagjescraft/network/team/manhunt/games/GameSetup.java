@@ -50,10 +50,7 @@ public class GameSetup {
         if (getGame() != null) {
             getGame().setHeadStart(headstart);
             if (announce) {
-                getGame().sendMessage(null, Util.c(
-                        plugin.getCfg().headstartChangeMessage
-                                .replaceAll("%time%", plugin.getUtil().secondsToTimeString(headstart.getSeconds(), "string"))
-                                .replaceAll("%player%", host.getName())));
+                getGame().sendMessage(null, Util.c(plugin.getCfg().headstartChangeMessage.replaceAll("%time%", plugin.getUtil().secondsToTimeString(headstart.getSeconds(), "string")).replaceAll("%player%", host.getName())));
             }
         }
     }
@@ -73,13 +70,8 @@ public class GameSetup {
             for (GamePlayer gp : this.game.getPlayers()) {
                 gp.prepareForGame(GameStatus.WAITING);
             }
-
             if (announce) {
-                getGame().sendMessage(null, Util.c(
-                                this.allowTwists
-                                        ? plugin.getCfg().toggleTwistsEnabledMessage
-                                        : plugin.getCfg().toggleTwistsDisabledMessage)
-                        .replaceAll("%player%", host.getName()));
+                getGame().sendMessage(null, Util.c(this.allowTwists ? plugin.getCfg().toggleTwistsEnabledMessage : plugin.getCfg().toggleTwistsDisabledMessage).replaceAll("%player%", host.getName()));
             }
         }
     }

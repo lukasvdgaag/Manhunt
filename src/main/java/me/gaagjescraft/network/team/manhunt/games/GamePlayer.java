@@ -368,7 +368,7 @@ public class GamePlayer {
         assert player != null;
         player.setInvisible(true);
         reset(player, false);
-        player.setGameMode(GameMode.SPECTATOR);
+        player.setGameMode(GameMode.SURVIVAL);
         player.setAllowFlight(true);
         player.setFlying(true);
         player.getInventory().setItem(4, plugin.getItemizer().MANHUNT_RUNNER_TRACKER);
@@ -593,15 +593,14 @@ public class GamePlayer {
             timeLeft = game.getTimer();
         }
 
-        List<GamePlayer> huntersList = game.getOnlinePlayers(PlayerType.HUNTER);
-        final int hunters = huntersList.size();
-        huntersList.removeIf(GamePlayer::isFullyDead);
-        final int aliveHunters = huntersList.size();
-
-        List<GamePlayer> runnersList = game.getOnlinePlayers(PlayerType.RUNNER);
-        final int runners = runnersList.size();
-        runnersList.removeIf(GamePlayer::isFullyDead);
-        final int aliveRunners = runnersList.size();
+        List<GamePlayer> gps = game.getOnlinePlayers(PlayerType.HUNTER);
+        final int hunters = gps.size();
+        List<GamePlayer> rrs = game.getOnlinePlayers(PlayerType.RUNNER);
+        final int runners = rrs.size();
+        gps.removeIf(GamePlayer::isFullyDead);
+        final int aliveHunters = gps.size();
+        rrs.removeIf(GamePlayer::isFullyDead);
+        final int aliveRunners = rrs.size();
 
         if (board == null || board.getLinecount() != lines.size()) {
             Player player = Bukkit.getPlayer(uuid);
@@ -622,11 +621,10 @@ public class GamePlayer {
             line = line.replaceAll("%color%", getColor());
             line = line.replaceAll("%winner%", game.getWinningTeam() == null ? "null" : game.getWinningTeam().name());
             line = line.replaceAll("%lives%", getMaxLives() < 1 ? "unlimited" : Math.max(getMaxLives() - getDeaths(), 0) + "");
-            line = line.replaceAll("%hunters%", String.valueOf(hunters));
-            line = line.replaceAll("%runners%", String.valueOf(runners));
-            line = line.replaceAll("%alivehunters%", String.valueOf(aliveHunters));
-            line = line.replaceAll("%aliverunners%", String.valueOf(aliveRunners));
-            line = line.replaceAll("%spectators%", String.valueOf(game.getSpectators().size()));
+            line = line.replaceAll("%hunters%", hunters + "");
+            line = line.replaceAll("%runners%", runners + "");
+            line = line.replaceAll("%alivehunters%", aliveHunters + "");
+            line = line.replaceAll("%aliverunners%", aliveRunners + "");
             line = line.replaceAll("%twist%", game.getSelectedTwist() == null ? "none" : game.getSelectedTwist().name());
             line = line.replaceAll("%kills%", getKills() + "");
             line = line.replaceAll("%maxplayers%", game.getMaxPlayers() + "");

@@ -542,6 +542,15 @@ items:
       - '&7Hunters will not get any effects.'
       - ''
       - '&e%votes% votes.'
+    get-high-material: SOUL_TORCH
+    get-high-displayname: '&bGet High'
+    get-high-lore:
+      - ''
+      - '&7Everyone will be teleported'
+      - '&7to the top solid block'
+      - '&7on the coordinates they''re at'
+      - ''
+      - '&e%votes% votes.'
     none-material: BARRIER
     none-displayname: '&cNo Twists'
     none-lore:
@@ -621,6 +630,7 @@ prefixes:
     none: none
     extra-health: extra health
     speed-boost: speed boost
+    get-high: get high
     blindness: blindness
     acid-rain: acid rain
     random-yeet: random yeets
@@ -647,6 +657,7 @@ sounds:
   twists:
     random-yeet: ENTITY_FIREWORK_ROCKET_LAUNCH
     speed-boost: ENTITY_FIREWORK_ROCKET_SHOOT
+    get-high: SOUL_TORCH
     blindness: BLOCK_PORTAL_TRAVEL
     acid-rain: ENTITY_PLAYER_SPLASH_HIGH_SPEED
     hardcore: ENTITY_WITCH_CELEBRATE
@@ -705,6 +716,7 @@ titles:
   twists:
     random-yeet: '&9&lYEET!\n&cYou got yeeted into the air!'
     speed-boost: '&b&lSPEED!\n&aThe runners received speed for &e20 seconds&a!'
+    get-high: '&c&lHIGH!\n&eYou have been lifted'
     blindness: '&5&lBLINDNESS!\n&cHunters are blinded for &e10 seconds&c!'
     acid-rain: '&2&lACID RAIN!\n&cYou better seek shelter!'
     hardcore: '&c&lHARDCORE!\n&7You have 3 hearts and won''t regen for 30s!'
@@ -777,6 +789,7 @@ messages:
   twists:
     random-yeet: '&aIt''s time for a random yeet! Wooosh!'
     speed-boost: '&bSpeed %strength% has been applied to the runners for &e20 seconds&b!'
+    get-high: '&eEveryone has been teleported at the top block on their x and z coords!'
     blindness: '&5All hunters have been blinded for &e10 seconds&5!'
     acid-rain: '&2Acid rain incoming! Seek shelter...'
     acid-rain-ended: '&cIt''s safe outside again. Acid rain has ended!'
