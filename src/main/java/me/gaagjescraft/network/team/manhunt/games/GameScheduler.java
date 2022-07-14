@@ -331,11 +331,13 @@ public class GameScheduler {
                 }
 
                 Location playerLocation = player.getLocation();
-                player.teleport(new Location(
-                        game.getWorld(),
-                        playerLocation.getX(),
-                        game.getWorld().getHighestBlockYAt(playerLocation) + 1.5,
-                        playerLocation.getZ()));
+                if (playerLocation.getWorld().getUID().equals(game.getWorld().getUID())) {
+                    player.teleport(new Location(
+                            game.getWorld(),
+                            playerLocation.getX(),
+                            game.getWorld().getHighestBlockYAt(playerLocation) + 1.5,
+                            playerLocation.getZ()));
+                }
 
                 plugin.getUtil().sendTitle(player, Util.c(config.getTitle()), 20, 50, 20);
                 plugin.getUtil().playSound(player, config.getSound(), 1, 1);
