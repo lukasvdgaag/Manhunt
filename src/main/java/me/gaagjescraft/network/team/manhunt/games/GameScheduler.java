@@ -3,6 +3,8 @@ package me.gaagjescraft.network.team.manhunt.games;
 import com.google.common.collect.Lists;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
+import me.gaagjescraft.network.team.manhunt.utils.config.twist.EndMessagePlainTwistConfig;
+import me.gaagjescraft.network.team.manhunt.utils.config.twist.PlainTwistConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -189,7 +191,12 @@ public class GameScheduler {
 
         // announce time at 60s, 30s, 10s, <5s
         int headstart = game.getHeadStart().getSeconds();
-        if ((headstart >= 120 && timer == headstart - 120) || (headstart >= 90 && timer == headstart - 90) || (headstart >= 60 && timer == headstart - 60) || (headstart >= 30 && timer == headstart - 30) || (headstart >= 10 && timer == headstart - 10) || (timer >= headstart - 5 && timer < headstart)) {
+        if ((headstart >= 120 && timer == headstart - 120)
+                || (headstart >= 90 && timer == headstart - 90)
+                || (headstart >= 60 && timer == headstart - 60)
+                || (headstart >= 30 && timer == headstart - 30)
+                || (headstart >= 10 && timer == headstart - 10)
+                || (timer >= headstart - 5 && timer < headstart)) {
             String time = plugin.getUtil().secondsToTimeString(headstart - timer, "string");
             for (GamePlayer gp : online) {
                 Player p = Bukkit.getPlayer(gp.getUuid());
@@ -276,14 +283,16 @@ public class GameScheduler {
     public void doEvent() {
         if (game.getSelectedTwist() == TwistVote.RANDOM_YEET) {
             ThreadLocalRandom random = ThreadLocalRandom.current();
+            PlainTwistConfig config = plugin.getCfg().randomYeetTwistConfig;
+
             for (GamePlayer gp : game.getOnlinePlayers(null)) {
                 Player player = Bukkit.getPlayer(gp.getUuid());
                 if (player == null) continue;
-                player.sendMessage(Util.c(plugin.getCfg().twistRandomYeetMessage));
+                player.sendMessage(Util.c(config.getMessage()));
                 if (!gp.isDead()) {
                     player.setVelocity(new Vector(random.nextDouble(-5, 5.1), random.nextDouble(1, 2.3), random.nextDouble(-5, 5.1)));
-                    plugin.getUtil().sendTitle(player, Util.c(plugin.getCfg().twistRandomYeetTitle), 20, 50, 20);
-                    plugin.getUtil().playSound(player, plugin.getCfg().twistRandomYeetSound, 1, 1);
+                    plugin.getUtil().sendTitle(player, Util.c(config.getTitle()), 20, 50, 20);
+                    plugin.getUtil().playSound(player, config.getSound(), 1, 1);
                 }
             }
             game.determineNextEventTime();
@@ -291,6 +300,7 @@ public class GameScheduler {
             game.setEventActive(true);
             ThreadLocalRandom random = ThreadLocalRandom.current();
             int rand = random.nextInt(1, 4);
+            PlainTwistConfig config = plugin.getCfg().speedBoostTwistConfig;
 
             StringBuilder a = new StringBuilder();
             a.append("I".repeat(Math.max(0, rand)));
@@ -299,9 +309,9 @@ public class GameScheduler {
                 Player player = Bukkit.getPlayer(gp.getUuid());
                 if (player == null) continue;
 
-                plugin.getUtil().playSound(player, plugin.getCfg().twistSpeedBoostSound, 1, 1);
-                plugin.getUtil().sendTitle(player, Util.c(plugin.getCfg().twistSpeedBoostTitle), 20, 50, 20);
-                player.sendMessage(Util.c(plugin.getCfg().twistSpeedBoostMessage.replaceAll("%strength%", a.toString())));
+                plugin.getUtil().playSound(player, config.getSound(), 1, 1);
+                plugin.getUtil().sendTitle(player, Util.c(config.getTitle()), 20, 50, 20);
+                player.sendMessage(Util.c(config.getMessage().replaceAll("%strength%", a.toString())));
                 if (gp.getPlayerType() == PlayerType.RUNNER && !gp.isFullyDead()) {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 400, rand));
                 }
@@ -310,15 +320,45 @@ public class GameScheduler {
                 game.setEventActive(false);
                 game.determineNextEventTime();
             }, 400);
+        } else if (game.getSelectedTwist() == TwistVote.GET_HIGH) {
+            game.setEventActive(true);
+            PlainTwistConfig config = plugin.getCfg().getHighTwistConfig;
+
+            for (GamePlayer onlinePlayer : game.getOnlinePlayers(null)) {
+                Player player = Bukkit.getPlayer(onlinePlayer.getUuid());
+                if (player == null) {
+                    continue;
+                }
+
+                Location playerLocation = player.getLocation();
+                if (playerLocation.getWorld().getUID().equals(game.getWorld().getUID())) {
+                    player.teleport(new Location(
+                            game.getWorld(),
+                            playerLocation.getX(),
+                            game.getWorld().getHighestBlockYAt(playerLocation) + 1.5,
+                            playerLocation.getZ()));
+                }
+
+                plugin.getUtil().sendTitle(player, Util.c(config.getTitle()), 20, 50, 20);
+                plugin.getUtil().playSound(player, config.getSound(), 1, 1);
+                player.sendMessage(Util.c(config.getMessage()));
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    game.setEventActive(false);
+                    game.determineNextEventTime();
+                }, 200);
+
+            }
         } else if (game.getSelectedTwist() == TwistVote.BLINDNESS) {
             game.setEventActive(true);
+            PlainTwistConfig config = plugin.getCfg().blindnessTwistConfig;
+
             for (GamePlayer gp : game.getOnlinePlayers(null)) {
                 Player player = Bukkit.getPlayer(gp.getUuid());
                 if (player == null) continue;
 
-                plugin.getUtil().playSound(player, plugin.getCfg().twistBlindnessSound, 1, 1);
-                plugin.getUtil().sendTitle(player, Util.c(plugin.getCfg().twistBlindnessTitle), 20, 50, 20);
-                player.sendMessage(Util.c(plugin.getCfg().twistBlindnessMessage));
+                plugin.getUtil().playSound(player, config.getSound(), 1, 1);
+                plugin.getUtil().sendTitle(player, Util.c(config.getTitle()), 20, 50, 20);
+                player.sendMessage(Util.c(config.getMessage()));
                 if (gp.getPlayerType() == PlayerType.HUNTER && !gp.isFullyDead()) {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 200, 1));
                 }
@@ -331,16 +371,18 @@ public class GameScheduler {
             game.setEventActive(true);
             game.getWorld().setStorm(true);
             game.getWorld().setThundering(true);
+            EndMessagePlainTwistConfig config = plugin.getCfg().acidRainTwistConfig;
+
             for (GamePlayer gp : game.getOnlinePlayers(null)) {
                 Player player = Bukkit.getPlayer(gp.getUuid());
                 if (player == null) continue;
-                plugin.getUtil().playSound(player, plugin.getCfg().twistAcidRainSound, 1, 1);
-                player.sendMessage(Util.c(plugin.getCfg().twistAcidRainMessage));
-                plugin.getUtil().sendTitle(player, Util.c(plugin.getCfg().twistAcidRainTitle), 20, 50, 20);
+                plugin.getUtil().playSound(player, config.getSound(), 1, 1);
+                player.sendMessage(Util.c(config.getMessage()));
+                plugin.getUtil().sendTitle(player, Util.c(config.getTitle()), 20, 50, 20);
             }
 
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                game.sendMessage(null, Util.c(plugin.getCfg().twistAcidRainEndedMessage));
+                game.sendMessage(null, Util.c(config.getEndedMessage()));
                 game.setEventActive(false);
                 game.determineNextEventTime();
                 if (game.getWorld() != null) {
@@ -350,13 +392,15 @@ public class GameScheduler {
             }, 600);
         } else if (game.getSelectedTwist() == TwistVote.HARDCORE) {
             game.setEventActive(true);
+            EndMessagePlainTwistConfig config = plugin.getCfg().hardcoreTwistConfig;
+
             for (GamePlayer gp : game.getOnlinePlayers(null)) {
                 Player player = Bukkit.getPlayer(gp.getUuid());
                 if (player == null) continue;
                 if (!gp.isFullyDead()) player.setHealth(6);
-                plugin.getUtil().playSound(player, plugin.getCfg().twistHardcoreSound, 1, 1);
-                player.sendMessage(Util.c(plugin.getCfg().twistHardcoreMessage));
-                plugin.getUtil().sendTitle(player, Util.c(plugin.getCfg().twistHardcoreTitle), 20, 50, 20);
+                plugin.getUtil().playSound(player, config.getSound(), 1, 1);
+                player.sendMessage(Util.c(config.getMessage()));
+                plugin.getUtil().sendTitle(player, Util.c(config.getTitle()), 20, 50, 20);
             }
 
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -366,7 +410,7 @@ public class GameScheduler {
                     Player player = Bukkit.getPlayer(gp.getUuid());
                     if (player == null) continue;
                     player.setHealth(player.getMaxHealth());
-                    player.sendMessage(Util.c(plugin.getCfg().twistHardcoreEndedMessage));
+                    player.sendMessage(Util.c(config.getEndedMessage()));
                 }
             }, 600);
         }
