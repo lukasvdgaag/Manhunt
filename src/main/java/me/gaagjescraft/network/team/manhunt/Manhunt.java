@@ -20,6 +20,7 @@ import me.gaagjescraft.network.team.manhunt.menus.*;
 import me.gaagjescraft.network.team.manhunt.menus.handlers.RunnerTrackerMenuHandler;
 import me.gaagjescraft.network.team.manhunt.menus.twist.ManhuntTwistVoteMenu;
 import me.gaagjescraft.network.team.manhunt.utils.*;
+import me.gaagjescraft.network.team.manhunt.utils.config.Config;
 import me.gaagjescraft.network.team.manhunt.utils.platform.OriginalPlatformUtils;
 import me.gaagjescraft.network.team.manhunt.utils.platform.PlatformUtils;
 import org.bukkit.Bukkit;

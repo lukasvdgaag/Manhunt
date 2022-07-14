@@ -1,6 +1,7 @@
 package me.gaagjescraft.network.team.manhunt.menus.twist;
 
 import me.gaagjescraft.network.team.manhunt.games.TwistVote;
+import me.gaagjescraft.network.team.manhunt.utils.config.icon.IconConfig;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -27,6 +28,14 @@ public class TwistItem {
         this.displayName = displayName;
         this.lore = lore;
         this.customizer = (ignored) -> {};
+    }
+
+    public TwistItem(TwistVote vote, IconConfig icon) {
+        this(vote, icon.getMaterial(), icon.getDisplayName(), icon.getLore());
+    }
+
+    public TwistItem(TwistVote vote, IconConfig icon, Consumer<ItemStack> customizer) {
+        this(vote, icon.getMaterial(), icon.getDisplayName(), icon.getLore(), customizer);
     }
 
     public TwistVote getVote() {

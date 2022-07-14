@@ -1,7 +1,6 @@
 package me.gaagjescraft.network.team.manhunt.menus.twist;
 
 import com.google.common.collect.BiMap;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
@@ -10,6 +9,7 @@ import me.gaagjescraft.network.team.manhunt.games.GamePlayer;
 import me.gaagjescraft.network.team.manhunt.games.TwistVote;
 import me.gaagjescraft.network.team.manhunt.utils.LayoutUtils;
 import me.gaagjescraft.network.team.manhunt.utils.Util;
+import me.gaagjescraft.network.team.manhunt.utils.config.icon.IconConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -26,8 +26,6 @@ import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 public class ManhuntTwistVoteMenu implements Listener {
 
@@ -142,71 +140,31 @@ public class ManhuntTwistVoteMenu implements Listener {
     }
 
     private void addBuiltinTwists() {
-        addTwistItem(new TwistItem(
-                TwistVote.HARDCORE,
-                plugin.getCfg().twistVoteMenuHardcoreMaterial,
-                plugin.getCfg().twistVoteMenuHardcoreDisplayname,
-                plugin.getCfg().twistVoteMenuHardcoreLore
-        ));
+        addTwistItem(new TwistItem(TwistVote.HARDCORE, plugin.getCfg().hardcoreTwistConfig.getIcon()));
+        addTwistItem(new TwistItem(TwistVote.EXTRA_HEALTH, plugin.getCfg().extraHealthTwistConfig.getIcon()));
+        addTwistItem(new TwistItem(TwistVote.BLINDNESS, plugin.getCfg().blindnessTwistConfig.getIcon()));
+        addTwistItem(new TwistItem(TwistVote.RANDOM_YEET, plugin.getCfg().randomYeetTwistConfig.getIcon()));
+        addTwistItem(new TwistItem(TwistVote.SPEED_BOOST, plugin.getCfg().speedBoostTwistConfig.getIcon()));
+        addTwistItem(new TwistItem(TwistVote.GET_HIGH, plugin.getCfg().getHighTwistConfig.getIcon()));
 
-        addTwistItem(new TwistItem(
-                TwistVote.EXTRA_HEALTH,
-                plugin.getCfg().twistVoteMenuExtraHealthMaterial,
-                plugin.getCfg().twistVoteMenuExtraHealthDisplayname,
-                plugin.getCfg().twistVoteMenuExtraHealthLore
-        ));
+        IconConfig acidRainIcon = plugin.getCfg().acidRainTwistConfig.getIcon();
+        addTwistItem(new TwistItem(TwistVote.ACID_RAIN, acidRainIcon, item -> {
+            ItemMeta meta = item.getItemMeta();
+            if (item.getType() == Material.TIPPED_ARROW
+                    || item.getType() == Material.POTION
+                    || item.getType() == Material.SPLASH_POTION
+                    || item.getType() == Material.LINGERING_POTION) {
+                assert meta != null;
+                ((PotionMeta) meta).setBasePotionData(new PotionData(PotionType.POISON));
+            }
 
-        addTwistItem(new TwistItem(
-                TwistVote.BLINDNESS,
-                plugin.getCfg().twistVoteMenuBlindnessMaterial,
-                plugin.getCfg().twistVoteMenuBlindnessDisplayname,
-                plugin.getCfg().twistVoteMenuBlindnessLore
-        ));
+            assert meta != null;
+            meta.setDisplayName(Util.c(acidRainIcon.getDisplayName()));
 
-        addTwistItem(new TwistItem(
-                TwistVote.RANDOM_YEET,
-                plugin.getCfg().twistVoteMenuHardcoreMaterial,
-                plugin.getCfg().twistVoteMenuHardcoreDisplayname,
-                plugin.getCfg().twistVoteMenuHardcoreLore
-        ));
-
-        addTwistItem(new TwistItem(
-                TwistVote.SPEED_BOOST,
-                plugin.getCfg().twistVoteMenuSpeedBoostMaterial,
-                plugin.getCfg().twistVoteMenuSpeedBoostDisplayname,
-                plugin.getCfg().twistVoteMenuSpeedBoostLore
-        ));
-
-        addTwistItem(new TwistItem(
-                TwistVote.GET_HIGH,
-                plugin.getCfg().twistVoteMenuGetHighMaterial,
-                plugin.getCfg().twistVoteMenuGetHighDisplayname,
-                plugin.getCfg().twistVoteMenuGetHighLore
-        ));
-
-        addTwistItem(new TwistItem(
-                TwistVote.ACID_RAIN,
-                plugin.getCfg().twistVoteMenuAcidRainMaterial,
-                plugin.getCfg().twistVoteMenuAcidRainDisplayname,
-                plugin.getCfg().twistvoteMenuAcidRainLore,
-                item -> {
-                    ItemMeta meta = item.getItemMeta();
-                    if (item.getType() == Material.TIPPED_ARROW
-                            || item.getType() == Material.POTION
-                            || item.getType() == Material.SPLASH_POTION
-                            || item.getType() == Material.LINGERING_POTION) {
-                        assert meta != null;
-                        ((PotionMeta) meta).setBasePotionData(new PotionData(PotionType.POISON));
-                    }
-
-                    assert meta != null;
-                    meta.setDisplayName(Util.c(plugin.getCfg().twistVoteMenuAcidRainDisplayname));
-
-                    meta.setLore(Objects.requireNonNull(item.getItemMeta()).getLore());
-                    meta.addItemFlags(ItemFlag.values());
-                    item.setItemMeta(meta);
-                }
-        ));
+            meta.setLore(Objects.requireNonNull(item.getItemMeta()).getLore());
+            meta.addItemFlags(ItemFlag.values());
+            item.setItemMeta(meta);
+        }));
 
         addTwistItem(new TwistItem(
                 TwistVote.NONE,

@@ -1,7 +1,10 @@
-package me.gaagjescraft.network.team.manhunt.utils;
+package me.gaagjescraft.network.team.manhunt.utils.config;
 
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.HeadstartType;
+import me.gaagjescraft.network.team.manhunt.utils.config.twist.EndMessagePlainTwistConfig;
+import me.gaagjescraft.network.team.manhunt.utils.config.twist.IconTwistConfig;
+import me.gaagjescraft.network.team.manhunt.utils.config.twist.PlainTwistConfig;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -130,25 +133,13 @@ public class Config {
     public String menuGamesTitle;
     public String menuHeadstartTitle;
     public String menuRunnerManagerTitle;
-    public String twistRandomYeetSound;
-    public String twistSpeedBoostSound;
-    public String twistBlindnessSound;
-    public String twistAcidRainSound;
-    public String twistHardcoreSound;
-    public String twistRandomYeetTitle;
-    public String twistSpeedBoostTitle;
-    public String twistGetHighTitle;
-    public String twistBlindnessTitle;
-    public String twistAcidRainTitle;
-    public String twistHardcoreTitle;
-    public String twistRandomYeetMessage;
-    public String twistSpeedBoostMessage;
-    public String twistGetHighMessage;
-    public String twistBlindnessMessage;
-    public String twistAcidRainMessage;
-    public String twistAcidRainEndedMessage;
-    public String twistHardcoreMessage;
-    public String twistHardcoreEndedMessage;
+    public IconTwistConfig extraHealthTwistConfig;
+    public PlainTwistConfig randomYeetTwistConfig;
+    public PlainTwistConfig speedBoostTwistConfig;
+    public PlainTwistConfig blindnessTwistConfig;
+    public EndMessagePlainTwistConfig acidRainTwistConfig;
+    public EndMessagePlainTwistConfig hardcoreTwistConfig;
+    public PlainTwistConfig getHighTwistConfig;
     public String headstartChangeMessage;
     public String toggleTwistsEnabledMessage;
     public String toggleTwistsDisabledMessage;
@@ -266,30 +257,9 @@ public class Config {
     public String runnerManagerMenuSaveMaterial;
     public String runnerManagerMenuSaveDisplayname;
     public List<String> runnerManagerMenuSaveLore;
-    public String twistVoteMenuHardcoreMaterial;
-    public String twistVoteMenuHardcoreDisplayname;
-    public List<String> twistVoteMenuHardcoreLore;
-    public String twistVoteMenuExtraHealthMaterial;
-    public String twistVoteMenuExtraHealthDisplayname;
-    public List<String> twistVoteMenuExtraHealthLore;
-    public String twistVoteMenuBlindnessMaterial;
-    public String twistVoteMenuBlindnessDisplayname;
-    public List<String> twistVoteMenuBlindnessLore;
-    public String twistVoteMenuRandomYeetMaterial;
-    public String twistVoteMenuRandomYeetDisplayname;
-    public List<String> twistVoteMenuRandomYeetLore;
-    public String twistVoteMenuSpeedBoostMaterial;
-    public String twistVoteMenuSpeedBoostDisplayname;
-    public List<String> twistVoteMenuSpeedBoostLore;
-    public String twistVoteMenuGetHighMaterial;
-    public String twistVoteMenuGetHighDisplayname;
-    public List<String> twistVoteMenuGetHighLore;
     public String twistVoteMenuNoneMaterial;
     public String twistVoteMenuNoneDisplayname;
     public List<String> twistVoteMenuNoneLore;
-    public String twistVoteMenuAcidRainMaterial;
-    public String twistVoteMenuAcidRainDisplayname;
-    public List<String> twistvoteMenuAcidRainLore;
     public String menuTwistVoteTitle;
     public String openTwistVoteMenuSound;
     public String twistVoteSound;
@@ -601,14 +571,24 @@ public class Config {
         this.gameStartRunnerMessage = conf.getStringList("messages.game-start-runner");
         this.gameStartHunterMessage = conf.getStringList("messages.game-start-hunter");
         this.twistSelectMessage = conf.getStringList("messages.twist-select");
-        this.twistRandomYeetMessage = conf.getString("messages.twists.random-yeet");
-        this.twistSpeedBoostMessage = conf.getString("messages.twists.speed-boost");
-        this.twistGetHighMessage = conf.getString("messages.twists.get-high");
-        this.twistBlindnessMessage = conf.getString("messages.twists.blindness");
-        this.twistAcidRainMessage = conf.getString("messages.twists.acid-rain");
-        this.twistAcidRainEndedMessage = conf.getString("messages.twists.acid-rain-ended");
-        this.twistHardcoreMessage = conf.getString("messages.twists.hardcore");
-        this.twistHardcoreEndedMessage = conf.getString("messages.twists.hardcore-ended");
+
+        this.randomYeetTwistConfig = new PlainTwistConfig("random-yeet");
+        this.speedBoostTwistConfig = new PlainTwistConfig("speed-boost");
+        this.blindnessTwistConfig = new PlainTwistConfig("blindness");
+        this.acidRainTwistConfig = new EndMessagePlainTwistConfig("acid-rain");
+        this.hardcoreTwistConfig = new EndMessagePlainTwistConfig("hardcore");
+        this.getHighTwistConfig = new PlainTwistConfig("get-high");
+        this.extraHealthTwistConfig = new IconTwistConfig("extra-health");
+
+        // Load twists
+        this.randomYeetTwistConfig.load(conf);
+        this.speedBoostTwistConfig.load(conf);
+        this.blindnessTwistConfig.load(conf);
+        this.acidRainTwistConfig.load(conf);
+        this.hardcoreTwistConfig.load(conf);
+        this.getHighTwistConfig.load(conf);
+        this.extraHealthTwistConfig.load(conf);
+
         this.headstartChangeMessage = conf.getString("messages.headstart-change");
         this.toggleTwistsEnabledMessage = conf.getString("messages.toggle-twists-enabled");
         this.toggleTwistsDisabledMessage = conf.getString("messages.toggle-twists-disabled");
@@ -693,12 +673,6 @@ public class Config {
         this.startingCountdownTitle = conf.getString("titles.starting-countdown");
         this.gameStartHunterTitle = conf.getString("titles.game-start-hunter");
         this.gameStartRunnerTitle = conf.getString("titles.game-start-runner");
-        this.twistRandomYeetTitle = conf.getString("titles.twists.random-yeet");
-        this.twistSpeedBoostTitle = conf.getString("titles.twists.speed-boost");
-        this.twistGetHighTitle = conf.getString("titles.twists.get-high");
-        this.twistBlindnessTitle = conf.getString("titles.twists.blindness");
-        this.twistAcidRainTitle = conf.getString("titles.twists.acid-rain");
-        this.twistHardcoreTitle = conf.getString("titles.twists.hardcore");
 
         this.scoreboardTitle = conf.getString("scoreboards.title");
         this.loadingScoreboard = conf.getStringList("scoreboards.loading");
@@ -728,11 +702,6 @@ public class Config {
         this.playerRespawnedSound = conf.getString("sounds.player-respawned");
         this.countdownSound = conf.getString("sounds.countdown");
         this.huntersReleasedSound = conf.getString("sounds.hunters-released");
-        this.twistRandomYeetSound = conf.getString("sounds.twists.random-yeet");
-        this.twistSpeedBoostSound = conf.getString("sounds.twists.speed-boost");
-        this.twistBlindnessSound = conf.getString("sounds.twists.blindness");
-        this.twistAcidRainSound = conf.getString("sounds.twists.acid-rain");
-        this.twistHardcoreSound = conf.getString("sounds.twists.hardcore");
         this.playerIsYouSound = conf.getString("sounds.player-is-you");
         this.trackingPlayerSound = conf.getString("sounds.tracking-player");
         this.openMenuHostGameSound = conf.getString("sounds.open-menu-host-game");
@@ -849,32 +818,10 @@ public class Config {
         runnerManagerMenuSaveMaterial = conf.getString("items.runner-manager-menu.save-material");
         runnerManagerMenuSaveDisplayname = conf.getString("items.runner-manager-menu.save-displayname");
         runnerManagerMenuSaveLore = conf.getStringList("items.runner-manager-menu.save-lore");
-        twistVoteMenuHardcoreMaterial = conf.getString("items.twist-vote-menu.hardcore-material");
-        twistVoteMenuHardcoreDisplayname = conf.getString("items.twist-vote-menu.hardcore-displayname");
-        twistVoteMenuHardcoreLore = conf.getStringList("items.twist-vote-menu.hardcore-lore");
-        twistVoteMenuExtraHealthMaterial = conf.getString("items.twist-vote-menu.extra-health-material");
-        twistVoteMenuExtraHealthDisplayname = conf.getString("items.twist-vote-menu.extra-health-displayname");
-        twistVoteMenuExtraHealthLore = conf.getStringList("items.twist-vote-menu.extra-health-lore");
-        twistVoteMenuBlindnessMaterial = conf.getString("items.twist-vote-menu.blindness-material");
-        twistVoteMenuBlindnessDisplayname = conf.getString("items.twist-vote-menu.blindness-displayname");
-        twistVoteMenuBlindnessLore = conf.getStringList("items.twist-vote-menu.blindness-lore");
-        twistVoteMenuRandomYeetMaterial = conf.getString("items.twist-vote-menu.random-yeet-material");
-        twistVoteMenuRandomYeetDisplayname = conf.getString("items.twist-vote-menu.random-yeet-displayname");
-        twistVoteMenuRandomYeetLore = conf.getStringList("items.twist-vote-menu.random-yeet-lore");
 
-        twistVoteMenuGetHighMaterial = conf.getString("items.twist-vote-menu.get-high-material");
-        twistVoteMenuGetHighDisplayname = conf.getString("items.twist-vote-menu.get-high-displayname");
-        twistVoteMenuGetHighLore = conf.getStringList("items.twist-vote-menu.get-high-lore");
-
-        twistVoteMenuSpeedBoostMaterial = conf.getString("items.twist-vote-menu.speed-boost-material");
-        twistVoteMenuSpeedBoostDisplayname = conf.getString("items.twist-vote-menu.speed-boost-displayname");
-        twistVoteMenuSpeedBoostLore = conf.getStringList("items.twist-vote-menu.speed-boost-lore");
         twistVoteMenuNoneMaterial = conf.getString("items.twist-vote-menu.none-material");
         twistVoteMenuNoneDisplayname = conf.getString("items.twist-vote-menu.none-displayname");
         twistVoteMenuNoneLore = conf.getStringList("items.twist-vote-menu.none-lore");
-        twistVoteMenuAcidRainMaterial = conf.getString("items.twist-vote-menu.acid-rain-material");
-        twistVoteMenuAcidRainDisplayname = conf.getString("items.twist-vote-menu.acid-rain-displayname");
-        twistvoteMenuAcidRainLore = conf.getStringList("items.twist-vote-menu.acid-rain-lore");
         teleporterMenuPlayerDisplayname = conf.getString("items.teleporter-menu.player-displayname");
         teleporterMenuPlayerLore = conf.getStringList("items.teleporter-menu.player-lore");
         trackerMenuPlayerDisplayname = conf.getString("items.tracker-menu.player-displayname");
@@ -1054,14 +1001,16 @@ public class Config {
         conf.set("messages.game-start-runner", gameStartRunnerMessage);
         conf.set("messages.game-start-hunter", gameStartHunterMessage);
         conf.set("messages.twist-select", twistSelectMessage);
-        conf.set("messages.twists.random-yeet", twistRandomYeetMessage);
-        conf.set("messages.twists.speed-boost", twistSpeedBoostMessage);
-        conf.set("messages.twists.get-high", twistGetHighMessage);
-        conf.set("messages.twists.blindness", twistBlindnessMessage);
-        conf.set("messages.twists.acid-rain", twistAcidRainMessage);
-        conf.set("messages.twists.acid-rain-ended", twistAcidRainEndedMessage);
-        conf.set("messages.twists.hardcore", twistHardcoreMessage);
-        conf.set("messages.twists.hardcore-ended", twistHardcoreEndedMessage);
+
+        // Save twists
+        randomYeetTwistConfig.save(conf);
+        speedBoostTwistConfig.save(conf);
+        blindnessTwistConfig.save(conf);
+        acidRainTwistConfig.save(conf);
+        hardcoreTwistConfig.save(conf);
+        getHighTwistConfig.save(conf);
+        extraHealthTwistConfig.save(conf);
+
         conf.set("messages.headstart-change", headstartChangeMessage);
         conf.set("messages.toggle-twists-enabled", toggleTwistsEnabledMessage);
         conf.set("messages.toggle-twists.disabled", toggleTwistsDisabledMessage);
@@ -1145,12 +1094,6 @@ public class Config {
         conf.set("titles.starting-countdown", startingCountdownTitle);
         conf.set("titles.game-start-hunter", gameStartHunterTitle);
         conf.set("titles.game-start-runner", gameStartRunnerTitle);
-        conf.set("titles.twists.random-yeet", twistRandomYeetTitle);
-        conf.set("titles.twists.speed-boost", twistSpeedBoostTitle);
-        conf.set("titles.twists.get-high", twistGetHighMessage);
-        conf.set("titles.twists.blindness", twistBlindnessTitle);
-        conf.set("titles.twists.acid-rain", twistAcidRainTitle);
-        conf.set("titles.twists.hardcore", twistHardcoreTitle);
 
         conf.set("scoreboards.title", scoreboardTitle);
         conf.set("scoreboards.loading", loadingScoreboard);
@@ -1180,11 +1123,6 @@ public class Config {
         conf.set("sounds.player-respawned", playerRespawnedSound);
         conf.set("sounds.countdown", countdownSound);
         conf.set("sounds.hunters-released", huntersReleasedSound);
-        conf.set("sounds.twists.random-yeet", twistRandomYeetSound);
-        conf.set("sounds.twists.speed-boost", twistSpeedBoostSound);
-        conf.set("sounds.twists.blindness", twistBlindnessSound);
-        conf.set("sounds.twists.acid-rain", twistAcidRainSound);
-        conf.set("sounds.twists.hardcore", twistHardcoreSound);
         conf.set("sounds.open-menu-host-game", openMenuHostGameSound);
         conf.set("sounds.close-menu-host-game", closeMenuHostGameSound);
         conf.set("sounds.menu-host-toggle-twist", menuHostToggleTwistSound);
@@ -1301,33 +1239,9 @@ public class Config {
         conf.set("items.runner-manager-menu.save-displayname", runnerManagerMenuSaveDisplayname);
         conf.set("items.runner-manager-menu.save-lore", runnerManagerMenuSaveLore);
 
-        conf.set("items.twist-vote-menu.hardcore-material", twistVoteMenuHardcoreMaterial);
-        conf.set("items.twist-vote-menu.hardcore-displayname", twistVoteMenuHardcoreDisplayname);
-        conf.set("items.twist-vote-menu.hardcore-lore", twistVoteMenuHardcoreLore);
-        conf.set("items.twist-vote-menu.extra-health-material", twistVoteMenuExtraHealthMaterial);
-        conf.set("items.twist-vote-menu.extra-health-displayname", twistVoteMenuExtraHealthDisplayname);
-        conf.set("items.twist-vote-menu.extra-health-lore", twistVoteMenuExtraHealthLore);
-        conf.set("items.twist-vote-menu.blindness-material", twistVoteMenuBlindnessMaterial);
-        conf.set("items.twist-vote-menu.blindness-displayname", twistVoteMenuBlindnessDisplayname);
-        conf.set("items.twist-vote-menu.blindness-lore", twistVoteMenuBlindnessLore);
-        conf.set("items.twist-vote-menu.random-yeet-material", twistVoteMenuRandomYeetMaterial);
-        conf.set("items.twist-vote-menu.random-yeet-displayname", twistVoteMenuRandomYeetDisplayname);
-        conf.set("items.twist-vote-menu.random-yeet-lore", twistVoteMenuRandomYeetLore);
-
-        conf.set("items.twist-vote-menu.speed-boost-material", twistVoteMenuSpeedBoostMaterial);
-        conf.set("items.twist-vote-menu.speed-boost-displayname", twistVoteMenuSpeedBoostDisplayname);
-        conf.set("items.twist-vote-menu.speed-boost-lore", twistVoteMenuSpeedBoostLore);
-
-        conf.set("items.twist-vote-menu.get-high-material", twistVoteMenuGetHighMaterial);
-        conf.set("items.twist-vote-menu.get-high-displayname", twistVoteMenuGetHighDisplayname);
-        conf.set("items.twist-vote-menu.get-high-lore", twistVoteMenuGetHighLore);
-
         conf.set("items.twist-vote-menu.none-material", twistVoteMenuNoneMaterial);
         conf.set("items.twist-vote-menu.none-displayname", twistVoteMenuNoneDisplayname);
         conf.set("items.twist-vote-menu.none-lore", twistVoteMenuNoneLore);
-        conf.set("items.twist-vote-menu.acid-rain-material", twistVoteMenuAcidRainMaterial);
-        conf.set("items.twist-vote-menu.acid-rain-displayname", twistVoteMenuAcidRainDisplayname);
-        conf.set("items.twist-vote-menu.acid-rain-lore", twistvoteMenuAcidRainLore);
         conf.set("items.teleporter-menu.player-displayname", teleporterMenuPlayerDisplayname);
         conf.set("items.teleporter-menu.player-lore", teleporterMenuPlayerLore);
         conf.set("items.tracker-menu.player-displayname", trackerMenuPlayerDisplayname);
