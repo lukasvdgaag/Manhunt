@@ -1,6 +1,7 @@
 package me.gaagjescraft.network.team.manhunt.games;
 
 import com.google.common.collect.Lists;
+import io.papermc.lib.PaperLib;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.games.compass.CompassTracker;
 import me.gaagjescraft.network.team.manhunt.inst.PlayerStat;
@@ -373,7 +374,7 @@ public class GamePlayer{
         player.setFlying(true);
         player.getInventory().setItem(4, plugin.getItemizer().MANHUNT_RUNNER_TRACKER);
 
-        player.teleport(game.getWorld().getSpawnLocation().add(0, 20, 0));
+        PaperLib.teleportAsync(player, game.getWorld().getSpawnLocation().add(0, 20, 0));
 
         if (isFullyDead()) {
             player.getInventory().setItem(8, plugin.getItemizer().MANHUNT_LEAVE_ITEM);
@@ -425,13 +426,13 @@ public class GamePlayer{
                     if (getBedSpawn() != null && getBedSpawn().getBlock().getType().name().endsWith("BED")) {
                         // player has bed spawn set.
                         player.setGameMode(GameMode.SURVIVAL);
-                        player.teleport(getBedSpawn());
+                        PaperLib.teleportAsync(player, getBedSpawn());
                         player.sendMessage(Util.c(plugin.getCfg().respawnedBedMessage));
                         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(plugin.getCfg().respawnedBedActionbar)));
                     } else {
                         // no bed spawn
                         player.setGameMode(GameMode.SURVIVAL);
-                        player.teleport(world.getSpawnLocation());
+                        PaperLib.teleportAsync(player, world.getSpawnLocation());
                         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Util.c(plugin.getCfg().respawnedWorldspawnActionbar)));
                     }
                     this.cancel();

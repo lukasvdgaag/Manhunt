@@ -1,5 +1,6 @@
 package me.gaagjescraft.network.team.manhunt.menus.handlers;
 
+import io.papermc.lib.PaperLib;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.events.custom.GameTrackerMenuClickEvent;
 import me.gaagjescraft.network.team.manhunt.games.Game;
@@ -72,7 +73,7 @@ public class RunnerTrackerMenuHandler implements Listener {
             player.closeInventory();
             plugin.getUtil().playSound(player, plugin.getCfg().trackingPlayerSound, 1, 1);
             if (teleporting) {
-                player.teleport(target.getLocation());
+                PaperLib.teleportAsync(player, target.getLocation());
                 player.sendMessage(Util.c(plugin.getCfg().teleportingPlayerMessage.replaceAll("%prefix%", targetGP.getPrefix())
                         .replaceAll("%color%", targetGP.getColor()).replaceAll("%player%", target.getName())));
             } else {
