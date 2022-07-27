@@ -1,5 +1,6 @@
 package me.gaagjescraft.network.team.manhunt;
 
+import io.papermc.lib.PaperLib;
 import me.gaagjescraft.network.team.manhunt.commands.*;
 import me.gaagjescraft.network.team.manhunt.events.DeathEventHandler;
 import me.gaagjescraft.network.team.manhunt.events.GameEventsHandlers;
@@ -283,7 +284,7 @@ public class Manhunt extends JavaPlugin {
             if (getCfg().teleportPlayersToLobbyInVoid && getCfg().lobby != null) {
                 for (Player p : Objects.requireNonNull(getCfg().lobby.getWorld()).getPlayers()) {
                     if (p.getLocation().getBlockY() < getCfg().lobbyTeleportYCoord) {
-                        p.teleport(getCfg().lobby);
+                        PaperLib.teleportAsync(p, getCfg().lobby);
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
                         p.sendMessage(Util.c(getCfg().cannotLeaveLobbyMessage));
                     }
@@ -299,7 +300,7 @@ public class Manhunt extends JavaPlugin {
                             if (p.getLocation().getBlockY() <= 150 || !p.getWorld().getName().equals(game.getWorld().getName())) {
                                 if (!gp.isSpectating() && (game.getStatus() != GameStatus.PLAYING || (game.getStatus() == GameStatus.PLAYING && game.getTimer() <= game.getHeadStart().getSeconds() && gp.getPlayerType() == PlayerType.HUNTER))) {
                                     p.sendMessage(Util.c(getCfg().cannotLeaveWaitingZoneMessage));
-                                    p.teleport(game.getSchematic().getSpawnLocation());
+                                    PaperLib.teleportAsync(p, game.getSchematic().getSpawnLocation());
                                     p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                                 }
                             }
