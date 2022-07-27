@@ -10,6 +10,7 @@ plugins {
 }
 
 repositories {
+    mavenCentral()
     mavenLocal()
     maven {
         url = uri("https://nexuslite.gcnt.net/repos/gcnt/")
@@ -70,12 +71,16 @@ repositories {
     maven {
         url = uri("https://repo.maven.apache.org/maven2/")
     }
+    maven {
+        url = uri("https://libraries.minecraft.net/")
+    }
 }
 
 dependencies {
-    implementation("org.mongodb:mongodb-driver:3.12.10")
+    implementation("org.mongodb:mongodb-driver:3.12.11")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("io.papermc:paperlib:1.0.8-SNAPSHOT")
+    implementation("net.sf.jopt-simple:jopt-simple:5.0.4")
     compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
     compileOnly("de.simonsator:Party-and-Friends-MySQL-Edition-Spigot-API:1.5.3")
     compileOnly("de.simonsator:Spigot-Party-API-For-RedisBungee:1.0.3-SNAPSHOT")
@@ -90,6 +95,7 @@ dependencies {
     compileOnly("com.viaversion:viaversion-api:4.3.1")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     compileOnly("net.gcnt:additionsplus:1.0.3")
+    compileOnly("com.mojang:authlib:1.5.21")
 }
 
 group = "me.gaagjescraft.network.team"
@@ -103,6 +109,6 @@ publishing {
     }
 }
 
-tasks.withType<JavaCompile>() {
+tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
