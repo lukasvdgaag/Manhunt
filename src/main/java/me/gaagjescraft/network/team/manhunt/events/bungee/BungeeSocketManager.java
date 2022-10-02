@@ -3,24 +3,27 @@ package me.gaagjescraft.network.team.manhunt.events.bungee;
 import me.gaagjescraft.network.team.manhunt.Manhunt;
 import me.gaagjescraft.network.team.manhunt.events.custom.ManhuntBungeeMessageReceiveEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class BungeeSocketManager {
 
-    public final List<Socket> socketsConnected = new ArrayList<>();
+    public final ConcurrentLinkedQueue<Socket> socketsConnected = new ConcurrentLinkedQueue<>();
+
+    private final Object socketLock = new Object();
     private ServerSocket ss = null;
     public Socket s = null;
     private DataInputStream din = null;
     private DataOutputStream dout = null;
-    private Thread thread = null;
-    private int bukkitTaskId = -1;
+    private Thread incomingConnectionThread = null;
+    private BukkitTask bukkitTask = null;
 
     private final Manhunt plugin;
 
@@ -84,74 +87,81 @@ public class BungeeSocketManager {
         This method starts the socket server. (Server)
      */
     public void enableServer() {
-        close();
-        thread = new Thread(() -> {
+        // Make sure that the plugin behaves fine after a reload
+        cleanup();
+
+        // Setup handler for open connections
+        final BukkitScheduler scheduler = Bukkit.getScheduler();
+        bukkitTask = scheduler.runTaskTimerAsynchronously(plugin, () -> {
+            try {
+                socketsConnected.removeIf((socket -> socket.isClosed() || !socket.isConnected() || socket.isOutputShutdown() || socket.isInputShutdown()));
+                for (Socket s : socketsConnected) {
+                    DataInputStream din = new DataInputStream(s.getInputStream());
+                    if (din.available() >= 2) {
+                        String subChannel = din.readUTF();
+                        String value = din.readUTF();
+                        if (plugin.getCfg().debug)
+                            Bukkit.getLogger().severe("Message from socket: " + subChannel + ", " + value);
+
+                        // Perform event call and trigger message handlers on the tick
+                        scheduler.runTask(plugin, () -> {
+                            Bukkit.getPluginManager().callEvent(new ManhuntBungeeMessageReceiveEvent(subChannel, value));
+
+                            switch (subChannel) {
+                                case "createGameResponse" -> plugin.getBungeeMessenger().serverProcessCreateGameResponse(value);
+                                case "deleteGame" -> plugin.getBungeeMessenger().serverProcessDeleteGame(value);
+                                case "gameReady" -> plugin.getBungeeMessenger().serverProcessGameReady(value);
+                                case "gameEnded" -> plugin.getBungeeMessenger().serverProcessGameEnded(value);
+                                case "updateGame" -> plugin.getBungeeMessenger().serverProcessUpdateGame(value);
+                                case "endGame" -> plugin.getBungeeMessenger().serverProcessEndGame(value);
+                            }
+                        });
+
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }, 0, 5);
+
+        // Setup listener for new connections
+        incomingConnectionThread = new Thread(() -> {
             try {
                 ss = new ServerSocket(plugin.getCfg().socketPort);
 
                 while (true) {
                     Bukkit.getLogger().info("Attempting to accept a connection to the socket.");
-                    s = ss.accept();
-                    s.setKeepAlive(true);
+                    Socket incomingSocketConnection = ss.accept(); // Will hang here until a new connection comes in
+                    incomingSocketConnection.setKeepAlive(true);
                     Bukkit.getLogger().warning("Manhunt successfully connected to the socket on port " + plugin.getCfg().socketPort + " and is now ready to receive and send messages.");
 
-                    socketsConnected.add(s);
-
-                    if (bukkitTaskId != -1) Bukkit.getScheduler().cancelTask(bukkitTaskId);
-
-                    bukkitTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
-                        try {
-                            socketsConnected.removeIf((socket -> socket.isClosed() || !socket.isConnected() || socket.isOutputShutdown() || socket.isInputShutdown()));
-                            for (Socket s : socketsConnected) {
-                                DataInputStream din = new DataInputStream(s.getInputStream());
-                                if (din.available() >= 2) {
-                                    String subChannel = din.readUTF();
-                                    String value = din.readUTF();
-                                    if (plugin.getCfg().debug)
-                                        Bukkit.getLogger().severe("Message from socket: " + subChannel + ", " + value);
-
-                                    Bukkit.getPluginManager().callEvent(new ManhuntBungeeMessageReceiveEvent(subChannel, value));
-
-                                    switch (subChannel) {
-                                        case "createGameResponse" -> plugin.getBungeeMessenger().serverProcessCreateGameResponse(value);
-                                        case "deleteGame" -> plugin.getBungeeMessenger().serverProcessDeleteGame(value);
-                                        case "gameReady" -> plugin.getBungeeMessenger().serverProcessGameReady(value);
-                                        case "gameEnded" -> plugin.getBungeeMessenger().serverProcessGameEnded(value);
-                                        case "updateGame" -> plugin.getBungeeMessenger().serverProcessUpdateGame(value);
-                                        case "endGame" -> plugin.getBungeeMessenger().serverProcessEndGame(value);
-                                    }
-
-                                }
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }, 0, 5);
+                    socketsConnected.add(incomingSocketConnection);
                 }
-
-
             } catch (Exception e) {
                 plugin.getLogger().severe("Manhunt found an error while doing socket stuff:");
                 e.printStackTrace();
-                close();
+                cleanup();
             }
         });
-        thread.start();
+        incomingConnectionThread.start();
     }
 
     /*
         This method is being used to close the socket server and server?
      */
 
-    public void close() {
+    public void cleanup() {
         try {
-            if (thread != null && thread.isAlive()) thread.interrupt();
-            if (bukkitTaskId != -1) Bukkit.getScheduler().cancelTask(bukkitTaskId);
-            if (din != null) din.close();
-            if (dout != null) dout.close();
-            if (s != null) s.close();
-            if (ss != null) ss.close();
-        } catch (Exception ignored) {
+            if (incomingConnectionThread != null && incomingConnectionThread.isAlive()) incomingConnectionThread.interrupt();
+            if (bukkitTask != null && !bukkitTask.isCancelled()) bukkitTask.cancel();
+            synchronized (socketLock) {
+                if (din != null) din.close();
+                if (dout != null) dout.close();
+                if (s != null) s.close();
+                if (ss != null) ss.close();
+            }
+        } catch (Exception ex) {
+            if (plugin.getCfg().debug) ex.printStackTrace();
         }
 
         socketsConnected.clear();
@@ -161,46 +171,68 @@ public class BungeeSocketManager {
         This method is being used to connect from the client to the socketserver;
      */
     public void connectClientToServer() {
-        close();
-        thread = new Thread(() -> Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+        // Make sure nothing is still connected
+        cleanup();
+
+        // Setup data listener (from: lobby server, to: this client server)
+        final BukkitScheduler scheduler = Bukkit.getScheduler();
+        bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             try {
-                if (s == null || din == null || dout == null || s.isInputShutdown() || s.isOutputShutdown() || s.isClosed() || !s.isConnected()) {
-                    close();
-                    s = new Socket(plugin.getCfg().socketHostname, plugin.getCfg().socketPort);
-                    din = new DataInputStream(s.getInputStream());
-                    dout = new DataOutputStream(s.getOutputStream());
-                    Bukkit.getLogger().warning("Manhunt successfully connected to the socket and is now ready to receive and send messages.");
+                synchronized (socketLock) {
+                    if (s == null || din == null || dout == null || s.isInputShutdown() || s.isOutputShutdown() || s.isClosed() || !s.isConnected()) {
+                        cleanup();
+                        s = new Socket(plugin.getCfg().socketHostname, plugin.getCfg().socketPort);
+                        din = new DataInputStream(s.getInputStream());
+                        dout = new DataOutputStream(s.getOutputStream());
+                        Bukkit.getLogger().warning("Manhunt successfully connected to the socket and is now ready to receive and send messages.");
+                    }
                 }
 
-                if (din.available() >= 2) {
-                    String subChannel = din.readUTF();
-                    String value = din.readUTF();
-                    if (plugin.getCfg().debug)
-                        Bukkit.getLogger().severe("Message from socket: " + subChannel + ", " + value);
+                // Get if we are ready to read data
+                int availableData;
+                synchronized (socketLock) {
+                    availableData = din.available();
+                }
 
-                    Bukkit.getPluginManager().callEvent(new ManhuntBungeeMessageReceiveEvent(subChannel, value));
-
-                    switch (subChannel) {
-                        case "createGame" -> plugin.getBungeeMessenger().clientProcessCreateGame(value);
-                        case "endGame" -> plugin.getBungeeMessenger().clientProcessEndGame(value);
-                        case "disconnect" -> clientProcessDisconnect();
-                        case "addSpectator" -> plugin.getBungeeMessenger().clientProcessAddSpectator(value);
+                if (availableData >= 2) {
+                    // Read data
+                    String subChannel;
+                    String value;
+                    synchronized (socketLock) {
+                        subChannel = din.readUTF();
+                        value = din.readUTF();
                     }
+
+                    if (plugin.getCfg().debug) Bukkit.getLogger().severe("Message from socket: " + subChannel + ", " + value);
+
+                    // Perform event call and trigger message handlers on the tick
+                    scheduler.runTask(plugin, () -> {
+                        Bukkit.getPluginManager().callEvent(new ManhuntBungeeMessageReceiveEvent(subChannel, value));
+
+                        switch (subChannel) {
+                            case "createGame" -> plugin.getBungeeMessenger().clientProcessCreateGame(value);
+                            case "endGame" -> plugin.getBungeeMessenger().clientProcessEndGame(value);
+                            case "disconnect" -> clientProcessDisconnect();
+                            case "addSpectator" -> plugin.getBungeeMessenger().clientProcessAddSpectator(value);
+                        }
+                    });
                 }
             } catch (IOException ignored) {
                 if (plugin.getCfg().debug)
                     Bukkit.getLogger().severe("Manhunt failed to connect to the socket. Trying again in 1/2 second.");
             }
-        }, 0, 5));
-        thread.start();
+        }, 0, 5);
     }
 
     private void clientProcessDisconnect() {
         try {
-            if (s != null && !s.isClosed()) s.close();
-            if (din != null) din.close();
-            if (dout != null) dout.close();
-        } catch (Exception ignored) {
+            synchronized (socketLock) {
+                if (s != null && !s.isClosed()) s.close();
+                if (din != null) din.close();
+                if (dout != null) dout.close();
+            }
+        } catch (Exception ex) {
+            if (plugin.getCfg().debug) ex.printStackTrace();
         }
     }
 
