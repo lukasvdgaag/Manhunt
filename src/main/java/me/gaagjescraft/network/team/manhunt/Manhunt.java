@@ -193,7 +193,7 @@ public class Manhunt extends JavaPlugin {
             }
 
         if (bungeeSocketManager != null && getCfg().isLobbyServer) getBungeeMessenger().createDisconnectClientMessage();
-        if (bungeeSocketManager != null) bungeeSocketManager.close();
+        if (bungeeSocketManager != null) bungeeSocketManager.cleanup();
     }
 
     public void loadStorage() {
