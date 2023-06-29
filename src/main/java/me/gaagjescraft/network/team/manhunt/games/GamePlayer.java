@@ -18,7 +18,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 
-public class GamePlayer{
+public class GamePlayer {
 
     private final CompassTracker compassTracker;
     private final Game game;

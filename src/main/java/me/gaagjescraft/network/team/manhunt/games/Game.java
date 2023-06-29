@@ -34,7 +34,7 @@ public class Game {
     private final String worldIdentifier;
     private final List<GamePlayer> players;
     private final List<UUID> spectators;
-    private GameSchematic schematic;
+    private final GameSchematic schematic;
     private final GameScheduler scheduler;
     private final RunnerTrackerMenu runnerTrackerMenu;
     private boolean twistsAllowed;
@@ -555,9 +555,13 @@ public class Game {
                     p.setFlying(false);
                     p.setAllowFlight(false);
 
-                    p.spigot().getHiddenPlayers().forEach(p1 -> p.showPlayer(plugin, p1));
+                    p.spigot().getHiddenPlayers().stream()
+                            .filter(Objects::nonNull)
+                            .forEach(hidden -> p.showPlayer(plugin, hidden));
 
-                    if (plugin.getTagUtils() != null) plugin.getTagUtils().updateTag(p);
+                    if (plugin.getTagUtils() != null) {
+                        plugin.getTagUtils().updateTag(p);
+                    }
                 }
             }
             if (plugin.getCfg().bungeeMode) plugin.getBungeeMessenger().createGameEndedMessage(this);

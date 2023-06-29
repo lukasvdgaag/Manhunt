@@ -10,6 +10,7 @@ public enum TwistVote {
     BLINDNESS("random blindness"),
     ACID_RAIN("acid rain"),
     RANDOM_YEET("random yeets"),
+    GET_HIGH("get high"),
     HARDCORE("hardcore");
 
     private String displayName;
